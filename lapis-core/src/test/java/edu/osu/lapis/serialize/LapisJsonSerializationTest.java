@@ -4,6 +4,7 @@ import org.junit.Test;
 
 public class LapisJsonSerializationTest implements LapisSerializationTestInterface{
 
+	//A Test comment
 	private final LapisSerializationTest lapisSerializationTest;
 	private final LapisJsonSerialization lapisJsonSerialization;
 	
