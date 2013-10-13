@@ -1,10 +1,12 @@
 package edu.osu.lapis;
 
+import edu.osu.lapis.communicator.RESTCommunicatorLayer;
 import edu.osu.lapis.data.GlobalDataInterface;
 import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.LocalVariableMetaData;
+import edu.osu.lapis.network.NetworkTable;
 
 //TODO FINISH IMPLEMENTATION
 
@@ -12,6 +14,25 @@ public class Lapis implements GlobalDataInterface {
 	
 	private GlobalDataTable globalDataTable;
 	private LocalDataTable localDataTable;
+	
+	//TODO: Implement overrides for initialize that handles config file loading
+	public void initialize(String modelName, String modelAddress, String coordinatorAddress) {
+		
+		//TODO: Redo this and make it so it actually fits in with our architecture
+		
+		RESTCommunicatorLayer com = new RESTCommunicatorLayer();
+		
+		//These are just here for completeness
+		LocalDataTable ldt = new LocalDataTable();
+		GlobalDataTable gdt = new GlobalDataTable();
+		NetworkTable nt = new NetworkTable();
+		
+		// Initializes and starts the com with just the network route (for now)
+		com.initialize(ldt, gdt, nt, modelName, modelAddress);
+		
+		
+		
+	}
 	
 	public void publish(String localName, Object reference) {
 		publish(localName, reference, LapisPermission.READ_WRITE, true);

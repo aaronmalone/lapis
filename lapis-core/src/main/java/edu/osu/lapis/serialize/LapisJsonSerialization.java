@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import edu.osu.lapis.data.LapisDataType;
+import edu.osu.lapis.network.LapisNode;
 
 public class LapisJsonSerialization implements LapisSerialization {
 
@@ -63,6 +64,14 @@ public class LapisJsonSerialization implements LapisSerialization {
 	public byte[] serialize(LapisDatum lapisDatum) {
 		return getGson().toJson(lapisDatum).getBytes();
 	}
+	
+	
+	public String serialize(LapisNode lapisNode) {
+
+		return getGson().toJson(lapisNode);		
+	}
+	
+	
 
 	public LapisDatum deserialize(byte[] serialized) {
 		String string = new String(serialized);
