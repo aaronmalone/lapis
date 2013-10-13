@@ -12,8 +12,9 @@ import edu.osu.lapis.network.NetworkTable;
 
 public class Lapis implements GlobalDataInterface {
 	
-	private GlobalDataTable globalDataTable;
-	private LocalDataTable localDataTable;
+	private static GlobalDataTable globalDataTable = new GlobalDataTable();
+	private static LocalDataTable localDataTable = new LocalDataTable() ;
+	private static NetworkTable networkTable = new NetworkTable();
 	
 	//TODO: Implement overrides for initialize that handles config file loading
 	public void initialize(String modelName, String modelAddress, String coordinatorAddress) {
@@ -23,12 +24,12 @@ public class Lapis implements GlobalDataInterface {
 		RESTCommunicatorLayer com = new RESTCommunicatorLayer();
 		
 		//These are just here for completeness
-		LocalDataTable ldt = new LocalDataTable();
-		GlobalDataTable gdt = new GlobalDataTable();
-		NetworkTable nt = new NetworkTable();
+		//LocalDataTable ldt = new LocalDataTable();
+		//GlobalDataTable gdt = new GlobalDataTable();
+		
 		
 		// Initializes and starts the com with just the network route (for now)
-		com.initialize(ldt, gdt, nt, modelName, modelAddress);
+		com.initialize(localDataTable, globalDataTable, networkTable, modelName, modelAddress);
 		
 		
 		

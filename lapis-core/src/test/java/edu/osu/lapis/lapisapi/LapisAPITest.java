@@ -13,8 +13,6 @@ public class LapisAPITest implements LapisApiTestInterface {
 		
 		
 		Lapis l = new Lapis();
-		
-		
 		l.initialize("BJ", "http://localhost", "http://192.168.1.2:27001");
 		
 		

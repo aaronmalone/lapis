@@ -15,10 +15,10 @@ public class LapisSerializationTest /*TODO rename */ implements LapisSerializati
 	private static final String NOT_EQUAL_MSG = "Arrays are not equal.";
 	private final Random random = new Random();
 	
-	private LapisSerialization lapisSerialization;
+	private LapisSerializationInterface lapisSerialization;
 	
 	//TODO MOVE SETTER
-	public void setLapisSerialization(LapisSerialization lapisSerialization) {
+	public void setLapisSerialization(LapisSerializationInterface lapisSerialization) {
 		this.lapisSerialization = lapisSerialization;
 	}
 

@@ -1,5 +1,6 @@
 package edu.osu.lapis.serialize;
 
+import java.net.URL;
 import java.util.EnumMap;
 
 import com.google.gson.Gson;
@@ -10,7 +11,7 @@ import com.google.gson.JsonParser;
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.network.LapisNode;
 
-public class LapisJsonSerialization implements LapisSerialization {
+public class LapisJsonSerialization implements LapisSerializationInterface {
 
 	//TODO organize members
 	
@@ -72,7 +73,6 @@ public class LapisJsonSerialization implements LapisSerialization {
 	}
 	
 	
-
 	public LapisDatum deserialize(byte[] serialized) {
 		String string = new String(serialized);
 		JsonObject jsonObject = jsonParser.parse(string).getAsJsonObject();
@@ -83,4 +83,20 @@ public class LapisJsonSerialization implements LapisSerialization {
 		ld.setData(gson.fromJson(jsonObject.get(DATA), typeMap.get(ld.getType())));
 		return ld;
 	}
+
+	@Override
+	public LapisNode deserializeNetworkMessage(String serialized) {
+		
+		String string = new String(serialized);
+		JsonObject jsonObject = jsonParser.parse(string).getAsJsonObject();
+		LapisNode ln = new LapisNode();
+		ln.setNodeName(gson.fromJson(jsonObject.get("nodeName"), String.class));
+		ln.setUrl(gson.fromJson(jsonObject.get("nodeAddress"), URL.class));
+
+		return ln;
+	}
+	
+	
+	
+	
 }

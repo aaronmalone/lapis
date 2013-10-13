@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class LapisJavaSerialization implements LapisSerialization {
+import edu.osu.lapis.network.LapisNode;
+
+public class LapisJavaSerialization implements LapisSerializationInterface {
 
 	public byte[] serialize(LapisDatum lapisDatum) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -28,7 +30,13 @@ public class LapisJavaSerialization implements LapisSerialization {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public LapisNode deserializeNetworkMessage(String serialized) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
-	//TODO look at objectInput, objectOutput
+	//TODO look at objectInput,W objectOutput
 	
 }
