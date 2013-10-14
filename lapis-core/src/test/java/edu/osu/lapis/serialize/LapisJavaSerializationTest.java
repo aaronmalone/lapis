@@ -11,59 +11,103 @@ public class LapisJavaSerializationTest implements LapisSerializationTestInterfa
 		lapisSerializationTest.setLapisSerialization(new LapisJavaSerialization());
 	}
 	
-	@Test
+	@Test @Override
 	public void testDouble() {
 		lapisSerializationTest.testDouble();
 	}
 
-	@Test
+	@Test @Override
 	public void testInteger() {
 		lapisSerializationTest.testInteger();
 	}
 
-	@Test
+	@Test @Override
 	public void testByte() {
 		lapisSerializationTest.testByte();
 	}
 
-	@Test
+	@Test @Override
 	public void testBoolean() {
 		lapisSerializationTest.testBoolean();
 	}
 
-	@Test
+	@Test @Override
 	public void testLong() {
 		lapisSerializationTest.testLong();
 	}
 
-	@Test
+	@Test @Override
 	public void testOneDimensionalArrayOfInteger() {
 		lapisSerializationTest.testOneDimensionalArrayOfInteger();
 	}
 
-	@Test
+	@Test @Override
 	public void testOneDimensionalArrayOfLong() {
 		lapisSerializationTest.testOneDimensionalArrayOfLong();
 	}
 
-	@Test
+	@Test @Override
 	public void testOneDimensionalArrayOfDouble() {
 		lapisSerializationTest.testOneDimensionalArrayOfDouble();
 	}
 
-	@Test
+	@Test @Override
 	public void testOneDimensionalArrayOfBoolean() {
 		lapisSerializationTest.testOneDimensionalArrayOfBoolean();
 	}
 
-	@Test
+	@Test @Override
 	public void testOneDimensionalArrayOfByte() {
 		lapisSerializationTest.testOneDimensionalArrayOfByte();
 	}
 
-	@Test
+	@Test @Override
 	public void testTwoDimensionalArrayOfInteger() {
 		lapisSerializationTest.testTwoDimensionalArrayOfInteger();
 	}
+	
+	@Test @Override
+	public void testTwoDimensionalArrayOfLong() {
+		lapisSerializationTest.testTwoDimensionalArrayOfLong();
+	}
 
+	@Test @Override
+	public void testTwoDimensionalArrayOfDouble() {
+		lapisSerializationTest.testTwoDimensionalArrayOfDouble();
+	}
+
+	@Test @Override
+	public void testTwoDimensionalArrayOfByte() {
+		lapisSerializationTest.testTwoDimensionalArrayOfByte();
+	}
+
+	@Test @Override
+	public void testTwoDimensionalArrayOfBoolean() {
+		lapisSerializationTest.testTwoDimensionalArrayOfBoolean();
+	}
+
+	@Test @Override
+	public void testThreeDimensionArrayOfInteger() {
+		lapisSerializationTest.testThreeDimensionArrayOfInteger();
+	}
+
+	@Test @Override
+	public void testThreeDimensionArrayOfLong() {
+		lapisSerializationTest.testThreeDimensionArrayOfLong();
+	}
+
+	@Test @Override
+	public void testThreeDimensionArrayOfDouble() {
+		lapisSerializationTest.testThreeDimensionArrayOfDouble();
+	}
+
+	@Test @Override
+	public void testThreeDimensionArrayOfByte() {
+		lapisSerializationTest.testThreeDimensionArrayOfByte();
+	}
+
+	@Test @Override
+	public void testThreeDimensionArrayOfBoolean() {
+		lapisSerializationTest.testThreeDimensionArrayOfBoolean();
+	}
 }

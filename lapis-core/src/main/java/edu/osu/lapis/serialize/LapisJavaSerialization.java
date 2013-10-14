@@ -10,6 +10,7 @@ import edu.osu.lapis.network.LapisNode;
 
 public class LapisJavaSerialization implements LapisSerializationInterface {
 
+	@Override
 	public byte[] serialize(LapisDatum lapisDatum) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
@@ -37,6 +38,6 @@ public class LapisJavaSerialization implements LapisSerializationInterface {
 		return null;
 	}
 	
-	//TODO look at objectInput,W objectOutput
+	//TODO look at objectInput, objectOutput
 	
 }

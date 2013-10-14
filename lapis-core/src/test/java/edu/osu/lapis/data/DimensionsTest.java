@@ -1,58 +1,49 @@
 package edu.osu.lapis.data;
 
+import java.util.Arrays;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 public class DimensionsTest {
 
-	//TODO add more tests
+	private static void test(Object dataArray, int expectedDimensionsLength, int ... expectedDimensions) {
+		int[] actualDimensions = Dimensions.getDimensions(dataArray);
+		Assert.assertEquals(expectedDimensionsLength, actualDimensions.length);
+		Assert.assertTrue("Expected dimensions are not the same as actual dimensions.", 
+				Arrays.equals(expectedDimensions, actualDimensions));
+	}
 	
 	@Test
 	public void testOneDimensionalArray() {
-		double[] doubleArray = new double[7];
-		int[] dimensions = Dimensions.getDimensions(doubleArray);
-		Assert.assertEquals(1, dimensions.length);
-		Assert.assertEquals(7, dimensions[0]);
+		test(new double[7], 1, 7);
 	}
 
 	@Test
 	public void testOneDimensionalEmptyArray() {
-		long[] longArray = new long[0];
-		int[] dimensions = Dimensions.getDimensions(longArray);
-		Assert.assertEquals(1, dimensions.length);
-		Assert.assertEquals(0, dimensions[0]);
+		test(new long[0], 1, 0);
 	}
 	
 	@Test
 	public void testTwoDimensionalArray() {
-		//TODO IMPLEMENT
+		test(new byte[5][6], 2, 5, 6);
 	}
 	
 	@Test
 	public void testTwoDimensionalEmptyArray() {
-		float[][] floatArray = new float[0][];
-		int[] dimensions = Dimensions.getDimensions(floatArray);
-		Assert.assertEquals(2, dimensions.length);
-		Assert.assertEquals(0, dimensions[0]);
-		Assert.assertEquals(0, dimensions[1]);
+		test(new float[0][], 2, 0, 0);
 	}
 	
 	@Test
 	public void testMultiDimensionalEmptyArrays() {
-		int[][][] threeDimEmpty = new int[][][]{};
-		int[] dimensions = Dimensions.getDimensions(threeDimEmpty);
-		Assert.assertArrayEquals(new int[]{0, 0, 0}, dimensions);
+		test(new boolean[0][][][], 4, 0, 0, 0, 0);
+		test(new int[0][][][][][][], 7, 0, 0, 0, 0, 0, 0, 0);
 	}
+	
 	
 	@Test 
 	public void testMultiDimensionalArrays() {
-		byte[][][][] byteArray = new byte[9][8][7][6];
-		int[] dimensions = Dimensions.getDimensions(byteArray);
-		Assert.assertEquals(4, dimensions.length);
-		Assert.assertEquals(9, dimensions[0]);
-		Assert.assertEquals(8, dimensions[1]);
-		Assert.assertEquals(7, dimensions[2]);
-		Assert.assertEquals(6, dimensions[3]);
+		test(new byte[9][8][7][6], 4, 9, 8, 7, 6);
+		test(new double[16][8][4][2][1][0][][][][], 10, 16, 8, 4, 2, 1, 0, 0, 0, 0, 0);
 	}
-	
 }

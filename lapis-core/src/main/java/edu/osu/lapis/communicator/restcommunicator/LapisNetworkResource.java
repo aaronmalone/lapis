@@ -1,17 +1,15 @@
 package edu.osu.lapis.communicator.restcommunicator;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.restlet.Request;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.Put;
 import org.restlet.resource.ServerResource;
+
+import com.google.common.io.CharStreams;
 
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
@@ -39,17 +37,7 @@ public class LapisNetworkResource extends ServerResource {
 		// TODO: Implement
 		try {
 
-			List<String> jsonStringList = IOUtils.readLines(re.getStream());
-			
-			
-			StringBuilder json = new StringBuilder();
-			String sep = "";
-			for (String s : jsonStringList) {
-			    
-				json.append(sep).append(s);
-			   
-			}
-			String net = json.toString();
+			String net = CharStreams.toString(re.getReader());
 
 			System.out.println(net);
 			

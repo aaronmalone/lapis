@@ -13,11 +13,12 @@ public class NetworkTable {
 		//TODO IMPLEMENT
 	}
 	
-	public List<LapisNode> getNodesList() {
-		return new ArrayList<LapisNode>(nodeMap.values());
+	public LapisNode getNode(String nameName) {
+		//TODO IMPLEMENT
+		return null;
 	}
 	
-	public Map<String, LapisNode> getNodesMap() {
-		return new HashMap<String, LapisNode>(nodeMap);
+	public List<LapisNode> getNodesList() {
+		return new ArrayList<LapisNode>(nodeMap.values());
 	}
 }

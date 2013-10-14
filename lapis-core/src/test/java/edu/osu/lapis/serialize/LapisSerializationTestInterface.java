@@ -1,18 +1,28 @@
 package edu.osu.lapis.serialize;
 
-public interface LapisSerializationTestInterface {
+interface LapisSerializationTestInterface {
 
-	public void testDouble();
-	public void testInteger();
-	public void testByte();
-	public void testBoolean();
-	public void testLong();
+	void testDouble();
+	void testInteger();
+	void testByte();
+	void testBoolean();
+	void testLong();
 
-	public void testOneDimensionalArrayOfInteger();
-	public void testOneDimensionalArrayOfLong();
-	public void testOneDimensionalArrayOfDouble();
-	public void testOneDimensionalArrayOfBoolean();
-	public void testOneDimensionalArrayOfByte();
+	void testOneDimensionalArrayOfInteger();
+	void testOneDimensionalArrayOfLong();
+	void testOneDimensionalArrayOfDouble();
+	void testOneDimensionalArrayOfBoolean();
+	void testOneDimensionalArrayOfByte();
 	
-	public void testTwoDimensionalArrayOfInteger();
+	void testTwoDimensionalArrayOfInteger();
+	void testTwoDimensionalArrayOfLong();
+	void testTwoDimensionalArrayOfDouble();
+	void testTwoDimensionalArrayOfByte();
+	void testTwoDimensionalArrayOfBoolean();
+	
+	void testThreeDimensionArrayOfInteger();
+	void testThreeDimensionArrayOfLong();
+	void testThreeDimensionArrayOfDouble();
+	void testThreeDimensionArrayOfByte();
+	void testThreeDimensionArrayOfBoolean();
 }

@@ -1,6 +1,6 @@
 package edu.osu.lapis.data;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 public class VariableFullName implements Comparable<VariableFullName> {
 	private final String localName;

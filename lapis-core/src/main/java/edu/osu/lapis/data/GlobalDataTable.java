@@ -21,6 +21,14 @@ public class GlobalDataTable implements GlobalDataInterface {
 		globalDataMap.put(varName, variableMetaData);
 	}
 	
+	public VariableMetaData get(String fullName) {
+		return get(new VariableFullName(fullName));
+	}
+	
+	public VariableMetaData get(VariableFullName fullName) {
+		return globalDataMap.get(fullName);
+	}
+	
 	public void remove(String fullName) {
 		remove(new VariableFullName(fullName));
 	}
