@@ -1,12 +1,14 @@
 package edu.osu.lapis.serialize;
 
 import java.net.URL;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import edu.osu.lapis.data.LapisDataType;
+import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.network.LapisNode;
 
 public class LapisJsonSerialization implements LapisSerializationInterface {
@@ -45,13 +47,18 @@ public class LapisJsonSerialization implements LapisSerializationInterface {
 	public byte[] serialize(LapisDatum lapisDatum) {
 		return getGson().toJson(lapisDatum).getBytes();
 	}
-	
+
 	public String serialize(LapisNode lapisNode) {
 		return getGson().toJson(lapisNode);		
 	}
 	
+	@Override
+	public byte[] serialize(VariableMetaData variableMetaData) {
+		return getGson().toJson(variableMetaData).getBytes();
+	}
 	
-	public LapisDatum deserialize(byte[] serialized) {
+	@Override
+	public LapisDatum deserializeLapisDatum(byte[] serialized) {
 		LapisDatum ld = new LapisDatum();
 		String string = new String(serialized);
 		JsonObject jsonObject = jsonParser.parse(string).getAsJsonObject();
@@ -73,5 +80,11 @@ public class LapisJsonSerialization implements LapisSerializationInterface {
 		ln.setUrl(gson.fromJson(jsonObject.get("nodeAddress"), URL.class));
 
 		return ln;
+	}
+
+	@Override
+	public VariableMetaData deserializeVariableMetaData(String serialized) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

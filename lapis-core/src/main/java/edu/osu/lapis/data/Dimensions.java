@@ -2,8 +2,6 @@ package edu.osu.lapis.data;
 
 import java.lang.reflect.Array;
 
-import org.apache.commons.lang3.Validate;
-
 public class Dimensions {
 	
 	private Dimensions() {
@@ -28,7 +26,7 @@ public class Dimensions {
 		if(otherElements != null) {
 			int[] newArray = new int[otherElements.length+1];
 			newArray[0] = firstElement;
-			if(otherElements.length > 0) { //TODO figure out if this is necessary
+			if(otherElements.length > 0) {
 				System.arraycopy(otherElements, 0, newArray, 1, otherElements.length);
 			}
 			return newArray;
@@ -38,8 +36,6 @@ public class Dimensions {
 	}
 	
 	private static int[] getDimensionsForZeroLengthArray(Object array) {
-		Validate.isTrue(array.getClass().isArray()); //TODO  MAYBE REMOVE AT SOME POINT
-		Validate.isTrue(Array.getLength(array) == 0); //TODO  MAYBE REMOVE AT SOME POINT
 		int zeroesCount = 1;
 		Class<?> componentType = array.getClass().getComponentType();
 		while(componentType.isArray()) {

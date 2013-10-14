@@ -10,12 +10,11 @@ public class NetworkTable {
 	private final Map<String, LapisNode> nodeMap = Collections.synchronizedMap(new HashMap<String, LapisNode>());
 	
 	public void addNode(LapisNode lapisNode) {
-		//TODO IMPLEMENT
+		nodeMap.put(lapisNode.getNodeName(), lapisNode);
 	}
 	
-	public LapisNode getNode(String nameName) {
-		//TODO IMPLEMENT
-		return null;
+	public LapisNode getNode(String nodeName) {
+		return nodeMap.get(nodeName);
 	}
 	
 	public List<LapisNode> getNodesList() {

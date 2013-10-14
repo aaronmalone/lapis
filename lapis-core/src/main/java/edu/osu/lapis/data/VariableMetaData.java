@@ -1,16 +1,19 @@
 package edu.osu.lapis.data;
 
+import java.io.Serializable;
 
-public class VariableMetaData {
-	private LapisDataType lapisDataType;
+
+@SuppressWarnings("serial")
+public class VariableMetaData implements Serializable {
+	private LapisDataType type;
 	private int[] dimension;
 	private LapisPermission lapisPermission = LapisPermission.READ_WRITE;
 	
-	public LapisDataType getLapisDataType() {
-		return lapisDataType;
+	public LapisDataType getType() {
+		return type;
 	}
-	public void setLapisDataType(LapisDataType lapisDataType) {
-		this.lapisDataType = lapisDataType;
+	public void setType(LapisDataType type) {
+		this.type = type;
 	}
 	public LapisPermission getLapisPermission() {
 		return lapisPermission;

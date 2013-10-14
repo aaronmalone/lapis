@@ -11,19 +11,15 @@ public class LocalVariableMetaData extends VariableMetaData {
 	
 	public LocalVariableMetaData(Object reference) {
 		super();
-		//TODO look at isArray method for handling this
 		LapisDataType type = LapisDataType.getTypeForObject(reference);
 		if(type != null) {
-			setLapisDataType(type);
+			setType(type);
 		} else {
 			throw new IllegalArgumentException("Object of type " + reference.getClass() 
 					+ " does not correspond to any LAPIS data type: " + reference);
 		}
-		if(type.isArrayType()) {
-			setDimension(Dimensions.getDimensions(reference));
-		} else {
-			setDimension(null);
-		}
+		setDimension(Dimensions.getDimensions(reference));
+		setReference(reference);
 	}
 	
 	public boolean isReady() {

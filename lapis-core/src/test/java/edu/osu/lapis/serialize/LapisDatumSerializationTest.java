@@ -10,7 +10,7 @@ import org.junit.Assert;
 import edu.osu.lapis.data.Dimensions;
 import edu.osu.lapis.data.LapisDataType;
 
-public class LapisSerializationTest implements LapisSerializationTestInterface { 
+public class LapisDatumSerializationTest implements LapisSerializationTestInterface { 
 	
 	private static final String NOT_EQUAL_MSG = "Arrays are not equal.";
 	private final Random random = new Random();
@@ -307,7 +307,7 @@ public class LapisSerializationTest implements LapisSerializationTestInterface {
 		
 		System.out.println("serialized: " + new String(serialized)); //TODO REMOVE
 		
-		return lapisSerialization.deserialize(serialized);
+		return lapisSerialization.deserializeLapisDatum(serialized);
 	}
 	
 	private void validate(LapisDatum original) {

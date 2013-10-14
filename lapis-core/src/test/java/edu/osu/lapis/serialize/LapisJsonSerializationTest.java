@@ -4,13 +4,13 @@ import org.junit.Test;
 
 public class LapisJsonSerializationTest implements LapisSerializationTestInterface {
 
-	private final LapisSerializationTest lapisSerializationTest;
+	private final LapisDatumSerializationTest lapisDatumSerializationTest;
 	private final LapisJsonSerialization lapisJsonSerialization;
 	
 	public LapisJsonSerializationTest() {
-		lapisSerializationTest = new LapisSerializationTest();
+		lapisDatumSerializationTest = new LapisDatumSerializationTest();
 		lapisJsonSerialization = new LapisJsonSerialization();
-		lapisSerializationTest.setLapisSerialization(lapisJsonSerialization);
+		lapisDatumSerializationTest.setLapisSerialization(lapisJsonSerialization);
 	}
 	
 	private void setPrettyPrinting(boolean prettyPrinting) {
@@ -20,160 +20,160 @@ public class LapisJsonSerializationTest implements LapisSerializationTestInterfa
 	@Test @Override
 	public void testDouble() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testDouble();
+		lapisDatumSerializationTest.testDouble();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testDouble();
+		lapisDatumSerializationTest.testDouble();
 	}
 
 	@Test @Override
 	public void testInteger() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testInteger();
+		lapisDatumSerializationTest.testInteger();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testInteger();
+		lapisDatumSerializationTest.testInteger();
 	}
 
 	@Test @Override
 	public void testByte() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testByte();
+		lapisDatumSerializationTest.testByte();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testByte();
+		lapisDatumSerializationTest.testByte();
 	}
 
 	@Test @Override
 	public void testBoolean() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testBoolean();
+		lapisDatumSerializationTest.testBoolean();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testBoolean();
+		lapisDatumSerializationTest.testBoolean();
 	}
 
 	@Test @Override
 	public void testLong() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testLong();
+		lapisDatumSerializationTest.testLong();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testLong();
+		lapisDatumSerializationTest.testLong();
 	}
 
 	@Test @Override
 	public void testOneDimensionalArrayOfInteger() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testOneDimensionalArrayOfInteger();
+		lapisDatumSerializationTest.testOneDimensionalArrayOfInteger();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testOneDimensionalArrayOfInteger();
+		lapisDatumSerializationTest.testOneDimensionalArrayOfInteger();
 	}
 
 	@Test @Override
 	public void testOneDimensionalArrayOfLong() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testOneDimensionalArrayOfLong();
+		lapisDatumSerializationTest.testOneDimensionalArrayOfLong();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testOneDimensionalArrayOfLong();
+		lapisDatumSerializationTest.testOneDimensionalArrayOfLong();
 	}
 
 	@Test @Override
 	public void testOneDimensionalArrayOfDouble() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testOneDimensionalArrayOfDouble();
+		lapisDatumSerializationTest.testOneDimensionalArrayOfDouble();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testOneDimensionalArrayOfDouble();
+		lapisDatumSerializationTest.testOneDimensionalArrayOfDouble();
 	}
 
 	@Test @Override
 	public void testOneDimensionalArrayOfBoolean() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testOneDimensionalArrayOfBoolean();
+		lapisDatumSerializationTest.testOneDimensionalArrayOfBoolean();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testOneDimensionalArrayOfBoolean();
+		lapisDatumSerializationTest.testOneDimensionalArrayOfBoolean();
 	}
 
 	@Test @Override
 	public void testOneDimensionalArrayOfByte() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testOneDimensionalArrayOfByte();
+		lapisDatumSerializationTest.testOneDimensionalArrayOfByte();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testOneDimensionalArrayOfByte();
+		lapisDatumSerializationTest.testOneDimensionalArrayOfByte();
 	}
 	
 	@Test @Override
 	public void testTwoDimensionalArrayOfInteger() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testTwoDimensionalArrayOfInteger();
+		lapisDatumSerializationTest.testTwoDimensionalArrayOfInteger();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testTwoDimensionalArrayOfInteger();
+		lapisDatumSerializationTest.testTwoDimensionalArrayOfInteger();
 	}
 
 	@Test @Override
 	public void testTwoDimensionalArrayOfLong() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testTwoDimensionalArrayOfLong();
+		lapisDatumSerializationTest.testTwoDimensionalArrayOfLong();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testTwoDimensionalArrayOfLong();
+		lapisDatumSerializationTest.testTwoDimensionalArrayOfLong();
 	}
 
 	@Test @Override
 	public void testTwoDimensionalArrayOfDouble() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testTwoDimensionalArrayOfDouble();
+		lapisDatumSerializationTest.testTwoDimensionalArrayOfDouble();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testTwoDimensionalArrayOfDouble();
+		lapisDatumSerializationTest.testTwoDimensionalArrayOfDouble();
 	}
 
 	@Test @Override
 	public void testTwoDimensionalArrayOfByte() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testTwoDimensionalArrayOfByte();
+		lapisDatumSerializationTest.testTwoDimensionalArrayOfByte();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testTwoDimensionalArrayOfByte();
+		lapisDatumSerializationTest.testTwoDimensionalArrayOfByte();
 	}
 
 	@Test @Override
 	public void testTwoDimensionalArrayOfBoolean() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testTwoDimensionalArrayOfBoolean();
+		lapisDatumSerializationTest.testTwoDimensionalArrayOfBoolean();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testTwoDimensionalArrayOfBoolean();
+		lapisDatumSerializationTest.testTwoDimensionalArrayOfBoolean();
 	}
 
 	@Test @Override
 	public void testThreeDimensionArrayOfInteger() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testThreeDimensionArrayOfInteger();
+		lapisDatumSerializationTest.testThreeDimensionArrayOfInteger();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testThreeDimensionArrayOfInteger();
+		lapisDatumSerializationTest.testThreeDimensionArrayOfInteger();
 	}
 
 	@Test @Override
 	public void testThreeDimensionArrayOfLong() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testThreeDimensionArrayOfLong();
+		lapisDatumSerializationTest.testThreeDimensionArrayOfLong();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testThreeDimensionArrayOfLong();
+		lapisDatumSerializationTest.testThreeDimensionArrayOfLong();
 	}
 
 	@Test @Override
 	public void testThreeDimensionArrayOfDouble() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testThreeDimensionArrayOfDouble();
+		lapisDatumSerializationTest.testThreeDimensionArrayOfDouble();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testThreeDimensionArrayOfDouble();
+		lapisDatumSerializationTest.testThreeDimensionArrayOfDouble();
 	}
 
 	@Test @Override
 	public void testThreeDimensionArrayOfByte() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testThreeDimensionArrayOfByte();
+		lapisDatumSerializationTest.testThreeDimensionArrayOfByte();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testThreeDimensionArrayOfByte();
+		lapisDatumSerializationTest.testThreeDimensionArrayOfByte();
 	}
 
 	@Test @Override
 	public void testThreeDimensionArrayOfBoolean() {
 		setPrettyPrinting(false);
-		lapisSerializationTest.testThreeDimensionArrayOfBoolean();
+		lapisDatumSerializationTest.testThreeDimensionArrayOfBoolean();
 		setPrettyPrinting(true);
-		lapisSerializationTest.testThreeDimensionArrayOfBoolean();
+		lapisDatumSerializationTest.testThreeDimensionArrayOfBoolean();
 	}
 }
