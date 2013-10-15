@@ -31,28 +31,31 @@ public class LapisNetworkResource extends LapisRestlet {//extends ServerResource
 			LapisNode ln = ls.deserializeNetworkMessage(net);
 			networkTable.addNode(ln);
 		} catch (IOException e) {
-			throw new RuntimeException("fuhhh", e);
+			throw new RuntimeException("Problem Putting", e);
 		}
 	}
-
-	// TODO: Add NetworkTable null Error
-	public void setNetworkTable(NetworkTable nt) {
-
-		this.networkTable = nt;
+	
+	@Override
+	public void post(Request request, Response response) {
+		
+		try {
+			String net = CharStreams.toString(request.getEntity().getReader());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException("Problem Posting", e);
+		}
+		
 	}
-
-	// TODO: Add LapisNode null Error
-	public void setNodeInformation(LapisNode ln) {
-
-		this.node = ln;
-
+	
+	
+	@Override
+	public void delete(Request request, Response response) {
+		
+		
+		
 	}
+	
+	
 
-	public void setNode(LapisNode node) {
-		this.node = node;
-	}
 
-	public void setLs(LapisJsonSerialization ls) {
-		this.ls = ls;
-	}
 }
