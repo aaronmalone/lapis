@@ -5,8 +5,6 @@ import java.net.URL;
 
 import org.restlet.Component;
 import org.restlet.data.Protocol;
-import org.restlet.resource.ServerResource;
-
 
 import edu.osu.lapis.communicator.restcommunicator.LapisNetworkResource;
 import edu.osu.lapis.data.GlobalDataTable;
@@ -15,6 +13,7 @@ import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
+import edu.osu.lapis.serialize.LapisJsonSerialization;
 
 public class RESTCommunicatorLayer implements CommunicationLayerInterface {
 
@@ -42,7 +41,7 @@ public class RESTCommunicatorLayer implements CommunicationLayerInterface {
 	//TODO: Implement other routes besides the NetworkRoute
 	@Override
 	public void initialize(LocalDataTable ldt, GlobalDataTable gdt,
-			NetworkTable nt, String nodeName, String nodeAddress) {
+			final NetworkTable nt, String nodeName, String nodeAddress) {
 
 		this.localDataTable = ldt;
 		this.globalDataTable = gdt;
@@ -50,10 +49,70 @@ public class RESTCommunicatorLayer implements CommunicationLayerInterface {
 		
 		//Instantiate the server
 		this.server = new Component();
-        this.server.getServers().add(Protocol.HTTP, 8183); 
-		
-		
-        this.server.getDefaultHost().attach("/network", LapisNetworkResource.class);  
+        this.server.getServers().add(Protocol.HTTP, 8183);
+        
+        /*
+        Restlet myRestlet = new Restlet() {
+        	
+        	final NetworkTable networkTable = nt;
+
+			@Override
+			public void handle(Request request, Response response) {
+				Method meth = request.getMethod();
+				if(meth.equals(Method.GET)) {
+					get(request, response);
+				} else if(meth.equals(Method.PUT)) {
+					put(request, response);
+				}
+			}
+
+			private void put(Request request, Response response) {
+				try {
+					String stuff = CharStreams.toString(request.getEntity().getReader());
+					LapisNode lapisNode = new LapisNode();
+					lapisNode.setNodeName(stuff);
+					lapisNode.setUrl(null);
+					networkTable.addNode(lapisNode);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			private void get(Request request, Response response) {
+				String json = new Gson().toJson(networkTable.getNodesList());
+				response.setEntity("aaronWas...<br/>" + json, MediaType.TEXT_PLAIN);
+			}
+        	
+        	
+//        	
+//			@Override
+//			public void handle(Request request, Response response) {
+//				String serialized = new Gson().toJson(lapisNode);
+//				response.setEntity(serialized, MediaType.APPLICATION_JSON);
+//			}
+        	
+//        	@Get
+//        	public Representation someRandomMethod(Request request, Response response) {
+//        		response.setEntity("aaronWasHere", MediaType.TEXT_PLAIN);
+//        		return response.getEntity();
+//        	}
+        };
+		*/
+        LapisNetworkResource lapisNetworkResource = new LapisNetworkResource();
+        LapisNode lapisNode = new LapisNode();
+		lapisNode.setNodeName("me");
+		try {
+			lapisNode.setUrl(new URL("http://my.url"));
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+        lapisNetworkResource.setNode(lapisNode);
+        lapisNetworkResource.setLs(new LapisJsonSerialization());
+        lapisNetworkResource.setNetworkTable(new NetworkTable());
+        this.server.getDefaultHost().attach("/network", lapisNetworkResource);
+//        Router router = new Router(server.getContext());
+//        router.att
+        
         //server.getDefaultHost().attach("/model/{...}", ...); 
         //server.getDefaultHost().attach("/variable/{...}", ...);
         //server.getDefaultHost().attach("/heartbeat/{...}", ...);
@@ -120,5 +179,4 @@ public class RESTCommunicatorLayer implements CommunicationLayerInterface {
 		// TODO Auto-generated method stub
 		
 	}
-
 }
