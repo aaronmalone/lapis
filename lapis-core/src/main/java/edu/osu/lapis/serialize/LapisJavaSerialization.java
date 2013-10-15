@@ -3,6 +3,7 @@ package edu.osu.lapis.serialize;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -12,6 +13,8 @@ import edu.osu.lapis.network.LapisNode;
 
 public class LapisJavaSerialization implements LapisSerializationInterface {
 
+	//TODO RE-ORDER MEMBERS	
+	
 	@Override
 	public byte[] serialize(LapisDatum lapisDatum) {
 		return serializeInternal(lapisDatum);
@@ -36,10 +39,15 @@ public class LapisJavaSerialization implements LapisSerializationInterface {
 
 	@Override
 	public LapisDatum deserializeLapisDatum(byte[] serialized) {
+		return deserializeInternal(serialized);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> T deserializeInternal(byte[] serialized) {
 		ByteArrayInputStream bais = new ByteArrayInputStream(serialized);
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(bais);
-			return (LapisDatum) objectInputStream.readObject();
+			return (T) objectInputStream.readObject();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -52,8 +60,17 @@ public class LapisJavaSerialization implements LapisSerializationInterface {
 	}
 
 	@Override
-	public VariableMetaData deserializeVariableMetaData(String serialized) {
-		// TODO Auto-generated method stub
-		return null;
+	public LapisDatum deserializeLapisDatum(InputStream inputStream) {
+		return deserializeLapisDatum(LapisUtils.toByteArray(inputStream));
+	}
+
+	@Override
+	public VariableMetaData deserializeVariableMetaData(byte[] serialized) {
+		return deserializeInternal(serialized);
+	}
+
+	@Override
+	public VariableMetaData deserializeVariableMetaData(InputStream inputStream) {
+		return deserializeVariableMetaData(LapisUtils.toByteArray(inputStream));
 	}
 }

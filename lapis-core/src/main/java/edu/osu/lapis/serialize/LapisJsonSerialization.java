@@ -1,5 +1,6 @@
 package edu.osu.lapis.serialize;
 
+import java.io.InputStream;
 import java.net.URL;
 
 import com.google.gson.Gson;
@@ -83,8 +84,17 @@ public class LapisJsonSerialization implements LapisSerializationInterface {
 	}
 
 	@Override
-	public VariableMetaData deserializeVariableMetaData(String serialized) {
-		// TODO Auto-generated method stub
-		return null;
+	public LapisDatum deserializeLapisDatum(InputStream inputStream) {
+		return deserializeLapisDatum(LapisUtils.toByteArray(inputStream));
+	}
+
+	@Override
+	public VariableMetaData deserializeVariableMetaData(byte[] serialized) {
+		return gson.fromJson(new String(serialized), VariableMetaData.class);
+	}
+
+	@Override
+	public VariableMetaData deserializeVariableMetaData(InputStream inputStream) {
+		return deserializeVariableMetaData(LapisUtils.toByteArray(inputStream));
 	}
 }

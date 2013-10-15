@@ -1,5 +1,6 @@
 package edu.osu.lapis.serialize;
 
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Random;
@@ -307,7 +308,7 @@ public class LapisDatumSerializationTest implements LapisSerializationTestInterf
 		
 		System.out.println("serialized: " + new String(serialized)); //TODO REMOVE
 		
-		return lapisSerialization.deserializeLapisDatum(serialized);
+		return lapisSerialization.deserializeLapisDatum(new ByteArrayInputStream(serialized));
 	}
 	
 	private void validate(LapisDatum original) {
