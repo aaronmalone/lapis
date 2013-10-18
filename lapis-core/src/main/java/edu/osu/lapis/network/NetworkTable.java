@@ -13,7 +13,9 @@ public class NetworkTable {
 		
 		if (nodeMap.containsKey(lapisNode.getNodeName())){
 			if (nodeMap.get(lapisNode.getNodeName()).getUrl() == lapisNode.getUrl()){
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("Attempted to add node " + lapisNode 
+						+ " but already had an existing node  with the same name: " 
+						+ nodeMap.get(lapisNode.getNodeName()));
 			}
 		}
 		
@@ -34,11 +36,13 @@ public class NetworkTable {
 			nodeMap.put(lapisNode.getNodeName(), lapisNode);
 		}else{
 			
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(/*TODO add message*/);
 			
 		}
 		
 	}
 	
-
+	public LapisNode getCoordinator() {
+		return null; //TODO IMPLEMENT
+	}
 }

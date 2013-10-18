@@ -1,8 +1,9 @@
 package edu.osu.lapis.serialize;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
+import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -13,6 +14,8 @@ import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.network.LapisNode;
 
 public class LapisJsonSerialization implements LapisSerializationInterface {
+	
+	//TODO RE-ORDER MEMBERS
 	
 	private static final String
 		NAME = "name",
@@ -48,14 +51,23 @@ public class LapisJsonSerialization implements LapisSerializationInterface {
 	public byte[] serialize(LapisDatum lapisDatum) {
 		return getGson().toJson(lapisDatum).getBytes();
 	}
+	
+	@Override
+	public byte[] serialize(VariableMetaData variableMetaData) {
+		return getGson().toJson(variableMetaData).getBytes();
+	}
 
 	public String serialize(LapisNode lapisNode) {
 		return getGson().toJson(lapisNode);		
 	}
 	
 	@Override
-	public byte[] serialize(VariableMetaData variableMetaData) {
-		return getGson().toJson(variableMetaData).getBytes();
+	public LapisDatum deserializeLapisDatum(InputStream inputStream) {
+		try {
+			return deserializeLapisDatum(ByteStreams.toByteArray(inputStream));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	@Override
@@ -70,31 +82,32 @@ public class LapisJsonSerialization implements LapisSerializationInterface {
 		ld.setData(gson.fromJson(jsonObject.get(DATA), dataType));
 		return ld;
 	}
-
+	
 	@Override
-	public LapisNode deserializeNetworkMessage(String serialized) {
-		
-		String string = new String(serialized);
-		JsonObject jsonObject = jsonParser.parse(string).getAsJsonObject();
-		LapisNode ln = new LapisNode();
-		ln.setNodeName(gson.fromJson(jsonObject.get("nodeName"), String.class));
-		ln.setUrl(gson.fromJson(jsonObject.get("nodeAddress"), URL.class));
-
-		return ln;
-	}
-
-	@Override
-	public LapisDatum deserializeLapisDatum(InputStream inputStream) {
-		return deserializeLapisDatum(LapisUtils.toByteArray(inputStream));
+	public VariableMetaData deserializeVariableMetaData(InputStream inputStream) {
+		try {
+			return deserializeVariableMetaData(ByteStreams.toByteArray(inputStream));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public VariableMetaData deserializeVariableMetaData(byte[] serialized) {
 		return gson.fromJson(new String(serialized), VariableMetaData.class);
 	}
+	
+	@Override
+	public LapisNode deserializeLapisNode(InputStream inputStream) {
+		try {
+			return deserializeLapisNode(ByteStreams.toByteArray(inputStream));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	@Override
-	public VariableMetaData deserializeVariableMetaData(InputStream inputStream) {
-		return deserializeVariableMetaData(LapisUtils.toByteArray(inputStream));
+	public LapisNode deserializeLapisNode(byte[] serialized) {
+		return gson.fromJson(new String(serialized), LapisNode.class);
 	}
 }

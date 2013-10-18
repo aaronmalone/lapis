@@ -19,10 +19,11 @@ public class LapisCommunicationRestImpl implements LapisCommunication {
 	
 	private NetworkTable networkTable;
 	private LapisSerializationInterface lapisSerializationInterface;
+	private String variableValuePath;
+	private String variableMetaDataPath;
 	
 	//TODO MOVE AND RENAME
-	public void setLapisSerializationInterface(
-			LapisSerializationInterface lapisSerializationInterface) {
+	public void setLapisSerializationInterface(LapisSerializationInterface lapisSerializationInterface) {
 		this.lapisSerializationInterface = lapisSerializationInterface;
 	}
 
@@ -35,41 +36,49 @@ public class LapisCommunicationRestImpl implements LapisCommunication {
 	public VariableMetaData getVariableMetaData(VariableFullName varName) {
 		validateModelInVariableName(varName);
 		ClientResource clientResource = getVariableMetaDataClientResource(varName);
-		InputStream inputStream = doCallAndGetInputStream(clientResource);
-		return lapisSerializationInterface.deserializeVariableMetaData(inputStream);
+		try (InputStream input = clientResource.get().getStream()) {
+			return lapisSerializationInterface.deserializeVariableMetaData(input);
+		} catch (ResourceException | IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	@Override
 	public LapisDatum getVariableValue(VariableFullName varName) {
 		validateModelInVariableName(varName);
 		ClientResource clientResource = getVariableValueClientResource(varName);
-		InputStream inputStream = doCallAndGetInputStream(clientResource);
-		return lapisSerializationInterface.deserializeLapisDatum(inputStream);
+		try (InputStream input = clientResource.get().getStream()) {
+			return lapisSerializationInterface.deserializeLapisDatum(input);
+		} catch (ResourceException | IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private void validateModelInVariableName(VariableFullName varName) {
 		String modelName = varName.getModelName();
 		LapisNode lapisNode = networkTable.getNode(modelName);
 		if(lapisNode == null) {
-			//TODO HANDLE
+			//check with coordinator to see if address of node has changed
+			//TODO IMPLEMENT
 		}
 	}
 	
 	private ClientResource getVariableMetaDataClientResource(VariableFullName varName) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ClientResource(getUri(varName, variableMetaDataPath));
 	}
 	
 	private ClientResource getVariableValueClientResource(VariableFullName varName) {
-		//TODO auto-generated method stub
-		return null;
+		return new ClientResource(getUri(varName, variableValuePath));
 	}
-
-	InputStream doCallAndGetInputStream(ClientResource clientResource) {
-		try {
-			return clientResource.get().getStream();
-		} catch (ResourceException | IOException e) {
-			throw new RuntimeException(e);
+	
+	private String getUri(VariableFullName varName, String path) {
+		LapisNode lapisNode = networkTable.getNode(varName.getModelName());
+		String url = lapisNode.getUrl();
+		StringBuilder sb = new StringBuilder(url);
+		if(!url.endsWith("/")) {
+			sb.append("/");
 		}
+		sb.append(path);
+		return sb.toString();
 	}
 }

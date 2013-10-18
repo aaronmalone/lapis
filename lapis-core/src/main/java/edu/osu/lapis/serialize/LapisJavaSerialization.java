@@ -8,12 +8,35 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import com.google.common.io.ByteStreams;
+
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.network.LapisNode;
 
 public class LapisJavaSerialization implements LapisSerializationInterface {
 
-	//TODO RE-ORDER MEMBERS	
+	private byte[] serializeInternal(Serializable serializable) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			ObjectOutputStream objectOut = new ObjectOutputStream(baos);
+			objectOut.writeObject(serializable);
+			objectOut.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return baos.toByteArray();
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> T deserializeInternal(byte[] serialized) {
+		ByteArrayInputStream bais = new ByteArrayInputStream(serialized);
+		try {
+			ObjectInputStream objectInputStream = new ObjectInputStream(bais);
+			return (T) objectInputStream.readObject();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 	
 	@Override
 	public byte[] serialize(LapisDatum lapisDatum) {
@@ -25,16 +48,13 @@ public class LapisJavaSerialization implements LapisSerializationInterface {
 		return serializeInternal(variableMetaData);
 	}
 	
-	private byte[] serializeInternal(Serializable serializable) {
-		//TODO LOOK AT TIGHTENING THIS UP
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	@Override
+	public LapisDatum deserializeLapisDatum(InputStream inputStream) {
 		try {
-			ObjectOutputStream objectOut = new ObjectOutputStream(baos);
-			objectOut.writeObject(serializable);
+			return deserializeLapisDatum(ByteStreams.toByteArray(inputStream));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		return baos.toByteArray();
 	}
 
 	@Override
@@ -42,35 +62,31 @@ public class LapisJavaSerialization implements LapisSerializationInterface {
 		return deserializeInternal(serialized);
 	}
 	
-	@SuppressWarnings("unchecked")
-	private <T> T deserializeInternal(byte[] serialized) {
-		ByteArrayInputStream bais = new ByteArrayInputStream(serialized);
+	@Override
+	public VariableMetaData deserializeVariableMetaData(InputStream inputStream) {
 		try {
-			ObjectInputStream objectInputStream = new ObjectInputStream(bais);
-			return (T) objectInputStream.readObject();
-		} catch (Exception e) {
+			return deserializeVariableMetaData(ByteStreams.toByteArray(inputStream));
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	@Override
-	public LapisNode deserializeNetworkMessage(String serialized) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public LapisDatum deserializeLapisDatum(InputStream inputStream) {
-		return deserializeLapisDatum(LapisUtils.toByteArray(inputStream));
 	}
 
 	@Override
 	public VariableMetaData deserializeVariableMetaData(byte[] serialized) {
 		return deserializeInternal(serialized);
 	}
+	
+	@Override
+	public LapisNode deserializeLapisNode(InputStream inputStream) {
+		try {
+			return deserializeLapisNode(ByteStreams.toByteArray(inputStream));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	@Override
-	public VariableMetaData deserializeVariableMetaData(InputStream inputStream) {
-		return deserializeVariableMetaData(LapisUtils.toByteArray(inputStream));
+	public LapisNode deserializeLapisNode(byte[] serialized) {
+		return deserializeInternal(serialized);
 	}
 }

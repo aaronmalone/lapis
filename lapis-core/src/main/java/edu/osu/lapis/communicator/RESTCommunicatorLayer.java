@@ -1,8 +1,5 @@
 package edu.osu.lapis.communicator;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 
@@ -101,11 +98,8 @@ public class RESTCommunicatorLayer implements CommunicationLayerInterface {
         LapisNetworkResource lapisNetworkResource = new LapisNetworkResource();
         LapisNode lapisNode = new LapisNode();
 		lapisNode.setNodeName("me");
-		try {
-			lapisNode.setUrl(new URL("http://my.url"));
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+		lapisNode.setUrl("http://my.url");
+		
         lapisNetworkResource.setNode(lapisNode);
         lapisNetworkResource.setLs(new LapisJsonSerialization());
         lapisNetworkResource.setNetworkTable(new NetworkTable());
@@ -163,13 +157,7 @@ public class RESTCommunicatorLayer implements CommunicationLayerInterface {
         LapisNode ln_temp = new LapisNode();
         ln_temp.setNodeName(nodeName);
         
-        try {
-			ln_temp.setUrl(new URL(nodeAddress));
-		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-        
+        ln_temp.setUrl(nodeAddress);
         n_temp.setNodeInformation(ln_temp);
 	}
 

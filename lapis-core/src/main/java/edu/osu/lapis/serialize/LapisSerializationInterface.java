@@ -15,5 +15,6 @@ public interface LapisSerializationInterface {
 	public LapisDatum deserializeLapisDatum(InputStream inputStream);
 	public VariableMetaData deserializeVariableMetaData(byte[] serialized);
 	public VariableMetaData deserializeVariableMetaData(InputStream inputStream);
-	public LapisNode deserializeNetworkMessage(String serialized);
+	public LapisNode deserializeLapisNode(byte[] serialized);
+	public LapisNode deserializeLapisNode(InputStream inputStream);
 }

@@ -10,9 +10,9 @@ public class LapisClient {
 	
 	private GlobalDataTable globalDataTable;
 	private LapisCommunication lapisCommunication;
+
 	
 	//TODO CONSIDER USE OF GENERICS
-	
 	//TODO ADD JAVADOC COMMENT
 	public Object getRemoteVariableValue(String fullName, LapisDataType expectedType) {
 		VariableFullName variableFullName = new VariableFullName(fullName);

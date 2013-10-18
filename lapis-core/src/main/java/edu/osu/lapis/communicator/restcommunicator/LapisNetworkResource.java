@@ -1,19 +1,18 @@
 package edu.osu.lapis.communicator.restcommunicator;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.MediaType;
 
-import com.google.common.io.CharStreams;
-
-import edu.osu.lapis.examples.LapisRestlet;
+import edu.osu.lapis.examples.LapisRestletBase;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.serialize.LapisJsonSerialization;
 
-public class LapisNetworkResource extends LapisRestlet {//extends ServerResource {
+public class LapisNetworkResource extends LapisRestletBase {
 
 	private LapisNode node;
 	private NetworkTable networkTable;
@@ -26,12 +25,11 @@ public class LapisNetworkResource extends LapisRestlet {//extends ServerResource
 
 	@Override
 	public void put(Request request, Response response) {
-		try {
-			String net = CharStreams.toString(request.getEntity().getReader());
-			LapisNode ln = ls.deserializeNetworkMessage(net);
+		try (InputStream input = request.getEntity().getStream()) {
+			LapisNode ln = ls.deserializeLapisNode(input);
 			networkTable.addNode(ln);
 		} catch (IOException e) {
-			throw new RuntimeException("Problem Putting", e);
+			throw new RuntimeException("Error reading put request.", e);
 		}
 	}
 	
@@ -62,10 +60,9 @@ public class LapisNetworkResource extends LapisRestlet {//extends ServerResource
 	@Override
 	public void post(Request request, Response response) {
 		
-		try {
-			String net = CharStreams.toString(request.getEntity().getReader());
+		try (InputStream input = request.getEntity().getStream()) {
 			
-			LapisNode ln = ls.deserializeNetworkMessage(net);
+			LapisNode ln = ls.deserializeLapisNode(input);
 			
 			networkTable.updateNode(ln);
 		} catch (IOException e) {

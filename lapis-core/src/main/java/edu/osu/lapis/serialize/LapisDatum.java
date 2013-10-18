@@ -5,7 +5,12 @@ import java.io.Serializable;
 import edu.osu.lapis.data.LapisDataType;
 
 @SuppressWarnings("serial")
+
+/**
+ * Class used for serializing and deserializing LAPIS data that is moved around the network. 
+ */
 public class LapisDatum implements Serializable{
+	
 	private String name;
 	private LapisDataType type;
 	private int[] dimension;

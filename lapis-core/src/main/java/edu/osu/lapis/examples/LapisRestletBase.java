@@ -5,7 +5,11 @@ import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.Method;
 
-public class LapisRestlet extends Restlet {
+/**
+ * A base class for Restlets. Subclass should override the methods corresponding
+ * to the HTTP REST operations they implement.
+ */
+public class LapisRestletBase extends Restlet {
 
 	@Override
 	public final void handle(Request request, Response response) {
@@ -24,18 +28,18 @@ public class LapisRestlet extends Restlet {
 	}
 
 	public void delete(Request request, Response response) {
-		
+		throw new UnsupportedOperationException("delete has not been implemented");
 	}
 
 	public void post(Request request, Response response) {
-		
+		throw new UnsupportedOperationException("post has not been implemented");
 	}
 
 	public void put(Request request, Response response) {
-		
+		throw new UnsupportedOperationException("put has not been implemented");
 	}
 
 	public void get(Request request, Response response) {
-		
+		throw new UnsupportedOperationException("get has not been implemented");
 	}
 }

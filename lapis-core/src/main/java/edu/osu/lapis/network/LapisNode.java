@@ -1,16 +1,14 @@
 package edu.osu.lapis.network;
 
-import java.net.URL;
-
 
 public class LapisNode {
 	private String nodeName;
-	private URL url;
+	private String url;
 
-	public URL getUrl() {
+	public String getUrl() {
 		return url;
 	}
-	public void setUrl(URL url) {
+	public void setUrl(String url) {
 		this.url = url;
 	}
 	public String getNodeName() {
@@ -18,5 +16,10 @@ public class LapisNode {
 	}
 	public void setNodeName(String nodeName) {
 		this.nodeName = nodeName;
+	}
+	
+	@Override
+	public String toString() {
+		return "LapisNode(" + nodeName + ", " + url + ")";
 	}
 }

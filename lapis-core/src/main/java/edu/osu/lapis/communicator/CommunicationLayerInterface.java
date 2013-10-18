@@ -12,7 +12,6 @@ public interface CommunicationLayerInterface {
 	Object get(VariableFullName fullName, LapisDataType type);
 	void set(VariableFullName fullName, Object data);
 	
-	
 	//Server
 	void initialize(LocalDataTable ldt, GlobalDataTable gtd, NetworkTable nt);
 	void setLocalDataTable(LocalDataTable ldt);

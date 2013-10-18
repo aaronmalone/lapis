@@ -1,5 +1,6 @@
 package edu.osu.lapis.data;
 
+@SuppressWarnings("serial")
 public class LocalVariableMetaData extends VariableMetaData {
 	
 	private boolean ready = true; //ready by default
