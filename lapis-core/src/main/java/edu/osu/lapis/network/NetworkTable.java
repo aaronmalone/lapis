@@ -28,10 +28,10 @@ public class NetworkTable {
 		return new ArrayList<LapisNode>(nodeMap.values());
 	}
 	
-	public void updateNode(LapisNode lapisNode, LapisNode newLapisNode) {
+	public void updateNode(LapisNode lapisNode) {
 		
 		if (nodeMap.containsKey(lapisNode.getNodeName())){
-			nodeMap.put(lapisNode.getNodeName(), newLapisNode);
+			nodeMap.put(lapisNode.getNodeName(), lapisNode);
 		}else{
 			
 			throw new IllegalArgumentException();
