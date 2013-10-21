@@ -1,23 +1,35 @@
 package edu.osu.lapis;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 import edu.osu.lapis.communicator.CommunicationLayerInterface;
-import edu.osu.lapis.communicator.RESTCommunicatorLayer;
+import edu.osu.lapis.communicator.LapisClient;
+import edu.osu.lapis.communicator.rest.RESTCommunicatorLayer;
 import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LocalDataTable;
-import edu.osu.lapis.data.LocalVariableMetaData;
+import edu.osu.lapis.data.LocalVariable;
 import edu.osu.lapis.network.NetworkTable;
 
 //TODO FINISH IMPLEMENTATION
 
 public class Lapis {
 	
-	private LapisClient lapisClient; //TODO SET
+	private LocalDataTable localDataTable;
+	private LapisClient lapisClient;
+	//TODO maybe add global data
 	
-	private GlobalDataTable globalDataTable = new GlobalDataTable();
-	private LocalDataTable localDataTable = new LocalDataTable() ;
-	private NetworkTable networkTable = new NetworkTable();
+	public Lapis() {
+		ApplicationContext context = new AnnotationConfigApplicationContext(LapisConfiguration.class);
+		localDataTable = context.getBean(LocalDataTable.class);
+		lapisClient = context.getBean(LapisClient.class);
+	}
+	
+	
+//	private GlobalDataTable globalDataTable = new GlobalDataTable();
+//	private NetworkTable networkTable = new NetworkTable();
 	
 	
 	//TODO: Implement overrides for initialize that handles config file loading
@@ -33,7 +45,7 @@ public class Lapis {
 		
 		
 		// Initializes and starts the com with just the network route (for now)
-		com.initialize(localDataTable, globalDataTable, networkTable, modelName, modelAddress);
+//		com.initialize(localDataTable, globalDataTable, networkTable, modelName, modelAddress);
 		
 		
 		
@@ -52,13 +64,13 @@ public class Lapis {
 	}
 	
 	public void publish(String localName, Object reference, LapisPermission lapisPermission, boolean isReady) {
-		LocalVariableMetaData meta = getLocalVariableMetaData(reference, lapisPermission, isReady);
+		LocalVariable meta = createLocalVariableMetaData(reference, lapisPermission, isReady);
 		localDataTable.put(localName, meta);
 	}
 
-	private LocalVariableMetaData getLocalVariableMetaData(Object reference, LapisPermission lapisPermission, boolean isReady) {
-		LocalVariableMetaData meta = new LocalVariableMetaData(reference);
-		meta.setLapisPermission(lapisPermission);
+	private LocalVariable createLocalVariableMetaData(Object reference, LapisPermission lapisPermission, boolean isReady) {
+		LocalVariable meta = new LocalVariable(reference);
+		meta.getVariableMetaData().setLapisPermission(lapisPermission);
 		meta.setReady(isReady);
 		return meta;
 	}

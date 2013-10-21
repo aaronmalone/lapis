@@ -1,26 +1,26 @@
 package edu.osu.lapis.data;
 
-@SuppressWarnings("serial")
-public class LocalVariableMetaData extends VariableMetaData {
+public class LocalVariable {
 	
 	private boolean ready = true; //ready by default
 	private Object reference;
+	private VariableMetaData variableMetaData;
 
-	public LocalVariableMetaData() {
+	public LocalVariable() {
 		//default constructor
 	}
 	
-	public LocalVariableMetaData(Object reference) {
-		super();
+	public LocalVariable(Object reference) {
 		LapisDataType type = LapisDataType.getTypeForObject(reference);
-		if(type != null) {
-			setType(type);
-		} else {
+		if(type == null) {
 			throw new IllegalArgumentException("Object of type " + reference.getClass() 
 					+ " does not correspond to any LAPIS data type: " + reference);
 		}
-		setDimension(Dimensions.getDimensions(reference));
 		setReference(reference);
+		variableMetaData = new VariableMetaData();
+		variableMetaData.setType(type);
+		variableMetaData.setDimension(Dimensions.getDimensions(reference));
+		variableMetaData.setLapisPermission(LapisPermission.READ_WRITE);
 	}
 	
 	public boolean isReady() {
@@ -34,5 +34,8 @@ public class LocalVariableMetaData extends VariableMetaData {
 	}
 	public void setReference(Object reference) {
 		this.reference = reference;
+	}
+	public VariableMetaData getVariableMetaData() {
+		return variableMetaData;
 	}
 }

@@ -4,110 +4,110 @@ import org.junit.Test;
 
 public class LapisJavaSerializationTest implements LapisSerializationTestInterface {
 
-	private final LapisDatumSerializationTest lapisDatumSerializationTest;
+	private final ModelDataSerializationTest modelDataSerializationTest;
 	
 	public LapisJavaSerializationTest() {
-		lapisDatumSerializationTest = new LapisDatumSerializationTest();
-		lapisDatumSerializationTest.setLapisSerialization(new LapisJavaSerialization());
+		modelDataSerializationTest = new ModelDataSerializationTest();
+		modelDataSerializationTest.setLapisSerialization(new JavaSerialization());
 	}
 	
 	@Test @Override
 	public void testDouble() {
-		lapisDatumSerializationTest.testDouble();
+		modelDataSerializationTest.testDouble();
 	}
 
 	@Test @Override
 	public void testInteger() {
-		lapisDatumSerializationTest.testInteger();
+		modelDataSerializationTest.testInteger();
 	}
 
 	@Test @Override
 	public void testByte() {
-		lapisDatumSerializationTest.testByte();
+		modelDataSerializationTest.testByte();
 	}
 
 	@Test @Override
 	public void testBoolean() {
-		lapisDatumSerializationTest.testBoolean();
+		modelDataSerializationTest.testBoolean();
 	}
 
 	@Test @Override
 	public void testLong() {
-		lapisDatumSerializationTest.testLong();
+		modelDataSerializationTest.testLong();
 	}
 
 	@Test @Override
 	public void testOneDimensionalArrayOfInteger() {
-		lapisDatumSerializationTest.testOneDimensionalArrayOfInteger();
+		modelDataSerializationTest.testOneDimensionalArrayOfInteger();
 	}
 
 	@Test @Override
 	public void testOneDimensionalArrayOfLong() {
-		lapisDatumSerializationTest.testOneDimensionalArrayOfLong();
+		modelDataSerializationTest.testOneDimensionalArrayOfLong();
 	}
 
 	@Test @Override
 	public void testOneDimensionalArrayOfDouble() {
-		lapisDatumSerializationTest.testOneDimensionalArrayOfDouble();
+		modelDataSerializationTest.testOneDimensionalArrayOfDouble();
 	}
 
 	@Test @Override
 	public void testOneDimensionalArrayOfBoolean() {
-		lapisDatumSerializationTest.testOneDimensionalArrayOfBoolean();
+		modelDataSerializationTest.testOneDimensionalArrayOfBoolean();
 	}
 
 	@Test @Override
 	public void testOneDimensionalArrayOfByte() {
-		lapisDatumSerializationTest.testOneDimensionalArrayOfByte();
+		modelDataSerializationTest.testOneDimensionalArrayOfByte();
 	}
 
 	@Test @Override
 	public void testTwoDimensionalArrayOfInteger() {
-		lapisDatumSerializationTest.testTwoDimensionalArrayOfInteger();
+		modelDataSerializationTest.testTwoDimensionalArrayOfInteger();
 	}
 	
 	@Test @Override
 	public void testTwoDimensionalArrayOfLong() {
-		lapisDatumSerializationTest.testTwoDimensionalArrayOfLong();
+		modelDataSerializationTest.testTwoDimensionalArrayOfLong();
 	}
 
 	@Test @Override
 	public void testTwoDimensionalArrayOfDouble() {
-		lapisDatumSerializationTest.testTwoDimensionalArrayOfDouble();
+		modelDataSerializationTest.testTwoDimensionalArrayOfDouble();
 	}
 
 	@Test @Override
 	public void testTwoDimensionalArrayOfByte() {
-		lapisDatumSerializationTest.testTwoDimensionalArrayOfByte();
+		modelDataSerializationTest.testTwoDimensionalArrayOfByte();
 	}
 
 	@Test @Override
 	public void testTwoDimensionalArrayOfBoolean() {
-		lapisDatumSerializationTest.testTwoDimensionalArrayOfBoolean();
+		modelDataSerializationTest.testTwoDimensionalArrayOfBoolean();
 	}
 
 	@Test @Override
 	public void testThreeDimensionArrayOfInteger() {
-		lapisDatumSerializationTest.testThreeDimensionArrayOfInteger();
+		modelDataSerializationTest.testThreeDimensionArrayOfInteger();
 	}
 
 	@Test @Override
 	public void testThreeDimensionArrayOfLong() {
-		lapisDatumSerializationTest.testThreeDimensionArrayOfLong();
+		modelDataSerializationTest.testThreeDimensionArrayOfLong();
 	}
 
 	@Test @Override
 	public void testThreeDimensionArrayOfDouble() {
-		lapisDatumSerializationTest.testThreeDimensionArrayOfDouble();
+		modelDataSerializationTest.testThreeDimensionArrayOfDouble();
 	}
 
 	@Test @Override
 	public void testThreeDimensionArrayOfByte() {
-		lapisDatumSerializationTest.testThreeDimensionArrayOfByte();
+		modelDataSerializationTest.testThreeDimensionArrayOfByte();
 	}
 
 	@Test @Override
 	public void testThreeDimensionArrayOfBoolean() {
-		lapisDatumSerializationTest.testThreeDimensionArrayOfBoolean();
+		modelDataSerializationTest.testThreeDimensionArrayOfBoolean();
 	}
 }

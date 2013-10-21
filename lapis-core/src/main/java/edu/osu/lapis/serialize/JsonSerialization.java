@@ -2,20 +2,21 @@ package edu.osu.lapis.serialize;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.util.List;
 
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.network.LapisNode;
 
-public class LapisJsonSerialization implements LapisSerializationInterface {
-	
-	//TODO RE-ORDER MEMBERS
+public class JsonSerialization implements LapisSerialization {
 	
 	private static final String
 		NAME = "name",
@@ -48,31 +49,27 @@ public class LapisJsonSerialization implements LapisSerializationInterface {
 	}
 
 	@Override
-	public byte[] serialize(LapisDatum lapisDatum) {
-		return getGson().toJson(lapisDatum).getBytes();
+	public byte[] serialize(SerializationObject serializationObject) {
+		return getGson().toJson(serializationObject).getBytes();
 	}
 	
 	@Override
 	public byte[] serialize(VariableMetaData variableMetaData) {
 		return getGson().toJson(variableMetaData).getBytes();
 	}
-
-	public String serialize(LapisNode lapisNode) {
-		return getGson().toJson(lapisNode);		
-	}
 	
 	@Override
-	public LapisDatum deserializeLapisDatum(InputStream inputStream) {
+	public SerializationObject deserializeModelData(InputStream inputStream) {
 		try {
-			return deserializeLapisDatum(ByteStreams.toByteArray(inputStream));
+			return deserializeModelData(ByteStreams.toByteArray(inputStream));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
 	@Override
-	public LapisDatum deserializeLapisDatum(byte[] serialized) {
-		LapisDatum ld = new LapisDatum();
+	public SerializationObject deserializeModelData(byte[] serialized) {
+		SerializationObject ld = new SerializationObject();
 		String string = new String(serialized);
 		JsonObject jsonObject = jsonParser.parse(string).getAsJsonObject();
 		ld.setName(gson.fromJson(jsonObject.get(NAME), String.class));
@@ -84,16 +81,16 @@ public class LapisJsonSerialization implements LapisSerializationInterface {
 	}
 	
 	@Override
-	public VariableMetaData deserializeVariableMetaData(InputStream inputStream) {
+	public VariableMetaData deserializeMetaData(InputStream inputStream) {
 		try {
-			return deserializeVariableMetaData(ByteStreams.toByteArray(inputStream));
+			return deserializeMetaData(ByteStreams.toByteArray(inputStream));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public VariableMetaData deserializeVariableMetaData(byte[] serialized) {
+	public VariableMetaData deserializeMetaData(byte[] serialized) {
 		return gson.fromJson(new String(serialized), VariableMetaData.class);
 	}
 	
@@ -109,5 +106,44 @@ public class LapisJsonSerialization implements LapisSerializationInterface {
 	@Override
 	public LapisNode deserializeLapisNode(byte[] serialized) {
 		return gson.fromJson(new String(serialized), LapisNode.class);
+	}
+
+	@Override
+	public List<LapisNode> deserializeNetworkData(byte[] serialized) {
+		Type type = new TypeToken<List<LapisNode>>(){}.getType();
+		return gson.fromJson(new String(serialized), type);
+	}
+
+	@Override
+	public List<LapisNode> deserializeNetworkData(InputStream inputStream) {
+		try {
+			return deserializeNetworkData(ByteStreams.toByteArray(inputStream));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public byte[] serialize(List<VariableMetaData> variableMetaDataList) {
+		return gson.toJson(variableMetaDataList).getBytes();
+	}
+
+	@Override
+	public byte[] serialize(LapisNode lapisNode) {
+		return gson.toJson(lapisNode).getBytes();
+	}
+
+	@Override
+	public List<VariableMetaData> deserializeMetaDataList(byte[] serialized) {
+		return gson.fromJson(new String(serialized), new TypeToken<List<VariableMetaData>>() {}.getType());
+	}
+
+	@Override
+	public List<VariableMetaData> deserializeMetaDataList(InputStream inputStream) {
+		try {
+			return deserializeMetaDataList(ByteStreams.toByteArray(inputStream));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

@@ -9,14 +9,14 @@ import edu.osu.lapis.data.LapisDataType;
 /**
  * Class used for serializing and deserializing LAPIS data that is moved around the network. 
  */
-public class LapisDatum implements Serializable{
+public class SerializationObject implements Serializable{
 	
 	private String name;
 	private LapisDataType type;
 	private int[] dimension;
 	private Object data;
 
-	public LapisDatum() {
+	public SerializationObject() {
 		//no-args constructor
 	}
 

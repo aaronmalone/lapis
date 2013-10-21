@@ -1,23 +1,24 @@
-package edu.osu.lapis;
+package edu.osu.lapis.communicator;
 
-import edu.osu.lapis.communicator.LapisCommunication;
 import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.data.VariableMetaData;
 
+//TODO PULL NETWORK-CHECKING FUNCTIONALITY UP INTO THIS CLASS
+
 public class LapisClient {
 	
 	private GlobalDataTable globalDataTable;
-	private LapisCommunication lapisCommunication;
+	private ClientCommunication clientCommunication;
 
 	
-	//TODO CONSIDER USE OF GENERICS
+	//TODO CONSIDER USE OF GENERICS FOR METHOD BELOW
 	//TODO ADD JAVADOC COMMENT
 	public Object getRemoteVariableValue(String fullName, LapisDataType expectedType) {
 		VariableFullName variableFullName = new VariableFullName(fullName);
 		validateVariableType(variableFullName, expectedType);
-		return lapisCommunication.getVariableValue(variableFullName);
+		return clientCommunication.getVariableValue(variableFullName);
 	}
 		
 	/**
@@ -33,7 +34,7 @@ public class LapisClient {
 	private void validateVariableType(VariableFullName variableFullName, LapisDataType expectedType) {
 		VariableMetaData metaData = globalDataTable.get(variableFullName);
 		if(metaData == null || metaData.getType() != expectedType) {
-			metaData = lapisCommunication.getVariableMetaData(variableFullName);
+			metaData = clientCommunication.getVariableMetaData(variableFullName);
 			globalDataTable.put(variableFullName, metaData);
 			checkRemoteVariableAgainstExpectedType(metaData, expectedType);
 		}
@@ -57,7 +58,7 @@ public class LapisClient {
 		this.globalDataTable = globalDataTable;
 	}
 
-	public void setLapisCommunication(LapisCommunication lapisCommunication) {
-		this.lapisCommunication = lapisCommunication;
+	public void setLapisCommunication(ClientCommunication clientCommunication) {
+		this.clientCommunication = clientCommunication;
 	}
 }

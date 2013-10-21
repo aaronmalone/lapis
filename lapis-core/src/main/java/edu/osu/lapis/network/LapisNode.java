@@ -1,7 +1,9 @@
 package edu.osu.lapis.network;
 
+import java.io.Serializable;
 
-public class LapisNode {
+@SuppressWarnings("serial")
+public class LapisNode implements Serializable {
 	private String nodeName;
 	private String url;
 

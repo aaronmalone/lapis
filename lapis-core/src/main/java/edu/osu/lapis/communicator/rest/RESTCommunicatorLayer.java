@@ -1,16 +1,16 @@
-package edu.osu.lapis.communicator;
+package edu.osu.lapis.communicator.rest;
 
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 
-import edu.osu.lapis.communicator.restcommunicator.LapisNetworkResource;
+import edu.osu.lapis.communicator.CommunicationLayerInterface;
 import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
-import edu.osu.lapis.serialize.LapisJsonSerialization;
+import edu.osu.lapis.serialize.JsonSerialization;
 
 public class RESTCommunicatorLayer implements CommunicationLayerInterface {
 
@@ -94,16 +94,16 @@ public class RESTCommunicatorLayer implements CommunicationLayerInterface {
 //        		return response.getEntity();
 //        	}
         };
-		*/
         LapisNetworkResource lapisNetworkResource = new LapisNetworkResource();
         LapisNode lapisNode = new LapisNode();
 		lapisNode.setNodeName("me");
 		lapisNode.setUrl("http://my.url");
 		
         lapisNetworkResource.setNode(lapisNode);
-        lapisNetworkResource.setLs(new LapisJsonSerialization());
+        lapisNetworkResource.setLs(new JsonSerialization());
         lapisNetworkResource.setNetworkTable(new NetworkTable());
         this.server.getDefaultHost().attach("/network", lapisNetworkResource);
+         */
 //        Router router = new Router(server.getContext());
 //        router.att
         
@@ -151,14 +151,14 @@ public class RESTCommunicatorLayer implements CommunicationLayerInterface {
 	
 	 //Set up the Node information in the Network Route (initialize the static information for GET operations)
 	private void initializeNetworkRoute(String nodeName, String nodeAddress){
-		
-        LapisNetworkResource n_temp = new LapisNetworkResource();
-        
-        LapisNode ln_temp = new LapisNode();
-        ln_temp.setNodeName(nodeName);
-        
-        ln_temp.setUrl(nodeAddress);
-        n_temp.setNodeInformation(ln_temp);
+//		
+//        LapisNetworkResource n_temp = new LapisNetworkResource();
+//        
+//        LapisNode ln_temp = new LapisNode();
+//        ln_temp.setNodeName(nodeName);
+//        
+//        ln_temp.setUrl(nodeAddress);
+//        n_temp.setNodeInformation(ln_temp);
 	}
 
 	@Override
