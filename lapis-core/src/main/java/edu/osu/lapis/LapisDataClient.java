@@ -1,24 +1,29 @@
-package edu.osu.lapis.communicator;
+package edu.osu.lapis;
 
+import edu.osu.lapis.communication.DataClientCommunicationImpl;
 import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.data.VariableMetaData;
 
-//TODO PULL NETWORK-CHECKING FUNCTIONALITY UP INTO THIS CLASS
-
-public class LapisClient {
+public class LapisDataClient {
 	
 	private GlobalDataTable globalDataTable;
-	private ClientCommunication clientCommunication;
+	private DataClientCommunicationImpl renameMe;
 
-	
 	//TODO CONSIDER USE OF GENERICS FOR METHOD BELOW
 	//TODO ADD JAVADOC COMMENT
 	public Object getRemoteVariableValue(String fullName, LapisDataType expectedType) {
 		VariableFullName variableFullName = new VariableFullName(fullName);
-		validateVariableType(variableFullName, expectedType);
-		return clientCommunication.getVariableValue(variableFullName);
+		validateVariableExistenceAndType(variableFullName, expectedType);
+		return renameMe.getVariableValue(variableFullName);
+	}
+	
+	public void setRemoteVariableValue(String fullName, Object value) {
+		LapisDataType expectedType = LapisDataType.getTypeForObject(value);
+		VariableFullName variableFullName = new VariableFullName(fullName);
+		validateVariableExistenceAndType(variableFullName, expectedType);
+		renameMe.setVariableValue(variableFullName, value);
 	}
 		
 	/**
@@ -31,13 +36,17 @@ public class LapisClient {
 	 * @param variableFullName the VariableFullName object for the variable
 	 * @param expectedType the expected type
 	 */
-	private void validateVariableType(VariableFullName variableFullName, LapisDataType expectedType) {
+	private void validateVariableExistenceAndType(VariableFullName variableFullName, LapisDataType expectedType) {
 		VariableMetaData metaData = globalDataTable.get(variableFullName);
 		if(metaData == null || metaData.getType() != expectedType) {
-			metaData = clientCommunication.getVariableMetaData(variableFullName);
+			metaData = getRemoteVariableMetadata(variableFullName);
 			globalDataTable.put(variableFullName, metaData);
 			checkRemoteVariableAgainstExpectedType(metaData, expectedType);
 		}
+	}
+	
+	private VariableMetaData getRemoteVariableMetadata(VariableFullName variableFullName) {
+		return renameMe.getVariableMetaData(variableFullName);
 	}
 
 	/**
@@ -52,13 +61,5 @@ public class LapisClient {
 					+ " but we attempted to retrieve it as "
 					+ expectedType + ".");
 		}
-	}
-
-	public void setGlobalDataTable(GlobalDataTable globalDataTable) {
-		this.globalDataTable = globalDataTable;
-	}
-
-	public void setLapisCommunication(ClientCommunication clientCommunication) {
-		this.clientCommunication = clientCommunication;
 	}
 }

@@ -1,69 +1,98 @@
 package edu.osu.lapis.communicator.rest;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.restlet.Request;
 import org.restlet.Response;
+import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
-import edu.osu.lapis.serialize.LapisSerialization;
+import edu.osu.lapis.serialization.LapisSerialization;
+import edu.osu.lapis.transmission.LapisRestletUtils;
 
 public class NetworkRestlet extends LapisRestletBase {
 
-	//TODO ADD SETTERS
+	private Restlet underlyingNetworkRestletImpl;
 	private LapisSerialization lapisSerialization;
 	private NetworkTable networkTable;
 	private MediaType responseMediaType;
 	
 	@Override
 	public void delete(Request request, Response response) {
-		LapisNode node = getLapisNodeFromRequestBody(request);
-		LapisNode removedNode = networkTable.removeNode(node);
-		if(removedNode != null) {
-			response.setStatus(Status.SUCCESS_NO_CONTENT);
-			//do we want to use this?
-		} else {
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND /* 404 */);
-			//do we want to use this?
-		}
+		Restlet deleteRestletChain = NetworkRestletUtils.createRestletFilterChain(
+				NetworkRestletUtils.getModelNamePresentValidator(),
+				NetworkRestletUtils.getNodePresentFilter(networkTable),
+				getUnderlyingNetworkRestletImpl());
+		deleteRestletChain.handle(request, response);
 	}
 
 	@Override
 	public void post(Request request, Response response) {
-		LapisNode lapisNode = getLapisNodeFromRequestBody(request);
-		networkTable.updateNode(lapisNode);
-		response.setStatus(Status.SUCCESS_OK);
+		Restlet postRestletChain = NetworkRestletUtils.createRestletFilterChain(
+				NetworkRestletUtils.getModelNamePresentValidator(),
+				NetworkRestletUtils.getNodePresentFilter(networkTable),
+				NetworkRestletUtils.getRequestBodyMatchesModelNameFilter(lapisSerialization),
+				getUnderlyingNetworkRestletImpl());
+		postRestletChain.handle(request, response);
 	}
 
 	@Override
 	public void put(Request request, Response response) {
-		LapisNode lapisNode = getLapisNodeFromRequestBody(request);
-		networkTable.addNode(lapisNode);
-		response.setStatus(Status.SUCCESS_CREATED);
+		Restlet putRestletChain = NetworkRestletUtils.createRestletFilterChain(
+				NetworkRestletUtils.getModelNamePresentValidator(),
+				NetworkRestletUtils.getRequestBodyMatchesModelNameFilter(lapisSerialization),
+				getUnderlyingNetworkRestletImpl());
+		putRestletChain.handle(request, response);
 	}
 
 	@Override
 	public void get(Request request, Response response) {
-		LapisNode me = networkTable.getLocalNode();
-		byte[] serialized = lapisSerialization.serialize(me);
-		ByteArrayInputStream baos = new ByteArrayInputStream(serialized);
-		Representation resposeEntity = new InputRepresentation(baos, responseMediaType, serialized.length);
-		response.setEntity(resposeEntity);
-		//do we need to set status here?
-	}
-	
-	private LapisNode getLapisNodeFromRequestBody(Request request) {
-		try (InputStream stream = request.getEntity().getStream()) {
-			return lapisSerialization.deserializeLapisNode(stream);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		String modelName = NetworkRestletUtils.getModelName(request);
+		if(modelName == null) {
+			LapisNode me = networkTable.getLocalNode();
+			byte[] serialized = lapisSerialization.serialize(me);
+			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
+			response.setEntity(entity);
+		} else {
+			response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED, 
+					"GET network/modelName should not be called on a non-coordinator node.");
 		}
+	}
+
+	private synchronized Restlet getUnderlyingNetworkRestletImpl() {
+		if(underlyingNetworkRestletImpl == null) {
+			underlyingNetworkRestletImpl = new LapisRestletBase() {
+				
+				@Override public void delete(Request request, Response response) {
+					String nodeName = NetworkRestletUtils.getModelName(request);
+					networkTable.removeNode(nodeName);
+				}
+
+				@Override public void post(Request request, Response response) {
+					LapisNode node = LapisRestletUtils.getLapisNodeFromRequestBody(request, lapisSerialization);
+					networkTable.updateNode(node);
+				}
+
+				@Override public void put(Request request, Response response) {
+					LapisNode node = LapisRestletUtils.getLapisNodeFromRequestBody(request, lapisSerialization);
+					networkTable.addNode(node);
+				}
+			};
+		}
+		return underlyingNetworkRestletImpl;
+	}
+
+	public void setLapisSerialization(LapisSerialization lapisSerialization) {
+		this.lapisSerialization = lapisSerialization;
+	}
+
+	public void setNetworkTable(NetworkTable networkTable) {
+		this.networkTable = networkTable;
+	}
+
+	public void setResponseMediaType(MediaType responseMediaType) {
+		this.responseMediaType = responseMediaType;
 	}
 }

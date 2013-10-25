@@ -4,27 +4,24 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import edu.osu.lapis.communicator.CommunicationLayerInterface;
-import edu.osu.lapis.communicator.LapisClient;
 import edu.osu.lapis.communicator.rest.RESTCommunicatorLayer;
-import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.LapisPermission;
+import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
-import edu.osu.lapis.data.LocalVariable;
-import edu.osu.lapis.network.NetworkTable;
 
 //TODO FINISH IMPLEMENTATION
 
 public class Lapis {
 	
 	private LocalDataTable localDataTable;
-	private LapisClient lapisClient;
+	private LapisDataClient lapisDataClient;
 	//TODO maybe add global data
 	
 	public Lapis() {
 		ApplicationContext context = new AnnotationConfigApplicationContext(LapisConfiguration.class);
 		localDataTable = context.getBean(LocalDataTable.class);
-		lapisClient = context.getBean(LapisClient.class);
+		lapisDataClient = context.getBean(LapisDataClient.class);
 	}
 	
 	
@@ -64,12 +61,12 @@ public class Lapis {
 	}
 	
 	public void publish(String localName, Object reference, LapisPermission lapisPermission, boolean isReady) {
-		LocalVariable meta = createLocalVariableMetaData(reference, lapisPermission, isReady);
+		LapisVariable meta = createLapisVariable(reference, lapisPermission, isReady);
 		localDataTable.put(localName, meta);
 	}
 
-	private LocalVariable createLocalVariableMetaData(Object reference, LapisPermission lapisPermission, boolean isReady) {
-		LocalVariable meta = new LocalVariable(reference);
+	private LapisVariable createLapisVariable(Object reference, LapisPermission lapisPermission, boolean isReady) {
+		LapisVariable meta = new LapisVariable(reference);
 		meta.getVariableMetaData().setLapisPermission(lapisPermission);
 		meta.setReady(isReady);
 		return meta;
@@ -77,82 +74,82 @@ public class Lapis {
 
 	//all the get methods
 	public int getInt(String fullName) {
-		return (int) lapisClient.getRemoteVariableValue(fullName, LapisDataType.INTEGER);
+		return (int) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.INTEGER);
 	}
 
 	public long getLong(String fullName) {
-		return (long) lapisClient.getRemoteVariableValue(fullName, LapisDataType.LONG);
+		return (long) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.LONG);
 	}
 
 	public double getDouble(String fullName) {
-		return (double) lapisClient.getRemoteVariableValue(fullName, LapisDataType.DOUBLE);
+		return (double) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.DOUBLE);
 	}
 
 	public byte getByte(String fullName) {
-		return (byte) lapisClient.getRemoteVariableValue(fullName, LapisDataType.BYTE);
+		return (byte) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.BYTE);
 	}
 
 	public boolean getBoolean(String fullName) {
-		return (boolean) lapisClient.getRemoteVariableValue(fullName, LapisDataType.BOOLEAN);
+		return (boolean) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.BOOLEAN);
 	}
 
 	public int[] getArrayOfInt(String fullName) {
-		return (int[]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_INTEGER);
+		return (int[]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_INTEGER);
 	}
 
 	public long[] getArrayOfLong(String fullName) {
-		return (long[]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_LONG);
+		return (long[]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_LONG);
 	}
 
 	public double[] getArrayOfDouble(String fullName) {
-		return (double[]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_DOUBLE);
+		return (double[]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_DOUBLE);
 	}
 
 	public byte[] getArrayOfByte(String fullName) {
-		return (byte[]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_BYTE);
+		return (byte[]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_BYTE);
 	}
 
 	public boolean[] getArrayOfBoolean(String fullName) {
-		return (boolean[]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_BOOLEAN);
+		return (boolean[]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_BOOLEAN);
 	}
 
 	public int[][] getTwoDimensionalArrayOfInt(String fullName) {
-		return (int[][]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_INTEGER);
+		return (int[][]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_INTEGER);
 	}
 
 	public long[][] getTwoDimensionalArrayOfLong(String fullName) {
-		return (long[][]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_LONG);
+		return (long[][]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_LONG);
 	}
 
 	public double[][] getTwoDimensionalArrayOfDouble(String fullName) {
-		return (double[][]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_DOUBLE);
+		return (double[][]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_DOUBLE);
 	}
 
 	public byte[][] getTwoDimensionalArrayOfByte(String fullName) {
-		return (byte[][]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_BYTE);
+		return (byte[][]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_BYTE);
 	}
 
 	public boolean[][] getTwoDimensionalArrayOfBoolean(String fullName) {
-		return (boolean[][]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_BOOLEAN);
+		return (boolean[][]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_BOOLEAN);
 	}
 
 	public int[][][] getThreeDimensionalArrayOfInt(String fullName) {
-		return (int[][][]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_INTEGER);
+		return (int[][][]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_INTEGER);
 	}
 
 	public long[][][] getThreeDimensionalArrayOfLong(String fullName) {
-		return (long[][][]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_LONG);
+		return (long[][][]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_LONG);
 	}
 
 	public double[][][] getThreeDimensionalArrayOfDouble(String fullName) {
-		return (double[][][]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_DOUBLE);
+		return (double[][][]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_DOUBLE);
 	}
 
 	public byte[][][] getThreeDimensionalArrayOfByte(String fullName) {
-		return (byte[][][]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_BYTE);
+		return (byte[][][]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_BYTE);
 	}
 
 	public boolean[][][] getThreeDimensionalArrayOfBoolean(String fullName) {
-		return (boolean[][][]) lapisClient.getRemoteVariableValue(fullName, LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_BOOLEAN);
+		return (boolean[][][]) lapisDataClient.getRemoteVariableValue(fullName, LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_BOOLEAN);
 	}
 }

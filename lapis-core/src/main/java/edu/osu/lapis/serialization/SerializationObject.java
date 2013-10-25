@@ -1,8 +1,9 @@
-package edu.osu.lapis.serialize;
+package edu.osu.lapis.serialization;
 
 import java.io.Serializable;
 
 import edu.osu.lapis.data.LapisDataType;
+import edu.osu.lapis.data.LapisVariable;
 
 @SuppressWarnings("serial")
 
@@ -50,5 +51,10 @@ public class SerializationObject implements Serializable{
 
 	public void setData(Object data) {
 		this.data = data;
+	}
+	
+	public LapisVariable toLapisVariable() {
+		//TODO IMPLEMENT
+		return null;
 	}
 }

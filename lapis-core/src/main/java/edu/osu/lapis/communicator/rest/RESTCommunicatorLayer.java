@@ -10,7 +10,7 @@ import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
-import edu.osu.lapis.serialize.JsonSerialization;
+import edu.osu.lapis.serialization.JsonSerialization;
 
 public class RESTCommunicatorLayer implements CommunicationLayerInterface {
 

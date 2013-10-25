@@ -1,4 +1,4 @@
-package edu.osu.lapis.serialize;
+package edu.osu.lapis.serialization;
 
 import java.io.InputStream;
 import java.util.List;
@@ -15,6 +15,7 @@ public interface LapisSerialization {
 	public byte[] serialize(VariableMetaData variableMetaData);
 	public byte[] serialize(List<VariableMetaData> variableMetaDataList);
 	public byte[] serialize(LapisNode lapisNode);
+	public byte[] serialize(LapisNode[] lapisNodes); //hack b/c of erasure types
 	
 	//deserialize
 	public SerializationObject deserializeModelData(byte[] serialized);

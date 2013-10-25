@@ -1,4 +1,4 @@
-package edu.osu.lapis.serialize;
+package edu.osu.lapis.serialization;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -116,5 +116,11 @@ public class JavaSerialization implements LapisSerialization {
 	@Override
 	public List<VariableMetaData> deserializeMetaDataList(InputStream inputStream) {
 		return deserializeMetaDataList(toByteArray(inputStream));
+	}
+
+	@Override
+	public byte[] serialize(LapisNode[] lapisNodes) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

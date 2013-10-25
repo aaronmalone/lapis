@@ -1,16 +1,16 @@
 package edu.osu.lapis.data;
 
-public class LocalVariable {
+public class LapisVariable {
 	
 	private boolean ready = true; //ready by default
 	private Object reference;
 	private VariableMetaData variableMetaData;
 
-	public LocalVariable() {
+	public LapisVariable() {
 		//default constructor
 	}
 	
-	public LocalVariable(Object reference) {
+	public LapisVariable(Object reference) {
 		LapisDataType type = LapisDataType.getTypeForObject(reference);
 		if(type == null) {
 			throw new IllegalArgumentException("Object of type " + reference.getClass() 

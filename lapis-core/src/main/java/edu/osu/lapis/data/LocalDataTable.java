@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 public class LocalDataTable {
-	private final Map<String, LocalVariable> localDataMap = new HashMap<String, LocalVariable>();
+	private final Map<String, LapisVariable> localDataMap = new HashMap<String, LapisVariable>();
 	
-	public void put(String localName, LocalVariable localVariable) {
-		localDataMap.put(localName, localVariable);
+	public void put(String localName, LapisVariable variable) {
+		localDataMap.put(localName, variable);
 	}
 	
-	public LocalVariable get(String localName) {
+	public LapisVariable get(String localName) {
 		return localDataMap.get(localDataMap);
 	}
 	
-	public List<LocalVariable> getAll() {
+	public List<LapisVariable> getAll() {
 		return new ArrayList<>(localDataMap.values());
 	}
 

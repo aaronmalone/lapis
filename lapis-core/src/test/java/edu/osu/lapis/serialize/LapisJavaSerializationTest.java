@@ -2,6 +2,8 @@ package edu.osu.lapis.serialize;
 
 import org.junit.Test;
 
+import edu.osu.lapis.serialization.JavaSerialization;
+
 public class LapisJavaSerializationTest implements LapisSerializationTestInterface {
 
 	private final ModelDataSerializationTest modelDataSerializationTest;

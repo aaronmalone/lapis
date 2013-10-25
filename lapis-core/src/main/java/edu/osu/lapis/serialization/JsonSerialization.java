@@ -1,4 +1,4 @@
-package edu.osu.lapis.serialize;
+package edu.osu.lapis.serialization;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -145,5 +145,11 @@ public class JsonSerialization implements LapisSerialization {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public byte[] serialize(LapisNode[] lapisNodes) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

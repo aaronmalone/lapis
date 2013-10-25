@@ -12,10 +12,10 @@ import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 
+import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
-import edu.osu.lapis.data.LocalVariable;
 import edu.osu.lapis.data.VariableMetaData;
-import edu.osu.lapis.serialize.LapisSerialization;
+import edu.osu.lapis.serialization.LapisSerialization;
 
 public class VariableMetaDataApiRestlet extends LapisRestletBase {
 
@@ -35,7 +35,7 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	}
 	
 	private void respondWithMetaDataForOneVariable(Response response, String name) {
-		LocalVariable localVariable = localDataTable.get(name);
+		LapisVariable localVariable = localDataTable.get(name);
 		Validate.notNull(localVariable, "Variable \"" + name + "\n does not exist");
 		byte[] serialized = lapisSerialization.serialize(localVariable.getVariableMetaData());
 		response.setEntity(createResponseEntity(serialized));
@@ -52,7 +52,7 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	private void respondWithMetaDataForAllVariables(Response response) {
 		//TODO IMPLEMENT
 		List<VariableMetaData> metaList = new ArrayList<>();
-		for(LocalVariable local : localDataTable.getAll()) {
+		for(LapisVariable local : localDataTable.getAll()) {
 			metaList.add(local.getVariableMetaData());
 		}
 		byte[] serialized = lapisSerialization.serialize(metaList);

@@ -2,7 +2,6 @@ package edu.osu.lapis.data;
 
 import java.io.Serializable;
 
-
 @SuppressWarnings("serial")
 public class VariableMetaData implements Serializable {
 	private LapisDataType type;
