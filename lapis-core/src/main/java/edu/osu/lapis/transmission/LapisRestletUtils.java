@@ -56,8 +56,4 @@ public class LapisRestletUtils {
 			throw new RuntimeException(e);
 		}
 	}
-//	
-//	public static String getAttrAsString(Request request, String attribute) {
-//		return (String) request.getAttributes().get(attribute);
-//	}
 }

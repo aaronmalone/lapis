@@ -149,7 +149,6 @@ public class JsonSerialization implements LapisSerialization {
 
 	@Override
 	public byte[] serialize(LapisNode[] lapisNodes) {
-		// TODO Auto-generated method stub
-		return null;
+		return gson.toJson(lapisNodes).getBytes();
 	}
 }

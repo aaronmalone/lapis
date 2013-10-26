@@ -32,8 +32,16 @@ public class NetworkRestletUtils {
 		return restlets[0];
 	}
 	
-	public static Filter /*TODO CHANGE TO Validator */ getModelNamePresentValidator() {
-		Validator v = new Validator();
+	public static Validator getModelNamePresentValidator() {
+		Validator v = new Validator() {
+			@Override protected int beforeHandle(Request request, Response response) {
+				int returnValue = super.beforeHandle(request, response);
+				if(returnValue == CONTINUE && response.getStatus().isClientError()) {
+					returnValue = SKIP;
+				}
+				return returnValue;
+			}
+		};
 		v.validatePresence(Constants.MODEL_NAME_ATTRIBUTE);
 		return v;
 	}

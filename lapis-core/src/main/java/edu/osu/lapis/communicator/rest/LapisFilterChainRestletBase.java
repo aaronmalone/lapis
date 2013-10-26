@@ -14,22 +14,22 @@ public class LapisFilterChainRestletBase extends LapisRestletBase { //TODO RENAM
 	
 	@Override
 	public final void put(Request request, Response response) {
-		getHandlingRestlet(putFilters, putTargetRestlet);
+		getHandlingRestlet(putFilters, putTargetRestlet).handle(request, response);
 	}
 
 	@Override
 	public void get(Request request, Response response) {
-		getHandlingRestlet(getFilters, getTargetRestlet);
+		getHandlingRestlet(getFilters, getTargetRestlet).handle(request, response);
 	}
 
 	@Override
 	public final void post(Request request, Response response) {
-		getHandlingRestlet(postFilters, postTargetRestlet);
+		getHandlingRestlet(postFilters, postTargetRestlet).handle(request, response);
 	}
 
 	@Override
 	public final void delete(Request request, Response response) {
-		getHandlingRestlet(deleteFilters, deleteTargetRestlet);
+		getHandlingRestlet(deleteFilters, deleteTargetRestlet).handle(request, response);
 	}
 	
 	private final Restlet getHandlingRestlet(Filter[] filters, Restlet targetRestlet) {

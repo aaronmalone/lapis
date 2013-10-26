@@ -52,4 +52,14 @@ public class VariableFullName implements Comparable<VariableFullName> {
 		}
 		return value;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof VariableFullName) {
+			VariableFullName other = (VariableFullName) obj;
+			return this.localName.equals(other.localName)
+					&& this.modelName.equals(other.modelName);
+		}
+		return false;
+	}
 }

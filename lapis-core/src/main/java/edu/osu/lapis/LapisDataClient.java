@@ -36,7 +36,7 @@ public class LapisDataClient {
 	 * @param variableFullName the VariableFullName object for the variable
 	 * @param expectedType the expected type
 	 */
-	private void validateVariableExistenceAndType(VariableFullName variableFullName, LapisDataType expectedType) {
+	void validateVariableExistenceAndType(VariableFullName variableFullName, LapisDataType expectedType) {
 		VariableMetaData metaData = globalDataTable.get(variableFullName);
 		if(metaData == null || metaData.getType() != expectedType) {
 			metaData = getRemoteVariableMetadata(variableFullName);
@@ -61,5 +61,13 @@ public class LapisDataClient {
 					+ " but we attempted to retrieve it as "
 					+ expectedType + ".");
 		}
+	}
+
+	public void setGlobalDataTable(GlobalDataTable globalDataTable) {
+		this.globalDataTable = globalDataTable;
+	}
+	
+	public void setRenameMe(DataClientCommunicationImpl renameMe) {
+		this.renameMe = renameMe;
 	}
 }
