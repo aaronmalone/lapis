@@ -10,7 +10,7 @@ public class LapisVariable {
 		//default constructor
 	}
 	
-	public LapisVariable(Object reference) {
+	public LapisVariable(String name, Object reference) {
 		LapisDataType type = LapisDataType.getTypeForObject(reference);
 		if(type == null) {
 			throw new IllegalArgumentException("Object of type " + reference.getClass() 
@@ -18,6 +18,7 @@ public class LapisVariable {
 		}
 		setReference(reference);
 		variableMetaData = new VariableMetaData();
+		variableMetaData.setName(name);
 		variableMetaData.setType(type);
 		variableMetaData.setDimension(Dimensions.getDimensions(reference));
 		variableMetaData.setLapisPermission(LapisPermission.READ_WRITE);
@@ -37,5 +38,11 @@ public class LapisVariable {
 	}
 	public VariableMetaData getVariableMetaData() {
 		return variableMetaData;
+	}
+
+	@Override
+	public String toString() {
+		//TODO IMPROVE, MAYBE?
+		return "LapisVariable(" + variableMetaData.getName() + "," + variableMetaData.getType() + ")," + reference + ")";
 	}
 }

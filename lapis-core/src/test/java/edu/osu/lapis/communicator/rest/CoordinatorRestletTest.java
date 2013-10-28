@@ -42,7 +42,7 @@ public class CoordinatorRestletTest {
 	}
 	
 	@Before 
-	public void setUpArbitraryNode() {
+	public void setUpNodeWithRandomData() {
 		LapisNode lapisNode = new LapisNode();
 		lapisNode.setNodeName(RandomStringUtils.randomAlphanumeric(7));
 		lapisNode.setUrl(RandomStringUtils.randomAlphanumeric(21));
@@ -144,7 +144,7 @@ public class CoordinatorRestletTest {
 	public void testGetAllNodes() {
 		Request request = new Request(Method.GET, "resourceUri");
 		for(int i = 0; i < 10; ++i) {
-			setUpArbitraryNode();
+			setUpNodeWithRandomData();
 			networkTable.addNode(arbitraryNode);
 		}
 		Response response = new Response(request);
@@ -164,11 +164,5 @@ public class CoordinatorRestletTest {
 		} catch(Exception e) {
 			Assert.fail(e.getMessage());
 		}
-	}
-	
-	//TODO REMOVE
-	public static void main(String[] args) {
-		CoordinatorRestletTest test = new CoordinatorRestletTest();
-		test.testDelete();
 	}
 }

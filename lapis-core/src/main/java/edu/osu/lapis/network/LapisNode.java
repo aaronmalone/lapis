@@ -4,6 +4,16 @@ import java.io.Serializable;
 
 @SuppressWarnings("serial")
 public class LapisNode implements Serializable {
+	
+	public LapisNode() {
+		// default constructor
+	}
+	
+	public LapisNode(String nodeName, String url) {
+		this.nodeName = nodeName;
+		this.url = url;
+	}
+	
 	private String nodeName;
 	private String url;
 
@@ -24,4 +34,17 @@ public class LapisNode implements Serializable {
 	public String toString() {
 		return "LapisNode(" + nodeName + ", " + url + ")";
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof LapisNode) {
+			LapisNode otherNode = (LapisNode)obj;
+			return this.nodeName.equals(otherNode.nodeName) 
+					&& this.url.equals(otherNode.url);
+		} else {
+			return false;
+		}
+	}
+	
+	
 }

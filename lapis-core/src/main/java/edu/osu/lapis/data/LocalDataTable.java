@@ -13,7 +13,7 @@ public class LocalDataTable {
 	}
 	
 	public LapisVariable get(String localName) {
-		return localDataMap.get(localDataMap);
+		return localDataMap.get(localName);
 	}
 	
 	public List<LapisVariable> getAll() {

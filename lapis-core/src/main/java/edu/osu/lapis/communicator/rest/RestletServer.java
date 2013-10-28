@@ -37,6 +37,11 @@ public class RestletServer {
 			for(UnattachedRestlet unattached : unattachedRestlets) {
 				virtualHost.attach(unattached.uriPattern, unattached.restlet);
 			}
+			try {
+				server.start();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 			unattachedRestlets.clear();
 		}
 	}

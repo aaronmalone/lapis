@@ -5,7 +5,10 @@ import edu.osu.lapis.Lapis;
 public class StartLapisServer {
 
 	public static void main(String[] args) {
-		Lapis l = new Lapis();		
-		l.initialize("node1", "http://localhost", "http://192.168.1.2:27001");
+		boolean[] booleanArray = new boolean[10];
+		double[][] twoDimensionalDoubleArray = new double[7][5];
+		Lapis lapis = new Lapis();
+		lapis.publish("booleanArray", booleanArray);
+		lapis.publish("twoDimDoubleArray", twoDimensionalDoubleArray);
 	}
 }

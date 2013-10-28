@@ -23,7 +23,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	private Notifier notifier;
 	
 	public Restlet getCoordinatorRestletWithFilters() {
-		LapisFilterChainRestletBase filterChain = new LapisFilterChainRestletBase(); //TODO MAYBE RENAME
+		LapisFilterChainRestletBase filterChain = new LapisFilterChainRestletBase();
 		
 		filterChain.setPutFilters(
 				NetworkRestletUtils.getModelNamePresentValidator(),
@@ -57,7 +57,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	@Override
 	public void post(Request request, Response response) {
 		assert Method.POST.equals(request.getMethod());
-		LapisNode updatedNode = LapisRestletUtils.getLapisNodeFromRequestBody(request, lapisSerialization);
+		LapisNode updatedNode = LapisRestletUtils.getLapisNodeFromMessageBody(request, lapisSerialization);
 		networkTable.updateNode(updatedNode);
 		notifier.notifyNetworkOfUpdate(updatedNode);
 	}
@@ -65,7 +65,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	@Override
 	public void put(Request request, Response response) {
 		assert Method.PUT.equals(request.getMethod());
-		LapisNode newNode = LapisRestletUtils.getLapisNodeFromRequestBody(request, lapisSerialization);
+		LapisNode newNode = LapisRestletUtils.getLapisNodeFromMessageBody(request, lapisSerialization);
 		networkTable.addNode(newNode);
 		notifier.notifyNetworkOfNewNode(newNode);
 	}

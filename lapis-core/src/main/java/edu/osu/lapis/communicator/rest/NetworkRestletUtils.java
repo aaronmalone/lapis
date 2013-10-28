@@ -3,6 +3,7 @@ import org.apache.commons.lang3.Validate;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
+import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.routing.Filter;
 import org.restlet.routing.Validator;
@@ -15,6 +16,8 @@ import edu.osu.lapis.transmission.LapisRestletUtils;
 
 
 public class NetworkRestletUtils {
+	
+	//TODO MAYBE MOVE THIS METHOD OUT OF THIS UTIL
 	public static Restlet createRestletFilterChain(Restlet ... restlets) { //TODO TEST
 		Validate.isTrue(restlets.length > 0, "Must provide at least one Restlet.");
 		Filter previousFilter = null;
@@ -33,15 +36,7 @@ public class NetworkRestletUtils {
 	}
 	
 	public static Validator getModelNamePresentValidator() {
-		Validator v = new Validator() {
-			@Override protected int beforeHandle(Request request, Response response) {
-				int returnValue = super.beforeHandle(request, response);
-				if(returnValue == CONTINUE && response.getStatus().isClientError()) {
-					returnValue = SKIP;
-				}
-				return returnValue;
-			}
-		};
+		Validator v = new SaneSkipValidator();
 		v.validatePresence(Constants.MODEL_NAME_ATTRIBUTE);
 		return v;
 	}
@@ -68,13 +63,29 @@ public class NetworkRestletUtils {
 			@Override protected int beforeHandle(Request request, Response response) {
 				String modelName = getModelName(request);
 				assert modelName != null; //should be called after name present validator
-				LapisNode lapisNode = LapisRestletUtils.getLapisNodeFromRequestBody(request, lapisSerialization);
+				LapisNode lapisNode = LapisRestletUtils.getLapisNodeFromMessageBody(request, lapisSerialization);
 				if(modelName.equals(lapisNode.getNodeName())) {
 					return CONTINUE;
 				} else {
 					response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST, 
-							"Model name attribute does not match model name in response body.");
+							"The model name attribute in the URI does not match model name in request payload.");
 					return SKIP;
+				}
+			}
+		};
+	}
+	
+	//TODO COMMENT OUT
+	public static Filter getBetterErrorResponseFilter() {
+		return new Filter() {
+			@Override protected void afterHandle(Request request, Response response) {
+				Status status = response.getStatus();
+				System.out.println("status code = " + status.getCode() //TODO REMOVE
+						+ "\nstatus name = " + status.getName()
+						+ "\nstatus description = " + status.getDescription()
+						+ "\nstatus uri = " + status.getUri());
+				if(status.isClientError()) {
+					response.setEntity(status.getDescription(), MediaType.TEXT_PLAIN);
 				}
 			}
 		};

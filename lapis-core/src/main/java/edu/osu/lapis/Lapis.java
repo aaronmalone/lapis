@@ -3,49 +3,28 @@ package edu.osu.lapis;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import edu.osu.lapis.communicator.CommunicationLayerInterface;
-import edu.osu.lapis.communicator.rest.RESTCommunicatorLayer;
+import edu.osu.lapis.communicator.rest.RestletServer;
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
 
-//TODO FINISH IMPLEMENTATION
-
 public class Lapis {
 	
 	private LocalDataTable localDataTable;
 	private LapisDataClient lapisDataClient;
-	//TODO maybe add global data
 	
 	public Lapis() {
+		System.out.println("ZERO"); //TODO REMOVE
 		ApplicationContext context = new AnnotationConfigApplicationContext(LapisConfiguration.class);
+		System.out.println("ONE"); //TODO REMOVE
 		localDataTable = context.getBean(LocalDataTable.class);
+		System.out.println("TWO"); //TODO REMOVE
 		lapisDataClient = context.getBean(LapisDataClient.class);
-	}
-	
-	
-//	private GlobalDataTable globalDataTable = new GlobalDataTable();
-//	private NetworkTable networkTable = new NetworkTable();
-	
-	
-	//TODO: Implement overrides for initialize that handles config file loading
-	public void initialize(String modelName, String modelAddress, String coordinatorAddress) {
-		
-		//TODO: Redo this and make it so it actually fits in with our architecture
-		
-		CommunicationLayerInterface com = new RESTCommunicatorLayer();
-		
-		//These are just here for completeness
-		//LocalDataTable ldt = new LocalDataTable();
-		//GlobalDataTable gdt = new GlobalDataTable();
-		
-		
-		// Initializes and starts the com with just the network route (for now)
-//		com.initialize(localDataTable, globalDataTable, networkTable, modelName, modelAddress);
-		
-		
-		
+		System.out.println("THREE"); //TODO REMOVE
+		RestletServer restletServer = context.getBean(RestletServer.class);
+		System.out.println("FOUR"); //TODO REMOVE
+		restletServer.initialize();
 	}
 	
 	public void publish(String localName, Object reference) {
@@ -61,12 +40,13 @@ public class Lapis {
 	}
 	
 	public void publish(String localName, Object reference, LapisPermission lapisPermission, boolean isReady) {
-		LapisVariable meta = createLapisVariable(reference, lapisPermission, isReady);
+		LapisVariable meta = createLapisVariable(localName, reference, lapisPermission, isReady);
+		System.out.println("localDataTable = " + localDataTable); //TODO REMOVE
 		localDataTable.put(localName, meta);
 	}
 
-	private LapisVariable createLapisVariable(Object reference, LapisPermission lapisPermission, boolean isReady) {
-		LapisVariable meta = new LapisVariable(reference);
+	private LapisVariable createLapisVariable(String name, Object reference, LapisPermission lapisPermission, boolean isReady) {
+		LapisVariable meta = new LapisVariable(name, reference);
 		meta.getVariableMetaData().setLapisPermission(lapisPermission);
 		meta.setReady(isReady);
 		return meta;
