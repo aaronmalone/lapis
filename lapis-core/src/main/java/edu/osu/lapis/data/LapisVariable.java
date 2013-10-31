@@ -36,8 +36,17 @@ public class LapisVariable {
 	public void setReference(Object reference) {
 		this.reference = reference;
 	}
-	public VariableMetaData getVariableMetaData() {
-		return variableMetaData;
+	public LapisDataType getType() {
+		return this.variableMetaData.getType();
+	}
+	public int[] getDimension() {
+		return this.variableMetaData.getDimension();
+	}
+	public String getName() {
+		return this.variableMetaData.getName();
+	}
+	public LapisPermission getLapisPermission() {
+		return this.variableMetaData.getLapisPermission();
 	}
 
 	@Override

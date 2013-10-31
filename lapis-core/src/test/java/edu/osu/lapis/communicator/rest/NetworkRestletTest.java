@@ -13,9 +13,9 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.representation.InputRepresentation;
 
-import edu.osu.lapis.Constants;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
+import edu.osu.lapis.restlets.NetworkRestlet;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.transmission.LapisRestletUtils;
@@ -112,7 +112,7 @@ public class NetworkRestletTest {
 	
 	private Request getRequestWithModelName(Method method, String modelName) {
 		Request request = new Request(method, "resourceUri");
-		request.getAttributes().put(Constants.MODEL_NAME_ATTRIBUTE, modelName);
+		request.getAttributes().put(Attributes.MODEL_NAME_ATTRIBUTE, modelName);
 		return request;
 	}
 	

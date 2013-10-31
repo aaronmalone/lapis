@@ -1,4 +1,4 @@
-package edu.osu.lapis.communicator.rest;
+package edu.osu.lapis.restlets;
 
 import java.util.List;
 
@@ -6,16 +6,23 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 
+import edu.osu.lapis.communicator.rest.Attributes;
+import edu.osu.lapis.communicator.rest.Notifier;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
+import edu.osu.lapis.restlets.filters.LapisNodeExtractor;
+import edu.osu.lapis.restlets.filters.ModelNameAttrValidator;
+import edu.osu.lapis.restlets.filters.ModelPresentValidator;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.transmission.LapisRestletUtils;
 
 public class CoordinatorRestlet extends LapisRestletBase {
+	
+	private final String LAPIS_NODE_ATTRIBUTE = 
+			LapisNodeExtractor.DESERIALIZED_LAPIS_NODE_ATTR;
 	
 	private LapisSerialization lapisSerialization;
 	private NetworkTable networkTable;
@@ -26,19 +33,19 @@ public class CoordinatorRestlet extends LapisRestletBase {
 		LapisFilterChainRestletBase filterChain = new LapisFilterChainRestletBase();
 		
 		filterChain.setPutFilters(
-				NetworkRestletUtils.getModelNamePresentValidator(),
-				NetworkRestletUtils.getRequestBodyMatchesModelNameFilter(lapisSerialization));
+				new ModelNameAttrValidator(),
+				new LapisNodeExtractor(lapisSerialization));
 		filterChain.setPostTargetRestlet(this);
 		
 		filterChain.setPostFilters(
-				NetworkRestletUtils.getModelNamePresentValidator(),
-				NetworkRestletUtils.getNodePresentFilter(networkTable),
-				NetworkRestletUtils.getRequestBodyMatchesModelNameFilter(lapisSerialization));
+				new ModelNameAttrValidator(),
+				new ModelPresentValidator(networkTable),
+				new LapisNodeExtractor(lapisSerialization));
 		filterChain.setPostTargetRestlet(this);
 		
 		filterChain.setDeleteFilters(
-				NetworkRestletUtils.getModelNamePresentValidator(),
-				NetworkRestletUtils.getNodePresentFilter(networkTable));
+				new ModelNameAttrValidator(),
+				new ModelPresentValidator(networkTable));
 		filterChain.setDeleteTargetRestlet(this);
 		
 		filterChain.setGetTargetRestlet(this);
@@ -48,31 +55,28 @@ public class CoordinatorRestlet extends LapisRestletBase {
 
 	@Override
 	public void delete(Request request, Response response) {
-		assert Method.DELETE.equals(request.getMethod());
-		String modelName = NetworkRestletUtils.getModelName(request);
+		String modelName = Attributes.getModelName(request);
 		LapisNode removed = networkTable.removeNode(modelName);
 		notifier.notifyNetworkOfDelete(removed);
 	}
 
 	@Override
 	public void post(Request request, Response response) {
-		assert Method.POST.equals(request.getMethod());
-		LapisNode updatedNode = LapisRestletUtils.getLapisNodeFromMessageBody(request, lapisSerialization);
+		LapisNode updatedNode = Attributes.getAttribute(request, LAPIS_NODE_ATTRIBUTE, LapisNode.class);
 		networkTable.updateNode(updatedNode);
 		notifier.notifyNetworkOfUpdate(updatedNode);
 	}
 
 	@Override
 	public void put(Request request, Response response) {
-		assert Method.PUT.equals(request.getMethod());
-		LapisNode newNode = LapisRestletUtils.getLapisNodeFromMessageBody(request, lapisSerialization);
+		LapisNode newNode =Attributes.getAttribute(request, LAPIS_NODE_ATTRIBUTE, LapisNode.class);
 		networkTable.addNode(newNode);
 		notifier.notifyNetworkOfNewNode(newNode);
 	}
 
 	@Override
 	public void get(Request request, Response response) {
-		if(NetworkRestletUtils.getModelName(request) == null) {
+		if(Attributes.getModelName(request) == null) {
 			handleAllNodes(request, response);
 		} else {
 			handleSingleNode(request, response);
@@ -88,8 +92,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	}
 	
 	private void handleSingleNode(Request request, Response response) {
-		String nodeName = NetworkRestletUtils.getModelName(request);
-		assert nodeName != null;
+		String nodeName = Attributes.getModelName(request);
 		LapisNode node = networkTable.getNode(nodeName);
 		if(node != null) {
 			byte[] serialized = lapisSerialization.serialize(node);

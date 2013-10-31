@@ -3,11 +3,11 @@ package edu.osu.lapis;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import edu.osu.lapis.communicator.rest.RestletServer;
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
+import edu.osu.lapis.restlets.RestletServer;
 
 public class Lapis {
 	
@@ -23,7 +23,7 @@ public class Lapis {
 		lapisDataClient = context.getBean(LapisDataClient.class);
 		System.out.println("THREE"); //TODO REMOVE
 		RestletServer restletServer = context.getBean(RestletServer.class);
-		System.out.println("FOUR"); //TODO REMOVE
+		System.out.println("FOUR"); //TODO REMOVE print statement
 		restletServer.initialize();
 	}
 	
@@ -46,8 +46,8 @@ public class Lapis {
 	}
 
 	private LapisVariable createLapisVariable(String name, Object reference, LapisPermission lapisPermission, boolean isReady) {
+		assert LapisPermission.READ_WRITE == lapisPermission : "READ_ONLY permissions have not been imlemented yet.";
 		LapisVariable meta = new LapisVariable(name, reference);
-		meta.getVariableMetaData().setLapisPermission(lapisPermission);
 		meta.setReady(isReady);
 		return meta;
 	}

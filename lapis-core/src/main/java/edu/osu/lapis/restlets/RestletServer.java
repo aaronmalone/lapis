@@ -1,4 +1,4 @@
-package edu.osu.lapis.communicator.rest;
+package edu.osu.lapis.restlets;
 
 import java.util.ArrayList;
 import java.util.List;

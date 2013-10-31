@@ -1,4 +1,4 @@
-package edu.osu.lapis.communicator.rest;
+package edu.osu.lapis.restlets;
 
 import java.util.Arrays;
 
@@ -9,8 +9,12 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 
+import edu.osu.lapis.communicator.rest.Attributes;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
+import edu.osu.lapis.restlets.filters.LapisNodeExtractor;
+import edu.osu.lapis.restlets.filters.ModelNameAttrValidator;
+import edu.osu.lapis.restlets.filters.ModelPresentValidator;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.transmission.LapisRestletUtils;
 
@@ -22,6 +26,9 @@ import edu.osu.lapis.transmission.LapisRestletUtils;
  */
 public class NetworkRestlet extends LapisRestletBase {
 
+	private static final String DESERIALIZED_NODE_ATTR
+			= LapisNodeExtractor.DESERIALIZED_LAPIS_NODE_ATTR;
+	
 	private NetworkTable networkTable;
 	private LapisSerialization lapisSerialization;
 	private MediaType responseMediaType;
@@ -30,25 +37,21 @@ public class NetworkRestlet extends LapisRestletBase {
 		LapisFilterChainRestletBase filterChainRestlet = new LapisFilterChainRestletBase();
 		
 		filterChainRestlet.setPutFilters(
-				NetworkRestletUtils.getBetterErrorResponseFilter(),
-				NetworkRestletUtils.getModelNamePresentValidator(),
-				NetworkRestletUtils.getRequestBodyMatchesModelNameFilter(lapisSerialization));
+				new ModelNameAttrValidator(),
+				new LapisNodeExtractor(lapisSerialization));
 		filterChainRestlet.setPutTargetRestlet(this);
 		
 		filterChainRestlet.setPostFilters(
-				NetworkRestletUtils.getBetterErrorResponseFilter(),
-				NetworkRestletUtils.getModelNamePresentValidator(),
-				NetworkRestletUtils.getNodePresentFilter(networkTable),
-				NetworkRestletUtils.getRequestBodyMatchesModelNameFilter(lapisSerialization));
+				new ModelNameAttrValidator(),
+				new ModelPresentValidator(networkTable),
+				new LapisNodeExtractor(lapisSerialization));
 		filterChainRestlet.setPostTargetRestlet(this);
 		
 		filterChainRestlet.setDeleteFilters(
-				NetworkRestletUtils.getBetterErrorResponseFilter(),
-				NetworkRestletUtils.getModelNamePresentValidator(),
-				NetworkRestletUtils.getNodePresentFilter(networkTable));
+				new ModelNameAttrValidator(),
+				new ModelPresentValidator(networkTable));
 		filterChainRestlet.setDeleteTargetRestlet(this);
 		
-		filterChainRestlet.setGetFilters(NetworkRestletUtils.getBetterErrorResponseFilter());
 		filterChainRestlet.setGetTargetRestlet(this);
 		
 		return filterChainRestlet;
@@ -56,34 +59,34 @@ public class NetworkRestlet extends LapisRestletBase {
 	
 	@Override
 	public void delete(Request request, Response response) {
-		String nodeName = NetworkRestletUtils.getModelName(request);
+		String nodeName = Attributes.getModelName(request);
 		networkTable.removeNode(nodeName);
 	}
 
 	@Override
 	public void post(Request request, Response response) {
-		LapisNode node = LapisRestletUtils.getLapisNodeFromMessageBody(request, lapisSerialization);
+		LapisNode node = Attributes.getAttribute(request, DESERIALIZED_NODE_ATTR, LapisNode.class);
 		networkTable.updateNode(node);
 	}
 
 	@Override
 	public void put(Request request, Response response) {
-		LapisNode node = LapisRestletUtils.getLapisNodeFromMessageBody(request, lapisSerialization);
+		LapisNode node = Attributes.getAttribute(request, DESERIALIZED_NODE_ATTR, LapisNode.class);
 		networkTable.addNode(node);
 	}
 
 	@Override
 	public void get(Request request, Response response) {
 		System.out.println("get called:\n" + Arrays.toString(networkTable.getNodesList().toArray(new LapisNode[0]))); //TODO REMOVE
-		String modelName = NetworkRestletUtils.getModelName(request);
+		String modelName = Attributes.getModelName(request); //NetworkRestletUtils.getModelName(request);
 		if(modelName == null) {
 			LapisNode me = networkTable.getLocalNode();
 			byte[] serialized = lapisSerialization.serialize(me);
 			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
 			response.setEntity(entity);
 		} else {
-			response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED, 
-					"GET network/{modelName} should not be called on a non-coordinator node.");
+			response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED); 
+			response.setEntity("GET network/{modelName} should not be called on a non-coordinator node.", MediaType.TEXT_PLAIN);
 		}
 	}
 	

@@ -15,9 +15,9 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.representation.Representation;
 
-import edu.osu.lapis.Constants;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
+import edu.osu.lapis.restlets.CoordinatorRestlet;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.transmission.LapisRestletUtils;
@@ -85,7 +85,7 @@ public class CoordinatorRestletTest {
 		String modelName = arbitraryNode.getNodeName();
 		networkTable.addNode(arbitraryNode);
 		Assert.assertNotNull(networkTable.getNode(modelName));
-		request.getAttributes().put(Constants.MODEL_NAME_ATTRIBUTE, modelName);
+		request.getAttributes().put(Attributes.MODEL_NAME_ATTRIBUTE, modelName);
 		Response response = new Response(request);
 		coordinatorRestlet.handle(request, response);
 		Assert.assertNull(networkTable.getNode(modelName));
@@ -96,7 +96,7 @@ public class CoordinatorRestletTest {
 	@Test
 	public void testPost() {
 		Request request = new Request(Method.POST, "resourceUri");
-		request.getAttributes().put(Constants.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
+		request.getAttributes().put(Attributes.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
 		LapisNode lapisNode = new LapisNode();
 		lapisNode.setNodeName(arbitraryNode.getNodeName());
 		lapisNode.setUrl(RandomStringUtils.randomAlphanumeric(64));
@@ -115,7 +115,7 @@ public class CoordinatorRestletTest {
 	public void testPut() {
 		Assert.assertEquals(0, networkTable.getNodesList().size());
 		Request request = new Request(Method.PUT, "resourceUri");
-		request.getAttributes().put(Constants.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
+		request.getAttributes().put(Attributes.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
 		Representation entity = LapisRestletUtils.createRepresentation(lapisSerialization.serialize(arbitraryNode));
 		request.setEntity(entity);
 		Response response = new Response(request);
@@ -127,7 +127,7 @@ public class CoordinatorRestletTest {
 	@Test
 	public void testGetSingleNode() {
 		Request request = new Request(Method.GET, "resourceUri");
-		request.getAttributes().put(Constants.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
+		request.getAttributes().put(Attributes.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
 		networkTable.addNode(arbitraryNode);
 		Response response = new Response(request);
 		coordinatorRestlet.handle(request, response);

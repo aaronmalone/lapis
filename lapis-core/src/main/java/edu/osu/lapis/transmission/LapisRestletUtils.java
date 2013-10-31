@@ -19,6 +19,7 @@ public class LapisRestletUtils {
 	
 	//TODO HOW DO WE USE THIS METHOD?
 	//look at how we might use on responses
+	
 	public static LapisNode getLapisNodeFromMessageBody(Message message, LapisSerialization lapisSerialization) {
 		try (InputStream stream = getStreamAndPutBackInEntity(message)) {
 			//TODO CLEANUP, maybe setting lapis node from message body in attribute
@@ -36,6 +37,7 @@ public class LapisRestletUtils {
 		}
 	}
 
+
 	public static String buildUri(String ... parts) {
 		StringBuilder sb = new StringBuilder();
 		for(String part : parts) {
@@ -50,6 +52,7 @@ public class LapisRestletUtils {
 		return StringUtils.removeEnd(s, "/");
 	}
 	
+	//TODO MOVE CREATE_REPRESENTATION METHODS TO ANOTHER UTILITY
 	public static InputRepresentation createRepresentation(byte[] serializedData) {
 		ByteArrayInputStream stream = new ByteArrayInputStream(serializedData);
 		return new InputRepresentation(stream);

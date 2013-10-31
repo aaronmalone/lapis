@@ -1,4 +1,4 @@
-package edu.osu.lapis.communicator.rest;
+package edu.osu.lapis.restlets;
 
 import org.restlet.Request;
 import org.restlet.Response;

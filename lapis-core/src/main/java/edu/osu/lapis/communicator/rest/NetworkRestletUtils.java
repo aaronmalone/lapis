@@ -1,18 +1,8 @@
 package edu.osu.lapis.communicator.rest;
-import org.apache.commons.lang3.Validate;
-import org.restlet.Request;
-import org.restlet.Response;
-import org.restlet.Restlet;
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
-import org.restlet.routing.Filter;
-import org.restlet.routing.Validator;
 
-import edu.osu.lapis.Constants;
-import edu.osu.lapis.network.LapisNode;
-import edu.osu.lapis.network.NetworkTable;
-import edu.osu.lapis.serialization.LapisSerialization;
-import edu.osu.lapis.transmission.LapisRestletUtils;
+import org.apache.commons.lang3.Validate;
+import org.restlet.Restlet;
+import org.restlet.routing.Filter;
 
 
 public class NetworkRestletUtils {
@@ -35,6 +25,7 @@ public class NetworkRestletUtils {
 		return restlets[0];
 	}
 	
+	/*
 	public static Validator getModelNamePresentValidator() {
 		Validator v = new SaneSkipValidator();
 		v.validatePresence(Constants.MODEL_NAME_ATTRIBUTE);
@@ -44,7 +35,7 @@ public class NetworkRestletUtils {
 	public static Filter getNodePresentFilter(final NetworkTable networkTable) {
 		return new Filter() {
 			@Override protected int beforeHandle(Request request, Response response) {
-				String modelName = getModelName(request);
+				String modelName = Attributes.getModelName(request);
 				assert modelName != null; //should be called after name present validator
 				LapisNode node = networkTable.getNode(modelName);
 				if(node != null) {
@@ -61,7 +52,7 @@ public class NetworkRestletUtils {
 	public static Filter getRequestBodyMatchesModelNameFilter(final LapisSerialization lapisSerialization) {
 		return new Filter() {
 			@Override protected int beforeHandle(Request request, Response response) {
-				String modelName = getModelName(request);
+				String modelName = Attributes.getModelName(request);
 				assert modelName != null; //should be called after name present validator
 				LapisNode lapisNode = LapisRestletUtils.getLapisNodeFromMessageBody(request, lapisSerialization);
 				if(modelName.equals(lapisNode.getNodeName())) {
@@ -74,24 +65,5 @@ public class NetworkRestletUtils {
 			}
 		};
 	}
-	
-	//TODO COMMENT OUT
-	public static Filter getBetterErrorResponseFilter() {
-		return new Filter() {
-			@Override protected void afterHandle(Request request, Response response) {
-				Status status = response.getStatus();
-				System.out.println("status code = " + status.getCode() //TODO REMOVE
-						+ "\nstatus name = " + status.getName()
-						+ "\nstatus description = " + status.getDescription()
-						+ "\nstatus uri = " + status.getUri());
-				if(status.isClientError()) {
-					response.setEntity(status.getDescription(), MediaType.TEXT_PLAIN);
-				}
-			}
-		};
-	}
-	
-	public static String getModelName(Request req) {
-		return (String) req.getAttributes().get(Constants.MODEL_NAME_ATTRIBUTE);
-	}
+	*/
 }

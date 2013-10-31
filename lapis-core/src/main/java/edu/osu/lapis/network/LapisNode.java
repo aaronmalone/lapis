@@ -45,6 +45,4 @@ public class LapisNode implements Serializable {
 			return false;
 		}
 	}
-	
-	
 }

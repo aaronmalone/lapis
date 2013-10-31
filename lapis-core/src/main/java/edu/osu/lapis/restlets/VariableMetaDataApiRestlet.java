@@ -1,6 +1,5 @@
-package edu.osu.lapis.communicator.rest;
+package edu.osu.lapis.restlets;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,14 +7,14 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 
-import edu.osu.lapis.Constants;
+import edu.osu.lapis.communicator.rest.Attributes;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.serialization.LapisSerialization;
+import edu.osu.lapis.transmission.LapisRestletUtils;
 
 public class VariableMetaDataApiRestlet extends LapisRestletBase {
 
@@ -25,41 +24,44 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	
 	@Override
 	public void get(Request request, Response response) {
-		Object variableNameObj = request.getAttributes().get(Constants.VARIABLE_NAME_ATTRIBUTE);
-		if(variableNameObj == null) {
+		String variableName = Attributes.getVariableName(request);
+		if(variableName == null) {
 			respondWithMetaDataForAllVariables(response);
 		} else {
-			String variableName = variableNameObj.toString();
 			respondWithMetaDataForOneVariable(response, variableName);
 		}
 	}
 	
-	private void respondWithMetaDataForOneVariable(Response response, String name) {
-		LapisVariable localVariable = localDataTable.get(name);
+	private void respondWithMetaDataForOneVariable(Response response, String variableName) {
+		LapisVariable localVariable = localDataTable.get(variableName);
 		if(localVariable != null) {
-			byte[] serialized = lapisSerialization.serialize(localVariable.getVariableMetaData());
-			response.setEntity(createResponseEntity(serialized));
-			response.setStatus(Status.SUCCESS_OK);
+			byte[] serialized = lapisSerialization.serialize(getVariableMetaData(localVariable));
+			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
+			response.setEntity(entity);
 		} else {
 			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			response.setEntity(String.format("The variable \"%s\" does not exist in this node.", name), MediaType.TEXT_PLAIN);
+			response.setEntity(String.format("The variable \"%s\" does not exist in this node.", variableName), MediaType.TEXT_PLAIN);
 		}
 	}
 	
-	//TODO ADD API CALL FOR THIS
 	private void respondWithMetaDataForAllVariables(Response response) {
 		List<VariableMetaData> metaList = new ArrayList<>();
 		for(LapisVariable local : localDataTable.getAll()) {
-			metaList.add(local.getVariableMetaData());
+			metaList.add(getVariableMetaData(local));
 		}
 		byte[] serialized = lapisSerialization.serialize(metaList);
-		response.setEntity(createResponseEntity(serialized));
+		Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
+		response.setEntity(entity);
 		response.setStatus(Status.SUCCESS_OK);
 	}
-
-	private Representation createResponseEntity(byte[] serializedData) {
-		ByteArrayInputStream stream = new ByteArrayInputStream(serializedData);
-		return new InputRepresentation(stream, responseMediaType, serializedData.length);
+	
+	private VariableMetaData getVariableMetaData(LapisVariable lapisVar) {
+		VariableMetaData meta = new VariableMetaData();
+		meta.setName(lapisVar.getName());
+		meta.setType(lapisVar.getType());
+		meta.setDimension(lapisVar.getDimension());
+		meta.setLapisPermission(lapisVar.getLapisPermission());
+		return meta;
 	}
 	
 	public void setLocalDataTable(LocalDataTable localDataTable) {

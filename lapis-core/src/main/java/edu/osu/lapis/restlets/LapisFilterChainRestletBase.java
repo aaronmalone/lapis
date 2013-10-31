@@ -1,4 +1,4 @@
-package edu.osu.lapis.communicator.rest;
+package edu.osu.lapis.restlets;
 
 import java.util.Arrays;
 
@@ -6,6 +6,8 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.routing.Filter;
+
+import edu.osu.lapis.communicator.rest.NetworkRestletUtils;
 
 public class LapisFilterChainRestletBase extends LapisRestletBase { //TODO RENAME
 

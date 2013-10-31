@@ -5,13 +5,14 @@ import org.restlet.data.MediaType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import edu.osu.lapis.communicator.rest.NetworkRestlet;
-import edu.osu.lapis.communicator.rest.RestletServer;
-import edu.osu.lapis.communicator.rest.VariableMetaDataApiRestlet;
-import edu.osu.lapis.communicator.rest.VariableValueApiRestlet;
+import edu.osu.lapis.communicator.rest.Attributes;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
+import edu.osu.lapis.restlets.NetworkRestlet;
+import edu.osu.lapis.restlets.RestletServer;
+import edu.osu.lapis.restlets.VariableMetaDataApiRestlet;
+import edu.osu.lapis.restlets.VariableValueApiRestlet;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
 
@@ -39,7 +40,7 @@ import edu.osu.lapis.serialization.LapisSerialization;
 		RestletServer restletServer = new RestletServer();
 		restletServer.setPort(8888);
 		restletServer.attachRestlet(
-				"/network/{" + Constants.MODEL_NAME_ATTRIBUTE + '}', 
+				"/network/{" + Attributes.MODEL_NAME_ATTRIBUTE + '}', 
 				restletWithFilters);
 		restletServer.attachRestlet("/network", restletWithFilters);
 		
@@ -49,7 +50,7 @@ import edu.osu.lapis.serialization.LapisSerialization;
 		variableMetaDataApiRestlet.setResponseMediaType(MediaType.APPLICATION_JSON);
 		
 		restletServer.attachRestlet(
-				"/metadata/{" + Constants.VARIABLE_NAME_ATTRIBUTE + '}', //better way to do this? buildURi?
+				"/metadata/{" + Attributes.VARIABLE_NAME_ATTRIBUTE + '}', //better way to do this? buildURi?
 				variableMetaDataApiRestlet);
 		restletServer.attachRestlet("/metadata", variableMetaDataApiRestlet);
 		
@@ -60,7 +61,7 @@ import edu.osu.lapis.serialization.LapisSerialization;
 		Restlet variableValueWithFilters = variableValueApiRestlet.getVariableValueRestletWithFilters();
 		
 		restletServer.attachRestlet(
-				"/model/{" + Constants.VARIABLE_NAME_ATTRIBUTE + '}', variableValueWithFilters);
+				"/model/{" + Attributes.VARIABLE_NAME_ATTRIBUTE + '}', variableValueWithFilters);
 		return restletServer;
 	}
 	
