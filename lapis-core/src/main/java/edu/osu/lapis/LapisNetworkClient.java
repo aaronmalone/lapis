@@ -29,4 +29,12 @@ public class LapisNetworkClient {
 		}
 		return node;
 	}
+
+	public void setNetworkTable(NetworkTable networkTable) {
+		this.networkTable = networkTable;
+	}
+
+	public void setRenameMe(NetworkClientCommunicationImpl renameMe) {
+		this.renameMe = renameMe;
+	}
 }

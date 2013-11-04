@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.restlet.Request;
 import org.restlet.Response;
+import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.representation.Representation;
@@ -26,7 +27,7 @@ public class CoordinatorRestletTest {
 
 	private final NetworkTable networkTable;
 	private final LapisSerialization lapisSerialization;
-	private final CoordinatorRestlet coordinatorRestlet;
+	private final Restlet coordinatorRestlet;
 	private final AtomicBoolean 
 			update = new AtomicBoolean(false),
 			newNode = new AtomicBoolean(false),
@@ -72,11 +73,12 @@ public class CoordinatorRestletTest {
 				delete.set(true);
 			}
 		};
-		coordinatorRestlet = new CoordinatorRestlet();
-		coordinatorRestlet.setLapisSerialization(lapisSerialization);
-		coordinatorRestlet.setNetworkTable(networkTable);
-		coordinatorRestlet.setResponseMediaType(responseMediaType);
-		coordinatorRestlet.setNotifier(notifier);
+		CoordinatorRestlet coordinator = new CoordinatorRestlet();
+		coordinator.setLapisSerialization(lapisSerialization);
+		coordinator.setNetworkTable(networkTable);
+		coordinator.setResponseMediaType(responseMediaType);
+		coordinator.setNotifier(notifier);
+		coordinatorRestlet = coordinator.getCoordinatorRestletWithFilters();
 	}
 	
 	@Test 
@@ -95,19 +97,21 @@ public class CoordinatorRestletTest {
 	
 	@Test
 	public void testPost() {
-		Request request = new Request(Method.POST, "resourceUri");
-		request.getAttributes().put(Attributes.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
-		LapisNode lapisNode = new LapisNode();
-		lapisNode.setNodeName(arbitraryNode.getNodeName());
-		lapisNode.setUrl(RandomStringUtils.randomAlphanumeric(64));
-		Representation entity = LapisRestletUtils.createRepresentation(lapisSerialization.serialize(lapisNode));
-		request.setEntity(entity);
 		networkTable.addNode(arbitraryNode);
 		String originalUrl = arbitraryNode.getUrl();
 		Assert.assertEquals(originalUrl, networkTable.getNode(arbitraryNode.getNodeName()).getUrl());
-		Response response = new Response(request);
-		coordinatorRestlet.post(request, response);
-		Assert.assertEquals(lapisNode.getUrl(), networkTable.getNode(arbitraryNode.getNodeName()).getUrl());
+		
+		LapisNode updatedNode = new LapisNode();
+		updatedNode.setNodeName(arbitraryNode.getNodeName());
+		updatedNode.setUrl(RandomStringUtils.randomAlphanumeric(64));
+		
+		Request request = new Request(Method.POST, "resourceUri");
+		request.getAttributes().put(Attributes.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
+		Representation entity = LapisRestletUtils.createRepresentation(lapisSerialization.serialize(updatedNode));
+		request.setEntity(entity);
+		
+		coordinatorRestlet.handle(request, new Response(request));
+		Assert.assertEquals(updatedNode.getUrl(), networkTable.getNode(arbitraryNode.getNodeName()).getUrl());
 		Assert.assertTrue(update.get());
 	}
 	

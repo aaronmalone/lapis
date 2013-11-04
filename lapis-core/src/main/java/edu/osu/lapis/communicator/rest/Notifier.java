@@ -64,4 +64,16 @@ public class Notifier {
 			}
 		};
 	}
+
+	public void setNetworkTable(NetworkTable networkTable) {
+		this.networkTable = networkTable;
+	}
+
+	public void setLapisSerialization(LapisSerialization lapisSerialization) {
+		this.lapisSerialization = lapisSerialization;
+	}
+
+	public void setMediaType(MediaType mediaType) {
+		this.mediaType = mediaType;
+	}
 }

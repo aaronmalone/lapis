@@ -65,7 +65,8 @@ public class LapisRestletUtils {
 	
 	public static InputStream callGetAndReturnStream(ClientResource clientResource) {
 		try {
-			return clientResource.get().getStream();
+			Representation entity = clientResource.get();
+			return entity.getStream();
 		} catch (ResourceException | IOException e) {
 			throw new RuntimeException(e);
 		}

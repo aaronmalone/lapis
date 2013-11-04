@@ -34,4 +34,20 @@ public class LapisNetworkTransmission {
 		ClientResource clientResource = new ClientResource(uri);
 		return LapisRestletUtils.callGetAndReturnStream(clientResource);
 	}
+
+	public String getCoordinatorBaseUrl() {
+		return coordinatorBaseUrl;
+	}
+
+	public void setCoordinatorBaseUrl(String coordinatorBaseUrl) {
+		this.coordinatorBaseUrl = coordinatorBaseUrl;
+	}
+
+	public MediaType getSerializationMediaType() {
+		return serializationMediaType;
+	}
+
+	public void setSerializationMediaType(MediaType serializationMediaType) {
+		this.serializationMediaType = serializationMediaType;
+	}
 }

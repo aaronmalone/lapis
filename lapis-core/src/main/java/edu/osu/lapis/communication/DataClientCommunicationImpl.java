@@ -45,4 +45,12 @@ public class DataClientCommunicationImpl { //TODO RENAME
 		byte[] serialized = lapisSerialization.serialize(obj);
 		lapisDataTransmission.setVariableValue(fullName, serialized);
 	}
+
+	public void setLapisSerialization(LapisSerialization lapisSerialization) {
+		this.lapisSerialization = lapisSerialization;
+	}
+
+	public void setLapisDataTransmission(LapisDataTransmission lapisDataTransmission) {
+		this.lapisDataTransmission = lapisDataTransmission;
+	}
 }

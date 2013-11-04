@@ -43,4 +43,13 @@ public class NetworkClientCommunicationImpl {
 	public void deleteNodeFromNetwork(LapisNode lapisNode) {
 		lapisNetworkTransmission.deleteNodeFromNetwork(lapisNode.getNodeName());
 	}
+
+	public void setLapisNetworkTransmission(
+			LapisNetworkTransmission lapisNetworkTransmission) {
+		this.lapisNetworkTransmission = lapisNetworkTransmission;
+	}
+
+	public void setLapisSerialization(LapisSerialization lapisSerialization) {
+		this.lapisSerialization = lapisSerialization;
+	}
 }

@@ -35,7 +35,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 		filterChain.setPutFilters(
 				new ModelNameAttrValidator(),
 				new LapisNodeExtractor(lapisSerialization));
-		filterChain.setPostTargetRestlet(this);
+		filterChain.setPutTargetRestlet(this);
 		
 		filterChain.setPostFilters(
 				new ModelNameAttrValidator(),
@@ -69,7 +69,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 
 	@Override
 	public void put(Request request, Response response) {
-		LapisNode newNode =Attributes.getAttribute(request, LAPIS_NODE_ATTRIBUTE, LapisNode.class);
+		LapisNode newNode = Attributes.getAttribute(request, LAPIS_NODE_ATTRIBUTE, LapisNode.class);
 		networkTable.addNode(newNode);
 		notifier.notifyNetworkOfNewNode(newNode);
 	}

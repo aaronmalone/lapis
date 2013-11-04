@@ -1,7 +1,16 @@
 package edu.osu.lapis;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.Charset;
+import java.util.Properties;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+
+import com.google.common.io.Files;
 
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.LapisPermission;
@@ -11,22 +20,62 @@ import edu.osu.lapis.restlets.RestletServer;
 
 public class Lapis {
 	
+	private static final String DEFAULT_PROPERTIES_FILE_NAME = "lapis.properties";
+	
 	private LocalDataTable localDataTable;
 	private LapisDataClient lapisDataClient;
 	
+
 	public Lapis() {
-		System.out.println("ZERO"); //TODO REMOVE
-		ApplicationContext context = new AnnotationConfigApplicationContext(LapisConfiguration.class);
-		System.out.println("ONE"); //TODO REMOVE
+		this(DEFAULT_PROPERTIES_FILE_NAME);
+	}
+	
+	public Lapis(String propertiesFileName) {
+		this(getProperties(propertiesFileName));
+	}
+	
+	public Lapis(Properties properties) {
+		ApplicationContext context = getApplicationContext(properties);
 		localDataTable = context.getBean(LocalDataTable.class);
-		System.out.println("TWO"); //TODO REMOVE
 		lapisDataClient = context.getBean(LapisDataClient.class);
-		System.out.println("THREE"); //TODO REMOVE
 		RestletServer restletServer = context.getBean(RestletServer.class);
-		System.out.println("FOUR"); //TODO REMOVE print statement
 		restletServer.initialize();
 	}
 	
+	
+	private static Properties getProperties(String propertiesFileName) {
+		if(propertiesFileName.toLowerCase().endsWith(".json")) {
+			return parseJsonPropertiesFile(propertiesFileName);
+		} else {
+			return getPropertiesFromRegularPropertiesFile(propertiesFileName);
+		}
+	}
+	
+	private static Properties getPropertiesFromRegularPropertiesFile(String propertiesFileName) {
+		Properties props = new Properties();
+		try {
+			Reader reader = Files.newReader(new File(propertiesFileName), Charset.defaultCharset());
+			props.load(reader);
+			return props;
+		} catch (IOException e) {
+			throw new RuntimeException("Error loading properties file: " + propertiesFileName, e);
+		}
+	}
+	
+	private static Properties parseJsonPropertiesFile(String propertiesFileName) {
+		return JsonPropertiesParser.parseJsonProperties(propertiesFileName);
+	}
+	
+	private static ApplicationContext getApplicationContext(Properties properties) {
+		PropertySourcesPlaceholderConfigurer placeholderConfigurer = new PropertySourcesPlaceholderConfigurer();
+		placeholderConfigurer.setProperties(properties);
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		context.register(LapisConfiguration.class);
+		context.addBeanFactoryPostProcessor(placeholderConfigurer);
+		context.refresh();
+		return context;
+	}
+
 	public void publish(String localName, Object reference) {
 		publish(localName, reference, LapisPermission.READ_WRITE, true);
 	}
@@ -41,7 +90,6 @@ public class Lapis {
 	
 	public void publish(String localName, Object reference, LapisPermission lapisPermission, boolean isReady) {
 		LapisVariable meta = createLapisVariable(localName, reference, lapisPermission, isReady);
-		System.out.println("localDataTable = " + localDataTable); //TODO REMOVE
 		localDataTable.put(localName, meta);
 	}
 

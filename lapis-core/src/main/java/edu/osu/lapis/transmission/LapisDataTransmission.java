@@ -53,4 +53,20 @@ public class LapisDataTransmission {
 		assert lapisNode != null;
 		return lapisNode;
 	}
+
+	public void setLapisNetworkClient(LapisNetworkClient lapisNetworkClient) {
+		this.lapisNetworkClient = lapisNetworkClient;
+	}
+
+	public void setVariableValuePath(String variableValuePath) {
+		this.variableValuePath = variableValuePath;
+	}
+
+	public void setVariableMetaDataPath(String variableMetaDataPath) {
+		this.variableMetaDataPath = variableMetaDataPath;
+	}
+
+	public void setSerializationMediaType(MediaType serializationMediaType) {
+		this.serializationMediaType = serializationMediaType;
+	}
 }

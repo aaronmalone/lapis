@@ -1,8 +1,10 @@
 package edu.osu.lapis;
 
-import edu.osu.lapis.Lapis;
 
-public class StartLapisServer {
+public class LapisFunctionalTest {
+	
+	private Lapis nonCoordinatorLapis;
+	private Lapis coordinatorLapis;
 
 	public static void main(String[] args) {
 		boolean[] booleanArray = new boolean[10];
