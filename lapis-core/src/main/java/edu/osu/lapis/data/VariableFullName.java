@@ -10,7 +10,7 @@ public class VariableFullName implements Comparable<VariableFullName> {
 	public VariableFullName(String fullName) {
 		Validate.isTrue(fullName.contains("@"), "Full name must contain '@' character.");
 		String localName = fullName.substring(0, fullName.indexOf('@')).trim();
-		String modelName = fullName.substring(fullName.indexOf('@')).trim();
+		String modelName = fullName.substring(fullName.indexOf('@')+1).trim();
 		Validate.notEmpty(localName, "Must have local name in full name before '@' character.");
 		Validate.notEmpty(modelName, "Must have model name in full name after '@' character.");
 		this.localName = localName;

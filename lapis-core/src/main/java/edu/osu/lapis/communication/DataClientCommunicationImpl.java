@@ -5,7 +5,6 @@ import java.io.InputStream;
 
 import edu.osu.lapis.data.Dimensions;
 import edu.osu.lapis.data.LapisDataType;
-import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.serialization.LapisSerialization;
@@ -27,10 +26,10 @@ public class DataClientCommunicationImpl { //TODO RENAME
 	}
 
 	//TODO MAYBE REMOVE SERIALIZATION OBJECT AT THIS LEVEL
-	public LapisVariable getVariableValue(VariableFullName fullName) {
+	public Object getVariableValue(VariableFullName fullName) {
 		try (InputStream in = lapisDataTransmission.getVariableValue(fullName)) {
 			SerializationObject serializationObj = lapisSerialization.deserializeModelData(in);
-			return serializationObj.toLapisVariable();
+			return serializationObj.getData();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

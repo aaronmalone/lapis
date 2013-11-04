@@ -36,7 +36,10 @@ public class OptionalTypeValidator extends Filter {
 		Reference reference = request.getResourceRef();
 		Form queryForm = reference.getQueryAsForm();
 		Parameter typeParameter = queryForm.getFirst("type");
-		return typeParameter.getValue();
+		if(typeParameter != null)
+			return typeParameter.getValue();
+		else 
+			return null;
 	}
 
 	//TODO MAYBE REFACTOR THE FOLLOWING METHOD

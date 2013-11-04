@@ -19,17 +19,20 @@ import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.restlets.RestletServer;
 
 public class Lapis {
-	
-	private static final String DEFAULT_PROPERTIES_FILE_NAME = "lapis.properties";
+
+	static {
+		//TODO PROBABLY MOVE THIS AT SOME POINT
+		//set this system property so we can use SLF4J
+		System.setProperty("org.restlet.engine.loggerFacadeClass","org.restlet.ext.slf4j.Slf4jLoggerFacade");
+	}
 	
 	private LocalDataTable localDataTable;
 	private LapisDataClient lapisDataClient;
 	
-
 	public Lapis() {
-		this(DEFAULT_PROPERTIES_FILE_NAME);
+		this(getDefaultProperties());
 	}
-	
+
 	public Lapis(String propertiesFileName) {
 		this(getProperties(propertiesFileName));
 	}
@@ -42,6 +45,10 @@ public class Lapis {
 		restletServer.initialize();
 	}
 	
+	private static Properties getDefaultProperties() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	private static Properties getProperties(String propertiesFileName) {
 		if(propertiesFileName.toLowerCase().endsWith(".json")) {

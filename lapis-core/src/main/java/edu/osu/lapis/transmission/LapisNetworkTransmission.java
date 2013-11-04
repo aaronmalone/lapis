@@ -8,29 +8,31 @@ import org.restlet.resource.ClientResource;
 
 public class LapisNetworkTransmission {
 	
+	private final String COORDINATOR = "coordinator";
+	
 	private String coordinatorBaseUrl; //TODO SET
 	private MediaType serializationMediaType; //TODO SET
 
 	public void deleteNodeFromNetwork(String nodeName) {
-		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, nodeName);
+		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
 		new ClientResource(uri).delete();
 	}
 	
 	public void addNodeToNetwork(String nodeName, byte[] nodeData) {
-		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, nodeName);
+		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
 		ClientResource clientResource = new ClientResource(uri);
 		Representation entity = LapisRestletUtils.createRepresentation(nodeData, serializationMediaType);
 		clientResource.put(entity);
 	}
 	
 	public InputStream getAllLapisNodesOnNetwork() {
-		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl);
+		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR);
 		ClientResource clientResource = new ClientResource(uri);
 		return LapisRestletUtils.callGetAndReturnStream(clientResource);
 	}
 	
 	public InputStream getLapisNode(String nodeName) {
-		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, nodeName);
+		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
 		ClientResource clientResource = new ClientResource(uri);
 		return LapisRestletUtils.callGetAndReturnStream(clientResource);
 	}

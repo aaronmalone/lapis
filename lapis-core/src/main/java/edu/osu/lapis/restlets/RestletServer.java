@@ -7,8 +7,12 @@ import org.restlet.Component;
 import org.restlet.Restlet;
 import org.restlet.data.Protocol;
 import org.restlet.routing.VirtualHost;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RestletServer {
+	
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	
 	private int port = Integer.MIN_VALUE;
 	private boolean initialized = false;
@@ -19,34 +23,41 @@ public class RestletServer {
 		// constructor
 	}
 
-	//TODO MOVE
-	public int getPort() {
-		return port;
-	}
-	public void setPort(int port) {
-		this.port = port;
-	}
-	
-	public void initialize() {
-		//TODO CLEANUP
+	public synchronized void initialize() {
 		if(!initialized) {
+			log.debug("Initializing RestletServer...");
 			initialized = true;
 			server = new Component();
 			server.getServers().add(Protocol.HTTP, port);
-			VirtualHost virtualHost = server.getDefaultHost();
-			for(UnattachedRestlet unattached : unattachedRestlets) {
-				virtualHost.attach(unattached.uriPattern, unattached.restlet);
-			}
-			try {
-				server.start();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-			unattachedRestlets.clear();
+			attachRestlets();
+			startServer();
 		}
 	}
 	
-	public void attachRestlet(String uriPattern, Restlet restlet) {
+	private void attachRestlets() {
+		VirtualHost virtualHost = server.getDefaultHost();
+		log.trace("Attaching Restlets...");
+		for(UnattachedRestlet unattached : unattachedRestlets) {
+			log.trace("Attaching Restlet {} to URI pattern {}...", unattached.restlet, unattached.uriPattern);
+			virtualHost.attach(unattached.uriPattern, unattached.restlet);
+		}
+		unattachedRestlets.clear();
+	}
+	
+	private void startServer() {
+		try {
+			log.debug("Starting server...");
+			server.start();
+		} catch (Exception e) {
+			if(e instanceof RuntimeException) {
+				throw (RuntimeException)e;
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+	
+	public synchronized void attachRestlet(String uriPattern, Restlet restlet) {
 		if(initialized) {
 			server.getDefaultHost().attach(uriPattern, restlet);
 		} else {
@@ -61,5 +72,12 @@ public class RestletServer {
 			this.uriPattern = uriPattern;
 			this.restlet = restlet;
 		}
+	}
+
+	public int getPort() {
+		return port;
+	}
+	public void setPort(int port) {
+		this.port = port;
 	}
 }

@@ -2,13 +2,18 @@ package edu.osu.lapis;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.osu.lapis.communication.NetworkClientCommunicationImpl;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
 
 public class LapisNetworkClient {
 	
-	private NetworkTable networkTable; //TODO SET
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	
+	private NetworkTable networkTable;
 	private NetworkClientCommunicationImpl renameMe; //TODO RENAME and SET
 	
 	public List<LapisNode> getAllNetworkNodes() {
@@ -22,8 +27,10 @@ public class LapisNetworkClient {
 	}
 	
 	public LapisNode getLapisNode(String nodeName) {
+		log.debug("Called getLapisNode({})", nodeName);
 		LapisNode node = networkTable.getNode(nodeName);
 		if(node == null) {
+			log.debug("Node {} not found in network table. Retrieving from coordinator.", nodeName); //TODO CHECK SANITY
 			node = renameMe.getLapisNode(nodeName);
 			networkTable.addNode(node);
 		}

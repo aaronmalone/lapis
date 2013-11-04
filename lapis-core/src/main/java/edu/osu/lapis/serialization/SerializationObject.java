@@ -54,7 +54,7 @@ public class SerializationObject implements Serializable{
 	}
 	
 	public LapisVariable toLapisVariable() {
-		//TODO IMPLEMENT
-		return null;
+		//TODO SHOULD I USE OTHER CONSTRUCTOR?
+		return new LapisVariable(name,data);
 	}
 }
