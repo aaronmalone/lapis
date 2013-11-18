@@ -14,24 +14,40 @@ public class LapisNetworkClient {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	
 	private NetworkTable networkTable;
-	private NetworkClientCommunicationImpl renameMe; //TODO RENAME and SET
+	private NetworkClientCommunicationImpl networkClientCommunicationImpl;
 	
+	/**
+	 * Retrieves all nodes on the LAPIS network.
+	 * @return all nodes on the network
+	 */
 	public List<LapisNode> getAllNetworkNodes() {
-		return networkTable.getNodesList();
+		List<LapisNode> nodes = networkTable.getNodesList();
+		if(nodes.isEmpty()) {
+			return getAllNetworkNodesForceRefresh();
+		} else {
+			return nodes;
+		}
 	}
 	
+	/**
+	 * Forces LAPIS to retrieve all of the nodes on the network from the coordinator.
+	 * The local network table is updated and the list of nodes is returned.
+	 */
 	public List<LapisNode> getAllNetworkNodesForceRefresh() {
-		List<LapisNode> nodesList = renameMe.getAllLapisNodesOnNetwork();
+		List<LapisNode> nodesList = networkClientCommunicationImpl.getAllLapisNodesOnNetwork();
 		networkTable.updateAllNodes(nodesList);
 		return nodesList;
 	}
-	
+
+	/**
+	 * Gets the information for a single LAPIS node.
+	 * @param nodeName the name of the node
+	 */
 	public LapisNode getLapisNode(String nodeName) {
-		log.debug("Called getLapisNode({})", nodeName);
 		LapisNode node = networkTable.getNode(nodeName);
 		if(node == null) {
-			log.debug("Node {} not found in network table. Retrieving from coordinator.", nodeName); //TODO CHECK SANITY
-			node = renameMe.getLapisNode(nodeName);
+			log.debug("Node {} not found in network table. Retrieving from coordinator.", nodeName);
+			node = networkClientCommunicationImpl.getLapisNode(nodeName);
 			networkTable.addNode(node);
 		}
 		return node;
@@ -41,7 +57,7 @@ public class LapisNetworkClient {
 		this.networkTable = networkTable;
 	}
 
-	public void setRenameMe(NetworkClientCommunicationImpl renameMe) {
-		this.renameMe = renameMe;
+	public void setNetworkClientCommunicationImpl(NetworkClientCommunicationImpl networkClientCommunicationImpl) {
+		this.networkClientCommunicationImpl = networkClientCommunicationImpl;
 	}
 }

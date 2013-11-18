@@ -1,32 +1,38 @@
 package edu.osu.lapis.communication;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.transmission.LapisNetworkTransmission;
 
-//communication layer
+/**
+ * The "communication layer" object for the network data.
+ * This layer handles serialization and deserialization, but does not deal with 
+ * the underlying network protocols.
+ * This layer also wraps exceptions with more useful messages.
+ *
+ */
 public class NetworkClientCommunicationImpl {
 	
-	private LapisNetworkTransmission lapisNetworkTransmission; //TODO SET
-	private LapisSerialization lapisSerialization; //TODO SET
+	private LapisNetworkTransmission lapisNetworkTransmission;
+	private LapisSerialization lapisSerialization;
 	
 	public List<LapisNode> getAllLapisNodesOnNetwork() {
-		try(InputStream stream = lapisNetworkTransmission.getAllLapisNodesOnNetwork()) {			
-			return lapisSerialization.deserializeNetworkData(stream);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		try {
+			byte[] data = lapisNetworkTransmission.getAllLapisNodesOnNetwork();
+			return lapisSerialization.deserializeNetworkData(data);
+		} catch(Exception e) {
+			throw new RuntimeException("Error retrieving network information from coordinator.", e);
 		}
 	}
 	
 	public LapisNode getLapisNode(String nodeName) {
-		try (InputStream stream = lapisNetworkTransmission.getLapisNode(nodeName)) {
-			return lapisSerialization.deserializeLapisNode(stream);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		try {
+			byte[] data = lapisNetworkTransmission.getLapisNode(nodeName);
+			return lapisSerialization.deserializeLapisNode(data);
+		} catch (Exception e) {
+			throw new RuntimeException("Error retrieving data for node: " + nodeName, e);
 		}
 	}
 	
@@ -44,8 +50,7 @@ public class NetworkClientCommunicationImpl {
 		lapisNetworkTransmission.deleteNodeFromNetwork(lapisNode.getNodeName());
 	}
 
-	public void setLapisNetworkTransmission(
-			LapisNetworkTransmission lapisNetworkTransmission) {
+	public void setLapisNetworkTransmission(LapisNetworkTransmission lapisNetworkTransmission) {
 		this.lapisNetworkTransmission = lapisNetworkTransmission;
 	}
 

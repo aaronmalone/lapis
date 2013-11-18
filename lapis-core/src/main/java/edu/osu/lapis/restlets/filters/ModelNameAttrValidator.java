@@ -1,6 +1,6 @@
 package edu.osu.lapis.restlets.filters;
 
-import edu.osu.lapis.communicator.rest.Attributes;
+import edu.osu.lapis.util.Attributes;
 
 public class ModelNameAttrValidator extends SaneSkipValidator {
 	

@@ -9,10 +9,10 @@ import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.routing.Filter;
 
-import edu.osu.lapis.communicator.rest.Attributes;
 import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
+import edu.osu.lapis.util.Attributes;
 
 public class OptionalTypeValidator extends Filter {
 	

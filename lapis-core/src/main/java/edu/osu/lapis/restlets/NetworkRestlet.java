@@ -9,14 +9,14 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 
-import edu.osu.lapis.communicator.rest.Attributes;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.restlets.filters.LapisNodeExtractor;
 import edu.osu.lapis.restlets.filters.ModelNameAttrValidator;
 import edu.osu.lapis.restlets.filters.ModelPresentValidator;
 import edu.osu.lapis.serialization.LapisSerialization;
-import edu.osu.lapis.transmission.LapisRestletUtils;
+import edu.osu.lapis.util.Attributes;
+import edu.osu.lapis.util.LapisRestletUtils;
 
 /**
  * Restlet to handle calls to network/* API for LAPIS nodes. The principal 
@@ -77,7 +77,6 @@ public class NetworkRestlet extends LapisRestletBase {
 
 	@Override
 	public void get(Request request, Response response) {
-		System.out.println("get called:\n" + Arrays.toString(networkTable.getNodesList().toArray(new LapisNode[0]))); //TODO REMOVE
 		String modelName = Attributes.getModelName(request); //NetworkRestletUtils.getModelName(request);
 		if(modelName == null) {
 			LapisNode me = networkTable.getLocalNode();

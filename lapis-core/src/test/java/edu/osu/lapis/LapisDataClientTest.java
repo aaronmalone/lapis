@@ -30,7 +30,7 @@ public class LapisDataClientTest {
 			}
 		};
 		LapisDataClient lapisDataClient = new LapisDataClient();
-		lapisDataClient.setRenameMe(renameMe);
+		lapisDataClient.setDataClientCommunicationImpl(renameMe);
 		lapisDataClient.setGlobalDataTable(globalDataTable);
 		VariableFullName varName = new VariableFullName(pair.name);
 		lapisDataClient.validateVariableExistenceAndType(varName, pair.meta.getType());
@@ -45,7 +45,7 @@ public class LapisDataClientTest {
 				return replacement.meta;
 			}
 		};
-		lapisDataClient.setRenameMe(renameMe);
+		lapisDataClient.setDataClientCommunicationImpl(renameMe);
 		try {
 			lapisDataClient.validateVariableExistenceAndType(varName, LapisDataType.BOOLEAN);
 			Assert.fail();

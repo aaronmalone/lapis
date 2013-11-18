@@ -1,5 +1,7 @@
 package edu.osu.lapis;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import edu.osu.lapis.communication.DataClientCommunicationImpl;
 import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.LapisDataType;
@@ -9,25 +11,34 @@ import edu.osu.lapis.data.VariableMetaData;
 public class LapisDataClient {
 	
 	private GlobalDataTable globalDataTable;
-	private DataClientCommunicationImpl renameMe;
+	private DataClientCommunicationImpl dataClientCommunicationImpl;
 
-	//TODO CONSIDER USE OF GENERICS FOR METHOD BELOW
-	//TODO ADD JAVADOC COMMENT
+	/**
+	 * Retrieve the value of the remote variable.
+	 * @param fullName the fully qualified (name@node) name of the published variable.
+	 * @param expectedType
+	 * @return the value of the remote variable
+	 */
 	public Object getRemoteVariableValue(String fullName, LapisDataType expectedType) {
 		VariableFullName variableFullName = new VariableFullName(fullName);
 		validateVariableExistenceAndType(variableFullName, expectedType);
-		return renameMe.getVariableValue(variableFullName);
+		return dataClientCommunicationImpl.getVariableValue(variableFullName);
 	}
 	
+	/**
+	 * Set the value of the remote variable.
+	 * @param fullName the fully qualified (name@node) name of the published variable.
+	 * @param value the value to set
+	 */
 	public void setRemoteVariableValue(String fullName, Object value) {
 		LapisDataType expectedType = LapisDataType.getTypeForObject(value);
 		VariableFullName variableFullName = new VariableFullName(fullName);
 		validateVariableExistenceAndType(variableFullName, expectedType);
-		renameMe.setVariableValue(variableFullName, value);
+		dataClientCommunicationImpl.setVariableValue(variableFullName, value);
 	}
 		
 	/**
-	 * Checks that the variable meta-data is cached locally (in the GlobalDatatTable)
+	 * Checks that the variable meta-data is cached locally (in the GlobalDataTable)
 	 * and that the type of the cached meta-data agrees with the expected type. If
 	 * the variable meta-data is not present, or does not have the expected type,
 	 * retrieves the variable meta-data from the remote LAPIS node and attempts to 
@@ -36,19 +47,16 @@ public class LapisDataClient {
 	 * @param variableFullName the VariableFullName object for the variable
 	 * @param expectedType the expected type
 	 */
+	@VisibleForTesting
 	void validateVariableExistenceAndType(VariableFullName variableFullName, LapisDataType expectedType) {
 		VariableMetaData metaData = globalDataTable.get(variableFullName);
 		if(metaData == null || metaData.getType() != expectedType) {
-			metaData = getRemoteVariableMetadata(variableFullName);
+			metaData = dataClientCommunicationImpl.getVariableMetaData(variableFullName);
 			globalDataTable.put(variableFullName, metaData);
 			checkRemoteVariableAgainstExpectedType(metaData, expectedType);
 		}
 	}
 	
-	private VariableMetaData getRemoteVariableMetadata(VariableFullName variableFullName) {
-		return renameMe.getVariableMetaData(variableFullName);
-	}
-
 	/**
 	 * Validates that the variable meta-data has the expected type.
 	 * @param metaData the variable meta-data
@@ -66,8 +74,8 @@ public class LapisDataClient {
 	public void setGlobalDataTable(GlobalDataTable globalDataTable) {
 		this.globalDataTable = globalDataTable;
 	}
-	
-	public void setRenameMe(DataClientCommunicationImpl renameMe) {
-		this.renameMe = renameMe;
+
+	public void setDataClientCommunicationImpl(DataClientCommunicationImpl dataClientCommunicationImpl) {
+		this.dataClientCommunicationImpl = dataClientCommunicationImpl;
 	}
 }

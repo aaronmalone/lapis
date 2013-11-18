@@ -2,8 +2,6 @@ package edu.osu.lapis.transmission;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -18,11 +16,10 @@ import org.restlet.data.Protocol;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 
-import com.google.common.io.CharStreams;
-
 import edu.osu.lapis.LapisNetworkClient;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.network.LapisNode;
+import edu.osu.lapis.util.LapisRestletUtils;
 
 public class LapisDataTransmissionTest {
 	
@@ -42,6 +39,7 @@ public class LapisDataTransmissionTest {
 		lapisDataTransmission.setLapisNetworkClient(getLapisNetworkClient());
 		lapisDataTransmission.setVariableMetaDataPath("metadata");
 		lapisDataTransmission.setVariableValuePath("model");
+		lapisDataTransmission.setLapisTransmission(new LapisTransmission());
 	}
 	
 	@Before
@@ -73,8 +71,7 @@ public class LapisDataTransmissionTest {
 		final byte[] randomBytes = RandomStringUtils.random(100).getBytes();
 		Context.getCurrent().setClientDispatcher(new Client(Protocol.HTTP){
 			@Override public void handle(Request request, Response response) {
-				System.out.println(request); //TODO REMOVE
-				Assert.assertTrue(Arrays.equals(randomBytes, RenameMeUtil.messageEntityToBytes(request)));
+				Assert.assertTrue(Arrays.equals(randomBytes, LapisRestletUtils.getMessageEntityAsBytes(request)));
 			}
 		});
 		VariableFullName varName = getVariableFullNameWithRandomData();
@@ -84,28 +81,20 @@ public class LapisDataTransmissionTest {
 	@Test 
 	public void testGetVariableMetaData() {
 		VariableFullName varName = getVariableFullNameWithRandomData();
-		InputStream in = lapisDataTransmission.getVariableMetaData(varName);
-		String response = inputToString(in);
+		byte[] bytes = lapisDataTransmission.getVariableMetaData(varName);
+		String response = new String(bytes);
 		Assert.assertEquals("RESPONSE ENTITY", response);
 	}
 	
 	@Test
 	public void testGetVariableValue() throws IOException {
 		VariableFullName varName = getVariableFullNameWithRandomData();
-		InputStream in = lapisDataTransmission.getVariableValue(varName);
-		String response = inputToString(in);
+		byte[] bytes = lapisDataTransmission.getVariableValue(varName);
+		String response = new String(bytes);
 		Assert.assertEquals("RESPONSE ENTITY", response);
 	}
 	
 	private VariableFullName getVariableFullNameWithRandomData() {
 		return new VariableFullName(RandomStringUtils.randomAlphanumeric(10), RandomStringUtils.randomAlphanumeric(10));
-	}
-	
-	private String inputToString(InputStream in) {
-		try {
-			return CharStreams.toString(new InputStreamReader(in));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 }

@@ -3,9 +3,9 @@ package edu.osu.lapis.restlets.filters;
 import org.restlet.Request;
 import org.restlet.Response;
 
-import edu.osu.lapis.communicator.rest.Attributes;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.serialization.LapisSerialization;
+import edu.osu.lapis.util.Attributes;
 
 public class LapisNodeExtractor extends RequestPayloadExtractor {
 	

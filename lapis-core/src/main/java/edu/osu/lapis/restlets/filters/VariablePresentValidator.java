@@ -6,9 +6,9 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.routing.Filter;
 
-import edu.osu.lapis.communicator.rest.Attributes;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
+import edu.osu.lapis.util.Attributes;
 
 public class VariablePresentValidator extends Filter {
 

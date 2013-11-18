@@ -102,6 +102,10 @@ public enum LapisDataType {
 		return typeToClassMap.get(type);
 	}
 	
+	public Class<?> getClassForType() {
+		return getClassForType(this);
+	}
+	
 	public static Set<LapisDataType> getArrayTypes() {
 		return ARRAY_TYPES;
 	}

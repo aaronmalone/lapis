@@ -1,12 +1,14 @@
 package edu.osu.lapis.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class LocalDataTable {
-	private final Map<String, LapisVariable> localDataMap = new HashMap<String, LapisVariable>();
+	private final Map<String, LapisVariable> localDataMap = 
+			Collections.synchronizedMap(new HashMap<String, LapisVariable>());
 	
 	public void put(String localName, LapisVariable variable) {
 		localDataMap.put(localName, variable);

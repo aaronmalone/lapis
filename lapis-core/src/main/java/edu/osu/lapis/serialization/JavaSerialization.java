@@ -10,8 +10,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.io.ByteStreams;
-
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.network.LapisNode;
 
@@ -24,27 +22,22 @@ public class JavaSerialization implements LapisSerialization {
 			objectOut.writeObject(serializable);
 			objectOut.close();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Error serializing " + serializable, e);
 		}
 		return baos.toByteArray();
 	}
-
-	@SuppressWarnings("unchecked")
-	private <T> T deserializeInternal(byte[] serialized) {
-		ByteArrayInputStream bais = new ByteArrayInputStream(serialized);
-		try {
-			ObjectInputStream objectInputStream = new ObjectInputStream(bais);
-			return (T) objectInputStream.readObject();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
 	
-	private byte[] toByteArray(InputStream inputStream) {
+	private <T> T deserializeInputStream(InputStream inputStream, Class<T> cls) {
 		try {
-			return ByteStreams.toByteArray(inputStream);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+			Object object = objectInputStream.readObject();
+			if(cls.isAssignableFrom(object.getClass())) {
+				return cls.cast(object);
+			} else {
+				throw new IllegalArgumentException("Cannot deserialize " + object + " as " + cls);
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			throw new RuntimeException("Error deserializing object.", e);
 		}
 	}
 	
@@ -57,46 +50,6 @@ public class JavaSerialization implements LapisSerialization {
 	public byte[] serialize(VariableMetaData variableMetaData) {
 		return serializeInternal(variableMetaData);
 	}
-	
-	@Override
-	public SerializationObject deserializeModelData(InputStream inputStream) {
-		return deserializeModelData(toByteArray(inputStream));
-	}
-
-	@Override
-	public SerializationObject deserializeModelData(byte[] serialized) {
-		return deserializeInternal(serialized);
-	}
-	
-	@Override
-	public VariableMetaData deserializeMetaData(InputStream inputStream) {
-		return deserializeMetaData(toByteArray(inputStream));
-	}
-
-	@Override
-	public VariableMetaData deserializeMetaData(byte[] serialized) {
-		return deserializeInternal(serialized);
-	}
-	
-	@Override
-	public LapisNode deserializeLapisNode(InputStream inputStream) {
-		return deserializeLapisNode(toByteArray(inputStream));
-	}
-
-	@Override
-	public LapisNode deserializeLapisNode(byte[] serialized) {
-		return deserializeInternal(serialized);
-	}
-	
-	@Override
-	public List<LapisNode> deserializeNetworkData(byte[] serialized) {
-		return deserializeInternal(serialized);
-	}
-	
-	@Override
-	public List<LapisNode> deserializeNetworkData(InputStream inputStream) {
-		return deserializeNetworkData(toByteArray(inputStream));
-	}
 
 	@Override
 	public byte[] serialize(List<VariableMetaData> variableMetaDataList) {
@@ -107,20 +60,61 @@ public class JavaSerialization implements LapisSerialization {
 	public byte[] serialize(LapisNode lapisNode) {
 		return serializeInternal(lapisNode);
 	}
+	
+	@Override
+	public byte[] serialize(LapisNode[] lapisNodes) {
+		return serializeInternal(lapisNodes);
+	}
 
 	@Override
 	public List<VariableMetaData> deserializeMetaDataList(byte[] serialized) {
-		return deserializeInternal(serialized);
+		return deserializeMetaDataList(new ByteArrayInputStream(serialized));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<VariableMetaData> deserializeMetaDataList(InputStream inputStream) {
-		return deserializeMetaDataList(toByteArray(inputStream));
+		return deserializeInputStream(inputStream, List.class);
+	}
+	
+	@Override
+	public SerializationObject deserializeModelData(byte[] serialized) {
+		return deserializeModelData(new ByteArrayInputStream(serialized));
+	}
+	
+	@Override
+	public SerializationObject deserializeModelData(InputStream inputStream) {
+		return deserializeInputStream(inputStream, SerializationObject.class);
+	}
+	
+	@Override
+	public VariableMetaData deserializeMetaData(byte[] serialized) {
+		return deserializeMetaData(new ByteArrayInputStream(serialized));
+	}
+	
+	@Override
+	public VariableMetaData deserializeMetaData(InputStream inputStream) {
+		return deserializeInputStream(inputStream, VariableMetaData.class);
+	}
+	
+	@Override
+	public LapisNode deserializeLapisNode(byte[] serialized) {
+		return deserializeLapisNode(new ByteArrayInputStream(serialized));
 	}
 
 	@Override
-	public byte[] serialize(LapisNode[] lapisNodes) {
-		// TODO Auto-generated method stub
-		return null;
+	public LapisNode deserializeLapisNode(InputStream inputStream) {
+		return deserializeInputStream(inputStream, LapisNode.class);
+	}
+	
+	@Override
+	public List<LapisNode> deserializeNetworkData(byte[] serialized) {
+		return deserializeNetworkData(new ByteArrayInputStream(serialized));
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<LapisNode> deserializeNetworkData(InputStream inputStream) {
+		return deserializeInputStream(inputStream, List.class);
 	}
 }

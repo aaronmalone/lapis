@@ -39,8 +39,7 @@ public class LapisNode implements Serializable {
 	public boolean equals(Object obj) {
 		if(obj instanceof LapisNode) {
 			LapisNode otherNode = (LapisNode)obj;
-			return this.nodeName.equals(otherNode.nodeName) 
-					&& this.url.equals(otherNode.url);
+			return this.nodeName.equals(otherNode.nodeName);
 		} else {
 			return false;
 		}

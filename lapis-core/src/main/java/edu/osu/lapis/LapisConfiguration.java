@@ -4,16 +4,13 @@ import javax.annotation.PostConstruct;
 
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import edu.osu.lapis.communication.DataClientCommunicationImpl;
 import edu.osu.lapis.communication.NetworkClientCommunicationImpl;
-import edu.osu.lapis.communicator.rest.Attributes;
-import edu.osu.lapis.communicator.rest.Notifier;
+import edu.osu.lapis.communication.Notifier;
 import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.network.LapisNode;
@@ -29,6 +26,8 @@ import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.transmission.LapisDataTransmission;
 import edu.osu.lapis.transmission.LapisNetworkTransmission;
+import edu.osu.lapis.transmission.LapisTransmission;
+import edu.osu.lapis.util.Attributes;
 
 /**
  * Java-based Spring context for wiring LAPIS together.
@@ -37,28 +36,28 @@ import edu.osu.lapis.transmission.LapisNetworkTransmission;
 @Configuration 
 public class LapisConfiguration {
 
-	private static final Logger log = LoggerFactory.getLogger(LapisConfiguration.class);
-	
+	//properties to set
+	/** the name of this LAPIS node */
 	private @Value("${name}") String name;
+	/** the URL for the coordinator node */
 	private @Value("${coordinator.url}") String coordinatorUrl;
+	/** the port on which this node will listen */
 	private @Value("${port}") int port;
+	/** true if this node is the coordinator on its network */
 	private @Value("${isCoordinator}") boolean isCoordinator;
+	/** the URL for this LAPIS node */
+	private @Value("${node.url:http://localhost}") String nodeUrl;
+	//TODO THERE MIGHT BE A BETTER WAY TO DO THIS
 	
-	public void setCoordinatorUrl(String coordinatorUrl) {
-		this.coordinatorUrl = coordinatorUrl;
-	}
-
 	@Bean
-	public LapisDataClient lapisClient() {
-		log.trace("lapisClient() called."); 
+	public LapisDataClient lapisDataClient() {
 		LapisDataClient lapisDataClient = new LapisDataClient();
-		lapisDataClient.setGlobalDataTable(getGlobalDataTable());
-		lapisDataClient.setRenameMe(getDataClientCommunicationImpl()); //TODO RENAME
+		lapisDataClient.setGlobalDataTable(globalDataTable());
+		lapisDataClient.setDataClientCommunicationImpl(getDataClientCommunicationImpl());
 		return lapisDataClient;
 	}
 	
 	private DataClientCommunicationImpl getDataClientCommunicationImpl() { //TODO RENAME
-		log.trace("getDataClientCommunicationImpl() called."); //TODO RENAME
 		DataClientCommunicationImpl impl = new DataClientCommunicationImpl();
 		impl.setLapisSerialization(lapisSerialization());
 		impl.setLapisDataTransmission(getLapisDataTransmission());
@@ -66,54 +65,47 @@ public class LapisConfiguration {
 	}
 
 	private LapisDataTransmission getLapisDataTransmission() {
-		log.trace("getLapisDataTransmission() called");
 		LapisDataTransmission lapisDataTransmission = new LapisDataTransmission();
 		lapisDataTransmission.setLapisNetworkClient(getLapisNetworkClient());
-		lapisDataTransmission.setSerializationMediaType(serializationMediaType());
 		lapisDataTransmission.setVariableMetaDataPath("metadata");
 		lapisDataTransmission.setVariableValuePath("model");
+		lapisDataTransmission.setLapisTransmission(new LapisTransmission());
 		return lapisDataTransmission;
 	}
 
 	private LapisNetworkClient getLapisNetworkClient() {
-		log.trace("getLapisNetworkClient() called.");
 		LapisNetworkClient netClient = new LapisNetworkClient(); //TODO MAYBE RENAME
 		netClient.setNetworkTable(networkTable());
-		netClient.setRenameMe(networkClientCommunicationImpl()); //TODO RENAME
+		netClient.setNetworkClientCommunicationImpl(networkClientCommunicationImpl()); //TODO RENAME
 		return netClient;
 	}
 
 	@Bean
 	public NetworkClientCommunicationImpl networkClientCommunicationImpl() { //TODO RENAME
-		log.trace("getNetworkClientCommunicationImpl() called.");
 		NetworkClientCommunicationImpl impl = new NetworkClientCommunicationImpl();
 		impl.setLapisNetworkTransmission(getLapisNetworkTransmission());
 		impl.setLapisSerialization(lapisSerialization());
 		return impl;
 	}
 
-
 	private LapisNetworkTransmission getLapisNetworkTransmission() {
-		log.trace("getLapisNetworkTransmission() called.");
 		if(isCoordinator) {
 			return null; 
 		} else {
 			LapisNetworkTransmission netTrans = new LapisNetworkTransmission();
-			netTrans.setSerializationMediaType(serializationMediaType());
 			netTrans.setCoordinatorBaseUrl(coordinatorUrl);
+			netTrans.setLapisTransmission(new LapisTransmission()); //TODO MAYBE CREATE A BEAN
 			return netTrans;
 		}
 	}
 
 	@Bean
 	public LocalDataTable localDataTable() {
-		log.trace("localDataTable() called.");
 		return new LocalDataTable();
 	}
 
 	@Bean 
 	public RestletServer getRestletServer() {
-		log.trace("getRestletServer() called.");
 		RestletServer restletServer = new RestletServer();
 		restletServer.setPort(port);
 		
@@ -139,7 +131,6 @@ public class LapisConfiguration {
 	
 	public Restlet getNetworkRestlet() {
 		//TODO CLEAN UP AT SOME POINT
-		log.trace("getNetworkRestlet() called.");
 		NetworkRestlet networkRestlet = new NetworkRestlet();
 		networkRestlet.setLapisSerialization(lapisSerialization());
 		networkRestlet.setNetworkTable(networkTable());
@@ -155,7 +146,6 @@ public class LapisConfiguration {
 	}
 	
 	public VariableMetaDataApiRestlet getVariableMetaDataApiRestlet() {
-		log.trace("getVariableMetaDataApiRestlet() called.");
 		VariableMetaDataApiRestlet variableMetaDataApiRestlet = new VariableMetaDataApiRestlet();
 		variableMetaDataApiRestlet.setLocalDataTable(localDataTable());
 		variableMetaDataApiRestlet.setLapisSerialization(lapisSerialization());
@@ -164,7 +154,6 @@ public class LapisConfiguration {
 	}
 	
 	private Restlet getVariableValueApiRestlet() {
-		log.trace("getVariableValueApiRestlet() called.");
 		VariableValueApiRestlet variableValueApiRestlet = new VariableValueApiRestlet();
 		variableValueApiRestlet.setLapisSerialization(lapisSerialization());
 		variableValueApiRestlet.setLocalDataTable(localDataTable());
@@ -173,14 +162,12 @@ public class LapisConfiguration {
 	}
 	
 	private void setUpCoordinatorRestlet(RestletServer restletServer) {
-		log.trace("setUpCoordinatorRestlet() called.");
 		Restlet coordinatorRestlet = getCoordinatorRestlet();
 		restletServer.attachRestlet("/coordinator/{" + Attributes.MODEL_NAME_ATTRIBUTE + '}', coordinatorRestlet);
 		restletServer.attachRestlet("/coordinator", coordinatorRestlet);
 	}
 	
 	private Restlet getCoordinatorRestlet() {
-		log.trace("getCoordinatorRestlet() called.");
 		CoordinatorRestlet coordinatorRestlet = new CoordinatorRestlet();
 		coordinatorRestlet.setLapisSerialization(lapisSerialization());
 		coordinatorRestlet.setNetworkTable(networkTable());
@@ -190,17 +177,15 @@ public class LapisConfiguration {
 	}
 
 	private Notifier getNotifier() {
-		log.trace("getNotifier() called.");
 		Notifier notifier = new Notifier();
 		notifier.setLapisSerialization(lapisSerialization());
-		notifier.setMediaType(serializationMediaType());
 		notifier.setNetworkTable(networkTable());
+		notifier.setLapisTransmission(new LapisTransmission());
 		return notifier;
 	}
 	
 	@Bean
 	public NetworkTable networkTable() {
-		log.trace("networkTable() called.");
 		NetworkTable nt = new NetworkTable();
 		nt.setLocalNode(getLocalNode());
 		return nt;
@@ -208,13 +193,11 @@ public class LapisConfiguration {
 
 	@Bean
 	public MediaType serializationMediaType() {
-		log.trace("serializationMediaType() called.");
 		return MediaType.APPLICATION_JSON;
 	}
 	
 	@Bean 
 	public LapisSerialization lapisSerialization() {
-		log.trace("lapisSerialization() called.");
 		JsonSerialization json = new JsonSerialization();
 		json.setPrettyPrinting(true);
 		return json;
@@ -222,22 +205,20 @@ public class LapisConfiguration {
 	
 	@Bean
 	public LapisNode getLocalNode() {
-		log.trace("getLocalNode() called.");
-		return new LapisNode(name, "http://localhost:" + port); //TODO fix
+		return new LapisNode(name, "http://localhost:" + port); //TODO fix -- get the IP address to use
 	}
 	
 	@PostConstruct
 	public void postConstruct() {
-		log.trace("postConstruct() called.");
 		if(!isCoordinator) {
 			networkClientCommunicationImpl().addNodeToNetwork(getLocalNode());
 		} else {
-			log.trace("Coordinator. Nothing to do.");
+			//nothing to do
 		}
 	}
 
-	private GlobalDataTable getGlobalDataTable() {
-		log.trace("getGlobalDataTable() called.");
+	@Bean
+	public GlobalDataTable globalDataTable() {
 		return new GlobalDataTable();
 	}
 }

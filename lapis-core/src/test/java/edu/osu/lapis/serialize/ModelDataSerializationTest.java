@@ -1,6 +1,5 @@
 package edu.osu.lapis.serialize;
 
-import java.io.ByteArrayInputStream;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Random;
@@ -10,6 +9,7 @@ import org.junit.Assert;
 
 import edu.osu.lapis.data.Dimensions;
 import edu.osu.lapis.data.LapisDataType;
+import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.serialization.SerializationObject;
 
@@ -24,172 +24,172 @@ public class ModelDataSerializationTest implements LapisSerializationTestInterfa
 	public void testDouble() {
 		SerializationObject original = getSerializationObject(LapisDataType.DOUBLE);
 		original.setData(random.nextDouble());
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testInteger() {
 		SerializationObject original = getSerializationObject(LapisDataType.INTEGER);
 		original.setData(random.nextInt());
-		validate(original);
+		doTest(original);
 	}
 
 	@Override
 	public void testByte() {
 		SerializationObject original = getSerializationObject(LapisDataType.BYTE);
 		original.setData((byte)random.nextInt());
-		validate(original);
+		doTest(original);
 	}
 
 	@Override
 	public void testBoolean() {
 		SerializationObject original = getSerializationObject(LapisDataType.BOOLEAN);
 		original.setData(random.nextBoolean());
-		validate(original);
+		doTest(original);
 	}
 
 	@Override
 	public void testLong() {
 		SerializationObject original = getSerializationObject(LapisDataType.LONG);
 		original.setData(random.nextLong());
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testOneDimensionalArrayOfInteger() {
 		SerializationObject original = getSerializationObject(LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_INTEGER);
 		original.setData(new int[]{});
-		validate(original);
+		doTest(original);
 		original.setData(getOneDimensionalArrayOfInteger());
-		validate(original);
+		doTest(original);
 	}
 
 	@Override
 	public void testOneDimensionalArrayOfLong() {
 		SerializationObject original = getSerializationObject(LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_LONG);
 		original.setData(new long[]{});
-		validate(original);
+		doTest(original);
 		original.setData(getOneDimensionalArrayOfLong());
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testOneDimensionalArrayOfDouble() {
 		SerializationObject original = getSerializationObject(LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_DOUBLE);
 		original.setData(new double[]{});
-		validate(original);
+		doTest(original);
 		original.setData(getOneDimensionalArrayOfDouble());
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testOneDimensionalArrayOfBoolean() {
 		SerializationObject original = getSerializationObject(LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_BOOLEAN);
 		original.setData(new boolean[]{});
-		validate(original);
+		doTest(original);
 		original.setData(getOneDimensionArrayOfBoolean());
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testOneDimensionalArrayOfByte() {
 		SerializationObject original = getSerializationObject(LapisDataType.ONE_DIMENSIONAL_ARRAY_OF_BYTE);
 		original.setData(new byte[]{});
-		validate(original);
+		doTest(original);
 		byte[] byteArray = new byte[random.nextInt(16)];
 		random.nextBytes(byteArray);
 		original.setData(byteArray);
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testTwoDimensionalArrayOfInteger() {
 		SerializationObject original = getSerializationObject(LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_INTEGER);
 		original.setData(new int[][]{});
-		validate(original);
+		doTest(original);
 		original.setData(getRandomArray(int[][].class));
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testTwoDimensionalArrayOfLong() {
 		SerializationObject original = getSerializationObject(LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_LONG);
 		original.setData(new long[][]{});
-		validate(original);
+		doTest(original);
 		original.setData(getRandomArray(long[][].class));
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testTwoDimensionalArrayOfDouble() {
 		SerializationObject original = getSerializationObject(LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_DOUBLE);
 		original.setData(new double[][]{});
-		validate(original);
+		doTest(original);
 		original.setData(getRandomArray(double[][].class));
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testTwoDimensionalArrayOfByte() {
 		SerializationObject original = getSerializationObject(LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_BYTE);
 		original.setData(new byte[][]{});
-		validate(original);
+		doTest(original);
 		original.setData(getRandomArray(byte[][].class));
-		validate(original);
+		doTest(original);
 	}
 
 	@Override
 	public void testTwoDimensionalArrayOfBoolean() {
 		SerializationObject original = getSerializationObject(LapisDataType.TWO_DIMENSIONAL_ARRAY_OF_BOOLEAN);
 		original.setData(new boolean[][]{});
-		validate(original);
+		doTest(original);
 		original.setData(getRandomArray(boolean[][].class));
-		validate(original);
+		doTest(original);
 	}
 
 	@Override
 	public void testThreeDimensionArrayOfInteger() {
 		SerializationObject original = getSerializationObject(LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_INTEGER);
 		original.setData(new int[][][]{});
-		validate(original);
+		doTest(original);
 		original.setData(getRandomArray(int[][][].class));
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testThreeDimensionArrayOfLong() {
 		SerializationObject original = getSerializationObject(LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_LONG);
 		original.setData(new long[][][]{});
-		validate(original);
+		doTest(original);
 		original.setData(getRandomArray(long[][][].class));
-		validate(original);
+		doTest(original);
 	}
 	
 	@Override
 	public void testThreeDimensionArrayOfDouble() {
 		SerializationObject original = getSerializationObject(LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_DOUBLE);
 		original.setData(new double[][][]{});
-		validate(original);
+		doTest(original);
 		original.setData(getRandomArray(double[][][].class));
-		validate(original);
+		doTest(original);
 	}
 
 	@Override
 	public void testThreeDimensionArrayOfByte() {
 		SerializationObject original = getSerializationObject(LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_BYTE);
 		original.setData(new byte[][][]{});
-		validate(original);
+		doTest(original);
 		original.setData(getRandomArray(byte[][][].class));
-		validate(original);
+		doTest(original);
 	}
 
 	@Override
 	public void testThreeDimensionArrayOfBoolean() {
 		SerializationObject original = getSerializationObject(LapisDataType.THREE_DIMENSIONAL_ARRAY_OF_BOOLEAN);
 		original.setData(new boolean[][][]{});
-		validate(original);
+		doTest(original);
 		original.setData(getRandomArray(boolean[][][].class));
-		validate(original);
+		doTest(original);
 	}
 
 	private boolean[] getOneDimensionArrayOfBoolean() {
@@ -305,27 +305,24 @@ public class ModelDataSerializationTest implements LapisSerializationTestInterfa
 		return dat;
 	}
 	
-	private SerializationObject cycle(SerializationObject ld) {
-		byte[] serialized = lapisSerialization.serialize(ld);
-		
-		System.out.println("serialized: " + new String(serialized)); //TODO REMOVE
-		
-		return lapisSerialization.deserializeModelData(new ByteArrayInputStream(serialized));
-	}
-	
-	private void validate(SerializationObject original) {
-		//validate that we set the correct LapisDataType for the actual type of the data
-		Assert.assertEquals(LapisDataType.getTypeForObject(original.getData()), original.getType());
-		
+	private void doTest(SerializationObject original) {		
 		//we'll set dimensions here, so other test code doesn't have to
 		original.setDimension(Dimensions.getDimensions(original.getData()));
 		
-		SerializationObject deserialized = cycle(original);
+		SerializationObject deserialized = serializeAndDeserialize(original);
 		Assert.assertEquals(original.getName(), deserialized.getName());
 		Assert.assertEquals(original.getType(), deserialized.getType());
 		Assert.assertTrue(NOT_EQUAL_MSG, Arrays.equals(original.getDimension(), deserialized.getDimension()));
 		validateData(original.getData(), deserialized.getData());
 		validateSerializedObjects(original, deserialized);
+	}
+	
+	private SerializationObject serializeAndDeserialize(SerializationObject ld) {
+		byte[] serialized = lapisSerialization.serialize(ld);
+		
+		if(lapisSerialization instanceof JsonSerialization) System.out.println("serialized: " + new String(serialized)); //TODO REMOVE
+		
+		return lapisSerialization.deserializeModelData(serialized);
 	}
 	
 	private void validateData(Object originalData, Object deserializedData) {
@@ -363,6 +360,7 @@ public class ModelDataSerializationTest implements LapisSerializationTestInterfa
 			break;
 		default:
 			Assert.assertTrue(NOT_EQUAL_MSG, Arrays.deepEquals((Object[])originalData, (Object[])deserializedData));
+			//TODO LOOK AT HOW DEEP EQUALS WORKS
 		}
 	}
 	

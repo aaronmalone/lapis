@@ -1,39 +1,33 @@
 package edu.osu.lapis.transmission;
 
-//import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.resource.ClientResource;
-
+import static edu.osu.lapis.transmission.ClientCall.RestMethod.GET;
+import static edu.osu.lapis.transmission.ClientCall.RestMethod.POST;
 import edu.osu.lapis.LapisNetworkClient;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.network.LapisNode;
+import edu.osu.lapis.util.LapisRestletUtils;
 
 public class LapisDataTransmission {
 	
-	private LapisNetworkClient lapisNetworkClient; //TODO SET
+	private LapisTransmission lapisTransmission;
+	private LapisNetworkClient lapisNetworkClient;
 	private String variableValuePath;
-	private String variableMetaDataPath; //TODO SET
-	private MediaType serializationMediaType; //TODO SET
+	private String variableMetaDataPath;
 	
-	public InputStream getVariableValue(VariableFullName variableFullName) {
+	public byte[] getVariableValue(VariableFullName variableFullName) {
 		LapisNode remoteNode = getValidLapisNodeInVarName(variableFullName);
 		String host = remoteNode.getUrl();
 		String name = variableFullName.getLocalName();
 		String uri = LapisRestletUtils.buildUri(host, variableValuePath, name);
-		ClientResource clientResource = new ClientResource(uri);
-		return LapisRestletUtils.callGetAndReturnStream(clientResource);
+		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
 	}
 	
-	public InputStream getVariableMetaData(VariableFullName variableFullName) {
+	public byte[] getVariableMetaData(VariableFullName variableFullName) {
 		LapisNode remoteNode = getValidLapisNodeInVarName(variableFullName);
 		String host = remoteNode.getUrl();
 		String name = variableFullName.getLocalName();
 		String uri = LapisRestletUtils.buildUri(host, variableMetaDataPath, name);
-		ClientResource clientResource = new ClientResource(uri);
-		return LapisRestletUtils.callGetAndReturnStream(clientResource);
+		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
 	}
 	
 	public void setVariableValue(VariableFullName variableFullName, byte[] serialized) {
@@ -41,10 +35,8 @@ public class LapisDataTransmission {
 		String host = remoteNode.getUrl();
 		String name = variableFullName.getLocalName();
 		String uri = LapisRestletUtils.buildUri(host, variableValuePath, name);
-		ClientResource clientResource = new ClientResource(uri);
-		Representation entity = LapisRestletUtils.createRepresentation(serialized, serializationMediaType);
-		clientResource.post(entity);
-		//TODO SERVER MUST RETURN SUCCESS OR EXCEPTION IS THROWN
+		ClientCall clientCall = new ClientCall(POST, uri, serialized);
+		lapisTransmission.executeClientCall(clientCall);
 	}
 	
 	private LapisNode getValidLapisNodeInVarName(VariableFullName varName) {
@@ -66,7 +58,7 @@ public class LapisDataTransmission {
 		this.variableMetaDataPath = variableMetaDataPath;
 	}
 
-	public void setSerializationMediaType(MediaType serializationMediaType) {
-		this.serializationMediaType = serializationMediaType;
+	public void setLapisTransmission(LapisTransmission lapisTransmission) {
+		this.lapisTransmission = lapisTransmission;
 	}
 }

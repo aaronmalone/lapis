@@ -23,7 +23,7 @@ public class LapisRestletBase extends Restlet {
 		} else if(meth.equals(Method.DELETE)) {
 			delete(request, response);
 		} else {
-			throw new IllegalStateException("SHUT. DOWN. EVERYTHING!");
+			throw new IllegalStateException("SHUT. DOWN. EVERYTHING!"); //TODO BETTER MESSAGE
 		}
 	}
 

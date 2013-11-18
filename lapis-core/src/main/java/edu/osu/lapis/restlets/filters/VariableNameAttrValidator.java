@@ -2,7 +2,7 @@ package edu.osu.lapis.restlets.filters;
 
 import org.restlet.routing.Validator;
 
-import edu.osu.lapis.communicator.rest.Attributes;
+import edu.osu.lapis.util.Attributes;
 
 public class VariableNameAttrValidator extends Validator {
 	public VariableNameAttrValidator() {

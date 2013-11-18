@@ -1,42 +1,39 @@
 package edu.osu.lapis.transmission;
 
-import java.io.InputStream;
+import static edu.osu.lapis.transmission.ClientCall.RestMethod.DELETE;
+import static edu.osu.lapis.transmission.ClientCall.RestMethod.GET;
+import static edu.osu.lapis.transmission.ClientCall.RestMethod.PUT;
 
-import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.resource.ClientResource;
+import edu.osu.lapis.util.LapisRestletUtils;
 
 public class LapisNetworkTransmission {
 	
 	private final String COORDINATOR = "coordinator";
+	private LapisTransmission lapisTransmission;
 	
-	private String coordinatorBaseUrl; //TODO SET
-	private MediaType serializationMediaType; //TODO SET
+	private String coordinatorBaseUrl;
 
 	public void deleteNodeFromNetwork(String nodeName) {
 		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
-		new ClientResource(uri).delete();
+		lapisTransmission.executeClientCall(new ClientCall(DELETE, uri));
 	}
 	
 	public void addNodeToNetwork(String nodeName, byte[] nodeData) {
 		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
-		ClientResource clientResource = new ClientResource(uri);
-		Representation entity = LapisRestletUtils.createRepresentation(nodeData, serializationMediaType);
-		clientResource.put(entity);
+		ClientCall clientCall = new ClientCall(PUT, uri, nodeData);
+		lapisTransmission.executeClientCall(clientCall);
 	}
 	
-	public InputStream getAllLapisNodesOnNetwork() {
+	public byte[] getAllLapisNodesOnNetwork() {
 		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR);
-		ClientResource clientResource = new ClientResource(uri);
-		return LapisRestletUtils.callGetAndReturnStream(clientResource);
+		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
 	}
 	
-	public InputStream getLapisNode(String nodeName) {
+	public byte[] getLapisNode(String nodeName) {
 		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
-		ClientResource clientResource = new ClientResource(uri);
-		return LapisRestletUtils.callGetAndReturnStream(clientResource);
+		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
 	}
-
+	
 	public String getCoordinatorBaseUrl() {
 		return coordinatorBaseUrl;
 	}
@@ -45,11 +42,7 @@ public class LapisNetworkTransmission {
 		this.coordinatorBaseUrl = coordinatorBaseUrl;
 	}
 
-	public MediaType getSerializationMediaType() {
-		return serializationMediaType;
-	}
-
-	public void setSerializationMediaType(MediaType serializationMediaType) {
-		this.serializationMediaType = serializationMediaType;
+	public void setLapisTransmission(LapisTransmission lapisTransmission) {
+		this.lapisTransmission = lapisTransmission;
 	}
 }

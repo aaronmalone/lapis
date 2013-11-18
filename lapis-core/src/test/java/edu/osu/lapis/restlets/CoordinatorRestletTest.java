@@ -1,4 +1,4 @@
-package edu.osu.lapis.communicator.rest;
+package edu.osu.lapis.restlets;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -16,12 +16,14 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.representation.Representation;
 
+import edu.osu.lapis.communication.Notifier;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.restlets.CoordinatorRestlet;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
-import edu.osu.lapis.transmission.LapisRestletUtils;
+import edu.osu.lapis.util.Attributes;
+import edu.osu.lapis.util.LapisRestletUtils;
 
 public class CoordinatorRestletTest {
 
@@ -60,6 +62,7 @@ public class CoordinatorRestletTest {
 	
 	public CoordinatorRestletTest() {
 		networkTable = new NetworkTable();
+		networkTable.setLocalNode(new LapisNode("localNode", "whatever://"));
 		lapisSerialization = new JsonSerialization();
 		MediaType responseMediaType = MediaType.APPLICATION_JSON;
 		Notifier notifier = new Notifier() {
@@ -146,27 +149,25 @@ public class CoordinatorRestletTest {
 	
 	@Test
 	public void testGetAllNodes() {
+		int nodesAdded = 10;
 		Request request = new Request(Method.GET, "resourceUri");
-		for(int i = 0; i < 10; ++i) {
+		for(int i = 0; i < nodesAdded; ++i) {
 			setUpNodeWithRandomData();
 			networkTable.addNode(arbitraryNode);
 		}
 		Response response = new Response(request);
 		coordinatorRestlet.handle(request, response);
-		try (InputStream input = response.getEntity().getStream()){
-			List<LapisNode> nodes = lapisSerialization.deserializeNetworkData(input);
-			Assert.assertEquals(10, nodes.size());
-			boolean oneEqualsArbitraryNode = false;
-			for(LapisNode node : nodes) {
-				if(arbitraryNode.getNodeName().equals(node.getNodeName())
-						&& arbitraryNode.getUrl().equals(node.getUrl())) {
-					oneEqualsArbitraryNode = true;
-					break;
-				}
+		byte[] responesData = LapisRestletUtils.getMessageEntityAsBytes(response);
+		List<LapisNode> nodes = lapisSerialization.deserializeNetworkData(responesData);
+		Assert.assertEquals(nodesAdded + 1/*local node*/, nodes.size());
+		boolean oneNodeEqualsLastArbitraryNode = false;
+		for(LapisNode node : nodes) {
+			if(arbitraryNode.getNodeName().equals(node.getNodeName())
+					&& arbitraryNode.getUrl().equals(node.getUrl())) {
+				oneNodeEqualsLastArbitraryNode = true;
+				break;
 			}
-			Assert.assertTrue(oneEqualsArbitraryNode);
-		} catch(Exception e) {
-			Assert.fail(e.getMessage());
 		}
+		Assert.assertTrue(oneNodeEqualsLastArbitraryNode);
 	}
 }

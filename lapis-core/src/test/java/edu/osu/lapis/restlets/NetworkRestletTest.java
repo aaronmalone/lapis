@@ -1,4 +1,4 @@
-package edu.osu.lapis.communicator.rest;
+package edu.osu.lapis.restlets;
 
 import java.io.ByteArrayInputStream;
 
@@ -15,10 +15,10 @@ import org.restlet.representation.InputRepresentation;
 
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
-import edu.osu.lapis.restlets.NetworkRestlet;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
-import edu.osu.lapis.transmission.LapisRestletUtils;
+import edu.osu.lapis.util.Attributes;
+import edu.osu.lapis.util.LapisRestletUtils;
 
 public class NetworkRestletTest {
 
@@ -29,6 +29,7 @@ public class NetworkRestletTest {
 	@Before
 	public void initialize() {
 		networkTable = new NetworkTable();
+		networkTable.setLocalNode(new LapisNode("localNode", "whatever://"));
 		lapisSerialization = new JsonSerialization();
 		NetworkRestlet networkRestlet = new NetworkRestlet();
 		networkRestlet.setResponseMediaType(MediaType.APPLICATION_JSON);
@@ -56,7 +57,8 @@ public class NetworkRestletTest {
 		Request request = new Request(Method.GET, "resourceUri");
 		Response response = handleRequestAndReturnResponse(request);
 		Assert.assertTrue(response.getStatus().isSuccess());
-		LapisNode retrievedNode = LapisRestletUtils.getLapisNodeFromMessageBody(response, lapisSerialization);
+		byte[] bytes = LapisRestletUtils.getMessageEntityAsBytes(response);
+		LapisNode retrievedNode = lapisSerialization.deserializeLapisNode(bytes);
 		Assert.assertEquals(localNode, retrievedNode);		
 	}
 	

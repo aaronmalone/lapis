@@ -9,12 +9,12 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 
-import edu.osu.lapis.communicator.rest.Attributes;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.serialization.LapisSerialization;
-import edu.osu.lapis.transmission.LapisRestletUtils;
+import edu.osu.lapis.util.Attributes;
+import edu.osu.lapis.util.LapisRestletUtils;
 
 public class VariableMetaDataApiRestlet extends LapisRestletBase {
 

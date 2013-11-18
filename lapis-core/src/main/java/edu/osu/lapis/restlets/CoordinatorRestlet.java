@@ -9,15 +9,15 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 
-import edu.osu.lapis.communicator.rest.Attributes;
-import edu.osu.lapis.communicator.rest.Notifier;
+import edu.osu.lapis.communication.Notifier;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.restlets.filters.LapisNodeExtractor;
 import edu.osu.lapis.restlets.filters.ModelNameAttrValidator;
 import edu.osu.lapis.restlets.filters.ModelPresentValidator;
 import edu.osu.lapis.serialization.LapisSerialization;
-import edu.osu.lapis.transmission.LapisRestletUtils;
+import edu.osu.lapis.util.Attributes;
+import edu.osu.lapis.util.LapisRestletUtils;
 
 public class CoordinatorRestlet extends LapisRestletBase {
 	
@@ -85,6 +85,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	
 	private void handleAllNodes(Request request, Response response) {
 		List<LapisNode> nodes = networkTable.getNodesList();
+		nodes.add(networkTable.getLocalNode());
 		LapisNode[] nodeArray = nodes.toArray(new LapisNode[0]);
 		byte[] serialized = lapisSerialization.serialize(nodeArray);
 		Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
@@ -99,8 +100,10 @@ public class CoordinatorRestlet extends LapisRestletBase {
 			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
 			response.setEntity(entity);
 		} else {
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND, "The specified LAPIS node, " 
-					+ nodeName + ", is not present in the network table.");
+			System.out.println("coordinator restlet: node not found"); //TODO REMOVE
+			String msg = "The specified LAPIS node, \"" + nodeName + "\", is not present in the network table.";
+			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND, msg);
+			response.setEntity(msg, MediaType.TEXT_PLAIN);
 		}
 	}
 

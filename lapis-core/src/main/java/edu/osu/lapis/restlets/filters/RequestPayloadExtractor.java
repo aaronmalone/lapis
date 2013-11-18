@@ -4,7 +4,7 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.routing.Filter;
 
-import edu.osu.lapis.transmission.RenameMeUtil;
+import edu.osu.lapis.util.LapisRestletUtils;
 
 public class RequestPayloadExtractor extends Filter {
 	
@@ -13,7 +13,7 @@ public class RequestPayloadExtractor extends Filter {
 
 	@Override
 	protected final int beforeHandle(Request request, Response response) {
-		byte[] bytes = RenameMeUtil.messageEntityToBytes(request);
+		byte[] bytes = LapisRestletUtils.getMessageEntityAsBytes(request);
 		request.getAttributes().put(EXTRACTED_REQUEST_PAYLOAD_ATTR, bytes);
 		return beforeHandle(request, response, bytes);
 	}

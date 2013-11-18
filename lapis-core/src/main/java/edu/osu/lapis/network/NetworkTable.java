@@ -6,27 +6,44 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.Validate;
+
+//TODO ADD PROTECTION FOR LOCAL NODE
 public class NetworkTable {
 
 	private final Map<String, LapisNode> nodeMap = Collections.synchronizedMap(new HashMap<String, LapisNode>());
 	private LapisNode coordinator;
 	private LapisNode localNode;
 	
-	public void addNode(LapisNode lapisNode) {
-		if (nodeMap.containsKey(lapisNode.getNodeName())) {
-			if (nodeMap.get(lapisNode.getNodeName()).getUrl() != lapisNode.getUrl()) {
-				throw new IllegalArgumentException("Attempted to add node " + lapisNode 
-						+ " but already had an existing node  with the same name: " 
-						+ nodeMap.get(lapisNode.getNodeName()));
+	public void addNode(LapisNode newNode) { //TODO TEST
+		Validate.isTrue(!localNode.equals(newNode), "Attempting to add new node %s that " 
+				+ "has same name as local (this) node %s.", newNode, localNode); //TODO REMOVE VALIDATION at some point
+		String nodeName = newNode.getNodeName();
+		LapisNode existingNode = nodeMap.get(nodeName);
+		if(existingNode == null) {
+			nodeMap.put(nodeName, newNode);
+		} else {
+			//allow adding a node if it has the same URL
+			String existingUrl = existingNode.getUrl();
+			if(!existingUrl.equals(newNode.getUrl())) {
+				throw new IllegalArgumentException("Attempted to add node " + newNode 
+						+ " but already had an existing node with the same name: " 
+						+ existingNode);
 			}
 		}
-		nodeMap.put(lapisNode.getNodeName(), lapisNode);
+		nodeMap.put(newNode.getNodeName(), newNode);
 	}
 	
 	public LapisNode getNode(String nodeName) {
-		return nodeMap.get(nodeName);
+		if(localNode.getNodeName().equals(nodeName))
+			return localNode;
+		else 
+			return nodeMap.get(nodeName);
 	}
 	
+	/**
+	 * Returns all the nodes in the network except the local node (this node).
+	 */
 	public List<LapisNode> getNodesList() {
 		return new ArrayList<LapisNode>(nodeMap.values());
 	}

@@ -2,14 +2,13 @@ package edu.osu.lapis.restlets;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang3.Validate;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.routing.Filter;
 
-import edu.osu.lapis.communicator.rest.NetworkRestletUtils;
-
-public class LapisFilterChainRestletBase extends LapisRestletBase { //TODO RENAME
+public class LapisFilterChainRestletBase extends LapisRestletBase {
 
 	private Filter[] putFilters, getFilters, postFilters, deleteFilters;
 	private Restlet putTargetRestlet, getTargetRestlet, postTargetRestlet, deleteTargetRestlet;
@@ -39,7 +38,7 @@ public class LapisFilterChainRestletBase extends LapisRestletBase { //TODO RENAM
 		if(filters == null) {
 			return targetRestlet;
 		} else {
-			return createFilterChain(filters, targetRestlet);
+			return createFilterChainWithTarget(filters, targetRestlet);
 		}
 	}
 	
@@ -50,10 +49,36 @@ public class LapisFilterChainRestletBase extends LapisRestletBase { //TODO RENAM
 		}
 	}
 	
-	private Restlet createFilterChain(Filter[] filters, Restlet target) {
+	/**
+	 * Chains the filters together with the target Restlet at the "end" of the
+	 * chain. The first Restlet is returned.
+	 */
+	private Restlet createFilterChainWithTarget(Filter[] filters, Restlet target) {
 		Restlet[] restlets = Arrays.copyOf(filters, filters.length + 1, Restlet[].class);
 		restlets[filters.length] = target;
-		return NetworkRestletUtils.createRestletFilterChain(restlets);
+		return createRestletFilterChain(restlets);
+	}
+	
+	/**
+	 * Chains the Restlets together. All must be Filter instances except the last.
+	 * The first Restlet is returned.
+	 */
+	private Restlet createRestletFilterChain(Restlet ... restlets) { //TODO TEST
+		Validate.isTrue(restlets.length > 0, "Must provide at least one Restlet.");
+		Filter previousFilter = null;
+		Filter currentFilter =  null;
+		for(int i = 0; i < restlets.length - 1; ++i) {
+			assert restlets[i] instanceof Filter;
+			currentFilter = (Filter) restlets[i];
+			if(previousFilter != null) {
+				previousFilter.setNext(currentFilter);
+			}
+			previousFilter = currentFilter;
+		}
+		if(currentFilter != null) {
+			currentFilter.setNext(restlets[restlets.length-1]);
+		}
+		return restlets[0];
 	}
 	
 	public void setPutFilters(Filter ... putFilters) {

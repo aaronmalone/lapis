@@ -6,9 +6,9 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.routing.Filter;
 
-import edu.osu.lapis.communicator.rest.Attributes;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
+import edu.osu.lapis.util.Attributes;
 
 public class ModelPresentValidator extends Filter {
 
