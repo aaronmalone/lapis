@@ -82,7 +82,7 @@ public enum LapisDataType {
 		typeMap.put(THREE_DIMENSIONAL_ARRAY_OF_BOOLEAN, boolean[][][].class);
 		
 		typeToClassMap = Collections.unmodifiableMap(typeMap);
-		Map<Class<?>, LapisDataType> classMap = new HashMap<>(); //the beautiful diamond operator!
+		Map<Class<?>, LapisDataType> classMap = new HashMap<>();
 		for(Entry<LapisDataType, Class<?>> entry : typeMap.entrySet()) {
 			classMap.put(entry.getValue(), entry.getKey());
 		}

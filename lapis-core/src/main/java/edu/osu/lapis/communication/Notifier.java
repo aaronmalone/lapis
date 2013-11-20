@@ -17,11 +17,11 @@ import edu.osu.lapis.util.LapisRestletUtils;
  * This class is in the package with the "communication layer" objects, but 
  * probably shouldn't be considered part of the communication layer right now.
  */
-public class Notifier { //TODO ADD UNIT TESTS FOR THIS
+public class Notifier {
 	
 	private NetworkTable networkTable;
 	private LapisSerialization lapisSerialization;
-	private LapisTransmission lapisTransmission; //TODO SET
+	private LapisTransmission lapisTransmission;
 	
 	/**
 	 * Notifies all network nodes of a change in some node's information.
@@ -54,14 +54,11 @@ public class Notifier { //TODO ADD UNIT TESTS FOR THIS
 		//creates a new thread to notify each network node... 
 		// a future/better implementation might use a thread pool instead
 		for(LapisNode node : networkTable.getNodesList()) {
-			System.out.println("\nCHANGED NODE IS " + changedNode + "; loop node is" + node); //TODO REMOVE
 			if(!changedNode.equals(node)) {
-				System.out.println("These are not the same node"); //TODO REMOVE
-				String path = "network/" + node.getNodeName();
-				System.out.println("Will use relative URL " + path); //TODO REMOVE
+				String path = "network/" + changedNode.getNodeName();
 				Runnable notificationRunnable = getNotificationRunnable(node, path, data, methodToUse); 
 				Thread thread = new Thread(notificationRunnable);
-				//TODO MAYbE SET UNCAUGHT EXCEPTION HANDLER?
+				//TODO MAYBE SET UNCAUGHT EXCEPTION HANDLER?
 				thread.start();
 			}
 		}

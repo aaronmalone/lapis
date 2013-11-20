@@ -1,7 +1,5 @@
 package edu.osu.lapis.restlets;
 
-import java.util.Arrays;
-
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -60,24 +58,36 @@ public class NetworkRestlet extends LapisRestletBase {
 	@Override
 	public void delete(Request request, Response response) {
 		String nodeName = Attributes.getModelName(request);
+		getLogger().info("Received request for delete of node \"" + nodeName + "\".");
 		networkTable.removeNode(nodeName);
 	}
 
 	@Override
 	public void post(Request request, Response response) {
 		LapisNode node = Attributes.getAttribute(request, DESERIALIZED_NODE_ATTR, LapisNode.class);
+		getLogger().info("Received request to update node: " + node);
 		networkTable.updateNode(node);
 	}
 
 	@Override
 	public void put(Request request, Response response) {
 		LapisNode node = Attributes.getAttribute(request, DESERIALIZED_NODE_ATTR, LapisNode.class);
+		getLogger().info("Received request to add new node: " + node);
 		networkTable.addNode(node);
 	}
 
 	@Override
 	public void get(Request request, Response response) {
-		String modelName = Attributes.getModelName(request); //NetworkRestletUtils.getModelName(request);
+		getLogger().info("Received request for this nodes information.");
+		
+		
+		System.out.println("ALL NODES: " + networkTable.getNodesList()); //TODO REMOVE
+		
+		
+		
+		
+		
+		String modelName = Attributes.getModelName(request);
 		if(modelName == null) {
 			LapisNode me = networkTable.getLocalNode();
 			byte[] serialized = lapisSerialization.serialize(me);

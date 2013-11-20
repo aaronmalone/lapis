@@ -10,6 +10,13 @@ import org.restlet.data.Method;
  * to the HTTP REST operations they implement.
  */
 public class LapisRestletBase extends Restlet {
+	
+	//TODO KEEP THIS HERE?
+	static {
+		//set this system property so we can use SLF4J in Restlet
+		System.setProperty("org.restlet.engine.loggerFacadeClass","org.restlet.ext.slf4j.Slf4jLoggerFacade");
+	}
+
 
 	@Override
 	public final void handle(Request request, Response response) {

@@ -17,11 +17,11 @@ import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.transmission.ClientCall;
+import static edu.osu.lapis.transmission.ClientCall.RestMethod.*;
 import edu.osu.lapis.transmission.ClientResponse;
 import edu.osu.lapis.transmission.LapisTransmission;
 import edu.osu.lapis.util.Sleep;
 
-//TODO FINISUH - CURRENTLY UNDER CONSTRUCTIO
 public class NotifierTest {
 	
 	private static final List<ClientCall> clientCalls = Collections.synchronizedList(new ArrayList<ClientCall>());
@@ -50,46 +50,62 @@ public class NotifierTest {
 
 	@Test
 	public void testNotifyNetworkOfUpdate() {
-		System.out.println("update"); //TODO remove
-		LapisNode updated = new LapisNode("one", "http://url.one.new");
+		LapisNode updated = new LapisNode("one", "http://url.one.UPDATED");
 		notifier.notifyNetworkOfUpdate(updated);
-		waitForClientCallsToReachSize(2, 250);
-		Assert.assertEquals(2, clientCalls.size());
-		System.out.println("looping through update client calls..."); //TODO REMOVE
+		waitForClientCallsToReachSize(2, 50);
+		Assert.assertNull(throwableRef.get());
 		for(ClientCall call : clientCalls) {
-			System.out.println(call.getUri()); //TODO REMOVE
-			System.out.println(call.getMethod()); //TODO REMOVE
-			System.out.println(new String(call.getPayload())); //TODO REMOVE
-//			Assert.assertNotEquals(updated.getNodeName(), getNodeNameFromUrlPath(call.getUri()));
+			LapisNode deserialized = lapisSerialization.deserializeLapisNode(call.getPayload());
+			Assert.assertEquals(updated.getNodeName(), deserialized.getNodeName());
+			Assert.assertEquals(updated.getUrl(), deserialized.getUrl());
+			Assert.assertEquals(POST, call.getMethod());
+			Assert.assertEquals(updated.getNodeName(), getNodeNameFromUrlPath(call.getUri()));
+			String originalNodeUrl = networkTable.getNode(updated.getNodeName()).getUrl();
+			Assert.assertFalse(call.getUri().startsWith(originalNodeUrl));
 		}
 	}
 	
 	private String getNodeNameFromUrlPath(String url) {
-		System.out.println("getting node name from url: " + url); //TODO REMOVE
 		int lastIndex = url.lastIndexOf('/');
-		String nodeName = url.substring(lastIndex+1);
-		System.out.println("returning node name: " + nodeName);
-		return nodeName;
+		return url.substring(lastIndex+1);
 	}
 
 	@Test
 	public void testNotifyNetworkOfNewNode() { 
-		//TODO FINISH
+		LapisNode newNode = new LapisNode("four", "http://somethingOrOther.com:1234");
+		notifier.notifyNetworkOfNewNode(newNode);
+		waitForClientCallsToReachSize(3, 100);
+		Assert.assertNull(throwableRef.get());
+		for(ClientCall call : clientCalls) {
+			LapisNode deserialized = lapisSerialization.deserializeLapisNode(call.getPayload());
+			Assert.assertEquals(newNode.getNodeName(), deserialized.getNodeName());
+			Assert.assertEquals(newNode.getUrl(), deserialized.getUrl());
+			Assert.assertEquals(PUT, call.getMethod());
+			Assert.assertEquals(newNode.getNodeName(), getNodeNameFromUrlPath(call.getUri()));
+			Assert.assertFalse(call.getUri().startsWith(newNode.getUrl()));
+		}
 	}
 
 	@Test
 	public void testNotifyNetworkOfDelete() {
-		System.out.println("delete"); //TODO remove
-		notifier.notifyNetworkOfDelete(new LapisNode("two", "http://url.two.net"));
-		waitForClientCallsToReachSize(2, 250);
-		Assert.assertEquals(2, clientCalls.size());
+		LapisNode deleted = new LapisNode("two", "http://url.two.net");
+		notifier.notifyNetworkOfDelete(deleted);
+		waitForClientCallsToReachSize(2, 100);
+		Assert.assertNull(throwableRef.get());
+		for(ClientCall call : clientCalls) {
+			Assert.assertEquals(DELETE, call.getMethod());
+			Assert.assertNull(call.getPayload());
+			Assert.assertEquals(deleted.getNodeName(), getNodeNameFromUrlPath(call.getUri()));
+			String originalNodeUrl = networkTable.getNode(deleted.getNodeName()).getUrl();
+			Assert.assertFalse(call.getUri().startsWith(originalNodeUrl));
+		}
 	}
 	
 	private void waitForClientCallsToReachSize(int size, long millisToWait) {
 		final long millis = Math.max(5, millisToWait);
 		final long startTime = System.currentTimeMillis();
 		while(clientCalls.size() < size) {
-			Sleep.sleep(500); //TODO CHANGE
+			Sleep.sleep(5);
 			if(System.currentTimeMillis() > millis + startTime)
 				break;
 		}
