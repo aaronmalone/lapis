@@ -25,7 +25,7 @@ import edu.osu.lapis.util.Sleep;
 public class NotifierTest {
 	
 	private static final List<ClientCall> clientCalls = Collections.synchronizedList(new ArrayList<ClientCall>());
-	private static final AtomicReference<Throwable> throwableRef = new AtomicReference<>();
+	private static final AtomicReference<Throwable> throwableRef = new AtomicReference<Throwable>();
 	
 	private final NetworkTable networkTable = new NetworkTable();
 	private final Notifier notifier = new Notifier();

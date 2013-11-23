@@ -34,4 +34,9 @@ public class ClientCall {
 	public byte[] getPayload() {
 		return payload;
 	}
+
+	@Override
+	public String toString() {
+		return "ClientCall(" + method + ", " + uri + ")";
+	}
 }

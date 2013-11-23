@@ -36,7 +36,7 @@ public class JavaSerialization implements LapisSerialization {
 			} else {
 				throw new IllegalArgumentException("Cannot deserialize " + object + " as " + cls);
 			}
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Error deserializing object.", e);
 		}
 	}
@@ -53,7 +53,7 @@ public class JavaSerialization implements LapisSerialization {
 
 	@Override
 	public byte[] serialize(List<VariableMetaData> variableMetaDataList) {
-		return serializeInternal(new ArrayList<>(variableMetaDataList));
+		return serializeInternal(new ArrayList<VariableMetaData>(variableMetaDataList));
 	}
 
 	@Override

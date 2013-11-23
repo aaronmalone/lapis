@@ -1,11 +1,16 @@
 package edu.osu.lapis.restlets;
 
+import java.util.List;
+
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+
+import com.google.common.base.Joiner;
 
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
@@ -78,25 +83,30 @@ public class NetworkRestlet extends LapisRestletBase {
 
 	@Override
 	public void get(Request request, Response response) {
-		getLogger().info("Received request for this nodes information.");
-		
-		
-		System.out.println("ALL NODES: " + networkTable.getNodesList()); //TODO REMOVE
-		
-		
-		
-		
-		
 		String modelName = Attributes.getModelName(request);
 		if(modelName == null) {
+			getLogger().info("Received request for this node's information.");
 			LapisNode me = networkTable.getLocalNode();
 			byte[] serialized = lapisSerialization.serialize(me);
 			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
 			response.setEntity(entity);
+		} else if(modelName.equals("ALL_NODES")) {
+			//undocumented feature used for debugging purposes
+			getLogger().info("Received request for info on all nodes in network table.");
+			respondWithInformationForAllNodes(response);
 		} else {
+			getLogger().warning(String.format("GET network/%s called on this node.",modelName));
 			response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED); 
 			response.setEntity("GET network/{modelName} should not be called on a non-coordinator node.", MediaType.TEXT_PLAIN);
 		}
+	}
+	
+	private void respondWithInformationForAllNodes(Response response) {
+		List<LapisNode> nodesList = networkTable.getNodesList();
+		System.out.println("NODES LIST HAS " + nodesList.size() + " ITEMS.\nNODES LIST: " + nodesList); //TODO remove
+		String text = Joiner.on("\n").join(nodesList);
+		System.out.println("RESPONSE TEXT = " + text); //TODO remove
+		response.setEntity(new StringRepresentation(text, MediaType.TEXT_PLAIN));
 	}
 	
 	public void setNetworkTable(NetworkTable networkTable) {

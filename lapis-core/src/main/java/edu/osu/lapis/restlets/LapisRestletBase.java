@@ -4,22 +4,26 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.Method;
+import org.restlet.data.Status;
 
 /**
  * A base class for Restlets. Subclass should override the methods corresponding
  * to the HTTP REST operations they implement.
  */
 public class LapisRestletBase extends Restlet {
-	
-	//TODO KEEP THIS HERE?
-	static {
-		//set this system property so we can use SLF4J in Restlet
-		System.setProperty("org.restlet.engine.loggerFacadeClass","org.restlet.ext.slf4j.Slf4jLoggerFacade");
-	}
-
 
 	@Override
 	public final void handle(Request request, Response response) {
+		try {
+			handleInternal(request, response);
+		} catch(Exception e) {
+			getLogger().warning("Exception while handling request '" + request 
+					+ "': " + e);
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+		}
+	}
+	
+	private void handleInternal(Request request, Response response) {		
 		Method meth = request.getMethod();
 		if(meth.equals(Method.GET)) {
 			get(request, response);

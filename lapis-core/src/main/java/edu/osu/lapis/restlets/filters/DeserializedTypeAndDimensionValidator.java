@@ -9,7 +9,7 @@ import org.restlet.data.Status;
 import org.restlet.routing.Filter;
 
 import edu.osu.lapis.data.LapisDataType;
-import edu.osu.lapis.data.LapisVariable;
+import edu.osu.lapis.data.LapisVariable2;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.serialization.SerializationObject;
 import edu.osu.lapis.util.Attributes;
@@ -62,8 +62,8 @@ public class DeserializedTypeAndDimensionValidator extends Filter {
 	
 	private LapisDataType getTypeOfLocalVariable(Request request) {
 		String variableName = Attributes.getVariableName(request);
-		LapisVariable localVariable = localDataTable.get(variableName);
-		return localVariable.getType();
+		LapisVariable2 localVariable = localDataTable.get(variableName);
+		return localVariable.getLapisDataType();
 	}
 	
 	private int[] getDimensionsFromDeserializedObject(Request request) {
@@ -74,7 +74,7 @@ public class DeserializedTypeAndDimensionValidator extends Filter {
 	
 	private int[] getDimensionsOfLocalVariable(Request request) {
 		String variableName = Attributes.getVariableName(request);
-		LapisVariable var = localDataTable.get(variableName);
-		return var.getDimension();
+		LapisVariable2 var = localDataTable.get(variableName);
+		return var.getDimensions();
 	}
 }

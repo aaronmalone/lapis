@@ -48,7 +48,6 @@ public class LapisDataTransmissionTest {
 		Context context = new Context();
 		context.setClientDispatcher(new Client(Protocol.HTTP) {
 			@Override public void handle(Request request, Response response) {
-				System.out.println(request); //TODO REMOVE
 				Assert.assertNull(request.getEntity());
 				response.setEntity(responseEntity);
 			}

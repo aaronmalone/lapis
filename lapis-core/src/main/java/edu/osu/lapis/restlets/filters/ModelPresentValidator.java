@@ -1,4 +1,4 @@
-package edu.osu.lapis.restlets.filters; //TODO MOVE TO FILTERS PACKAGE
+package edu.osu.lapis.restlets.filters;
 
 import org.restlet.Request;
 import org.restlet.Response;

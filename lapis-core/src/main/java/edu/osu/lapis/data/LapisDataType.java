@@ -56,7 +56,7 @@ public enum LapisDataType {
 	private final static Map<Class<?>, LapisDataType> classToTypeMap;
 	
 	static {
-		EnumMap<LapisDataType, Class<?>> typeMap = new EnumMap<>(LapisDataType.class);
+		EnumMap<LapisDataType, Class<?>> typeMap = new EnumMap<LapisDataType, Class<?>>(LapisDataType.class);
 		typeMap.put(INTEGER, Integer.TYPE);
 		typeMap.put(LONG, Long.TYPE);
 		typeMap.put(DOUBLE, Double.TYPE);
@@ -82,7 +82,7 @@ public enum LapisDataType {
 		typeMap.put(THREE_DIMENSIONAL_ARRAY_OF_BOOLEAN, boolean[][][].class);
 		
 		typeToClassMap = Collections.unmodifiableMap(typeMap);
-		Map<Class<?>, LapisDataType> classMap = new HashMap<>();
+		Map<Class<?>, LapisDataType> classMap = new HashMap<Class<?>, LapisDataType>();
 		for(Entry<LapisDataType, Class<?>> entry : typeMap.entrySet()) {
 			classMap.put(entry.getValue(), entry.getKey());
 		}
@@ -95,7 +95,11 @@ public enum LapisDataType {
 	}
 	
 	public static LapisDataType getTypeForObject(Object obj) {
-		return classToTypeMap.get(obj.getClass());
+		return getTypeForClass(obj.getClass());
+	}
+	
+	public static LapisDataType getTypeForClass(Class<?> cls) {
+		return classToTypeMap.get(cls);
 	}
 	
 	public static Class<?> getClassForType(LapisDataType type) {

@@ -13,7 +13,7 @@ import edu.osu.lapis.transmission.LapisDataTransmission;
  * The communication layer handles serialization and deserialization, but does
  * not deal directly with the underlying protocols used for communication.
  */
-public class DataClientCommunicationImpl { //TODO RENAME at some point
+public class DataClientCommunicationImpl {
 	//TODO MAYBE IT SHOULDN'T BE CALLED THE COMMUNICATION LAYER?
 
 	private LapisSerialization lapisSerialization;

@@ -25,6 +25,10 @@ public class LapisDataClient {
 		return dataClientCommunicationImpl.getVariableValue(variableFullName);
 	}
 	
+	public VariableMetaData getRemoteVariableMetaData(String fullName) {
+		return dataClientCommunicationImpl.getVariableMetaData(new VariableFullName(fullName));
+	}
+	
 	/**
 	 * Set the value of the remote variable.
 	 * @param fullName the fully qualified (name@node) name of the published variable.
@@ -51,7 +55,8 @@ public class LapisDataClient {
 	void validateVariableExistenceAndType(VariableFullName variableFullName, LapisDataType expectedType) {
 		VariableMetaData metaData = globalDataTable.get(variableFullName);
 		if(metaData == null || metaData.getType() != expectedType) {
-			metaData = dataClientCommunicationImpl.getVariableMetaData(variableFullName);
+//			metaData = dataClientCommunicationImpl.getVariableMetaData(variableFullName);
+			metaData = getRemoteVariableMetaData(variableFullName.toString());
 			globalDataTable.put(variableFullName, metaData);
 			checkRemoteVariableAgainstExpectedType(metaData, expectedType);
 		}
@@ -66,7 +71,7 @@ public class LapisDataClient {
 		if(metaData.getType() != expectedType) {
 			throw new IllegalArgumentException("Remote variable  has type " 
 					+ metaData.getType() 
-					+ " but we attempted to retrieve it as "
+					+ " but we attempted to get/set it as "
 					+ expectedType + ".");
 		}
 	}

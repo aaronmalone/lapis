@@ -319,9 +319,6 @@ public class ModelDataSerializationTest implements LapisSerializationTestInterfa
 	
 	private SerializationObject serializeAndDeserialize(SerializationObject ld) {
 		byte[] serialized = lapisSerialization.serialize(ld);
-		
-		if(lapisSerialization instanceof JsonSerialization) System.out.println("serialized: " + new String(serialized)); //TODO REMOVE
-		
 		return lapisSerialization.deserializeModelData(serialized);
 	}
 	
@@ -342,23 +339,18 @@ public class ModelDataSerializationTest implements LapisSerializationTestInterfa
 	}
 
 	private void validataArrays(Object originalData, Object deserializedData) {
-		switch(originalData.getClass().toString().trim()) {
-		case "class [I": //int[]
+		String swit = originalData.getClass().toString().trim();
+		if(swit.equals("class [I")) { //int[]
 			Assert.assertTrue(NOT_EQUAL_MSG, Arrays.equals((int[])originalData, (int[])deserializedData));
-			break;
-		case "class [J": //long[]
+		} else if(swit.equals("class [J")) {
 			Assert.assertTrue(NOT_EQUAL_MSG, Arrays.equals((long[])originalData, (long[])deserializedData));
-			break;
-		case "class [D": //double[]
+		} else if(swit.equals("class [D")) { //double[]
 			Assert.assertTrue(NOT_EQUAL_MSG, Arrays.equals((double[])originalData, (double[])deserializedData));
-			break;
-		case "class [Z": //boolean[]
+		} else if(swit.equals("class [Z")) { //boolean[]
 			Assert.assertTrue(NOT_EQUAL_MSG, Arrays.equals((boolean[])originalData, (boolean[])deserializedData));
-			break;
-		case "class [B": //byte[]
+		} else if(swit.equals("class [B")) { //byte[]
 			Assert.assertTrue(NOT_EQUAL_MSG, Arrays.equals((byte[])originalData, (byte[])deserializedData));
-			break;
-		default:
+		} else {
 			Assert.assertTrue(NOT_EQUAL_MSG, Arrays.deepEquals((Object[])originalData, (Object[])deserializedData));
 			//TODO LOOK AT HOW DEEP EQUALS WORKS
 		}

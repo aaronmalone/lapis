@@ -1,14 +1,20 @@
 package edu.osu.lapis.communication;
 
+import static edu.osu.lapis.transmission.ClientCall.RestMethod.DELETE;
+import static edu.osu.lapis.transmission.ClientCall.RestMethod.GET;
+import static edu.osu.lapis.transmission.ClientCall.RestMethod.POST;
+import static edu.osu.lapis.transmission.ClientCall.RestMethod.PUT;
+
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.serialization.LapisSerialization;
-import static edu.osu.lapis.transmission.ClientCall.RestMethod.*;
 import edu.osu.lapis.transmission.ClientCall;
-import edu.osu.lapis.transmission.LapisTransmission;
 import edu.osu.lapis.transmission.ClientCall.RestMethod;
+import edu.osu.lapis.transmission.LapisTransmission;
 import edu.osu.lapis.util.LapisRestletUtils;
 
 /**
@@ -19,6 +25,8 @@ import edu.osu.lapis.util.LapisRestletUtils;
  */
 public class Notifier {
 	
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	
 	private NetworkTable networkTable;
 	private LapisSerialization lapisSerialization;
 	private LapisTransmission lapisTransmission;
@@ -28,16 +36,19 @@ public class Notifier {
 	 * @param updatedNode the updated node
 	 */
 	public void notifyNetworkOfUpdate(LapisNode updatedNode) {
+		log.info("Notifying network of updated node: {}", updatedNode);
 		byte[] nodeData = lapisSerialization.serialize(updatedNode);
 		notifyInternal(updatedNode, POST, nodeData);
 	}
 	
 	public void notifyNetworkOfNewNode(LapisNode newNode) {
+		log.info("Notifying network of new node: {}", newNode);
 		byte[] nodeData = lapisSerialization.serialize(newNode);
 		notifyInternal(newNode, PUT, nodeData);
 	}
 	
 	public void notifyNetworkOfDelete(LapisNode node) {
+		log.info("Notifying network of deleted node: {}", node);
 		notifyInternal(node, DELETE, null);
 	}
 	
@@ -58,6 +69,7 @@ public class Notifier {
 				String path = "network/" + changedNode.getNodeName();
 				Runnable notificationRunnable = getNotificationRunnable(node, path, data, methodToUse); 
 				Thread thread = new Thread(notificationRunnable);
+				//TODO LOOK AT THREAD GROUPS
 				//TODO MAYBE SET UNCAUGHT EXCEPTION HANDLER?
 				thread.start();
 			}
@@ -67,12 +79,18 @@ public class Notifier {
 	private Runnable getNotificationRunnable(final LapisNode nodeToNotify, final String relativeUrl, 
 			final byte[] dataToSend, final RestMethod methodToUse) {
 		Validate.notNull(methodToUse, "REST method must not be null.");
-		Validate.isTrue(methodToUse != GET, "GET method not applicable for notiffier.");
+		Validate.isTrue(methodToUse != GET, "GET method not applicable for notifier.");
 		return new Runnable() {
 			@Override public void run() {
 				String uri = LapisRestletUtils.buildUri(nodeToNotify.getUrl(), relativeUrl);
 				ClientCall clientCall = new ClientCall(methodToUse, uri, dataToSend);
-				lapisTransmission.executeClientCall(clientCall);
+				try {
+					log.debug("About to execute notification with client call {}", clientCall);
+					lapisTransmission.executeClientCall(clientCall);					
+				} catch(Throwable t) {
+					log.error("Error executing notification with client call " + clientCall + ".", t);
+					throw new RuntimeException(t);
+				}
 			}
 		};
 	}

@@ -29,6 +29,10 @@ public class LapisNetworkClient {
 		}
 	}
 	
+	public void addNodeToNetwork(LapisNode lapisNode) {
+		networkClientCommunicationImpl.addNodeToNetwork(lapisNode);
+	}
+	
 	/**
 	 * Forces LAPIS to retrieve all of the nodes on the network from the coordinator.
 	 * The local network table is updated and the list of nodes is returned.
@@ -46,7 +50,7 @@ public class LapisNetworkClient {
 	public LapisNode getLapisNode(String nodeName) {
 		LapisNode node = networkTable.getNode(nodeName);
 		if(node == null) {
-			log.debug("Node {} not found in network table. Retrieving from coordinator.", nodeName);
+			log.info("Node {} not found in network table. Retrieving from coordinator.", nodeName); //TODO CHANGE TO DEBUG
 			node = networkClientCommunicationImpl.getLapisNode(nodeName);
 			networkTable.addNode(node);
 		}

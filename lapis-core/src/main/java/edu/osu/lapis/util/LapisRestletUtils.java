@@ -12,7 +12,7 @@ import org.restlet.representation.Representation;
 
 import com.google.common.io.ByteStreams;
 
-public class LapisRestletUtils { //TODO MOVE
+public class LapisRestletUtils {
 	
 	public static String buildUri(String ... parts) {
 		StringBuilder sb = new StringBuilder();
@@ -20,7 +20,7 @@ public class LapisRestletUtils { //TODO MOVE
 			sb.append(trimSlashes(part));
 			sb.append('/');
 		}
-		return sb.substring(0, sb.length()-1); //remove trailing slash //TODO TEST THIS
+		return sb.substring(0, sb.length()-1); //remove trailing slash
 	}
 	
 	private static String trimSlashes(String input) {
@@ -49,10 +49,20 @@ public class LapisRestletUtils { //TODO MOVE
 	}
 	
 	public static byte[] getMessageEntityAsBytes(Message message) {
-		try(InputStream stream = getMessageEntityAsStream(message)) {
+		InputStream stream = null;
+		try {
+			stream = getMessageEntityAsStream(message);
 			return ByteStreams.toByteArray(stream);
 		} catch (IOException e) {
 			throw new RuntimeException("Error retrieving data from message.", e);
-		} 
+		} finally {
+			if(stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					throw new RuntimeException("Error closing stream.", e);
+				}
+			}
+		}
 	}
 }

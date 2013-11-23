@@ -3,17 +3,23 @@ package edu.osu.lapis.transmission;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
+import org.restlet.Response;
 import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
 public class LapisTransmission {
+	
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	
+	private final String CONNECTION_REFUSED = "Connection refused";
 	
 	public byte[] executeClientCallReturnBytes(ClientCall clientCall) {
 		ClientResponse response = executeClientCall(clientCall);
@@ -21,14 +27,12 @@ public class LapisTransmission {
 	}
 	
 	public ClientResponse executeClientCall(ClientCall clientCall) {
-		ClientResource clientResource = new ClientResource(clientCall.getUri());
+		ClientResource clientResource = new ClientResource(clientCall.getUri());		
 		final Representation representation;
 		try {
 			switch(clientCall.getMethod()) {
 			case GET:
 				representation = clientResource.get();
-				System.out.println("GET representation = " + representation); //TODO REMOVE
-				System.out.println("GET representation.size = " + representation.getSize()); //TODO REMOVE
 				break;
 			case PUT:
 				representation = clientResource.put(createRestletRepresentation(clientCall));
@@ -44,22 +48,55 @@ public class LapisTransmission {
 						+ clientCall.getMethod());
 			}
 			int statusCode = clientResource.getStatus().getCode();
-			System.out.println("status: " + statusCode); //TODO REMOVE
 			byte[] payload = representation != null ? getPayload(representation) : null;
-			System.out.println("payload: " + Arrays.toString(payload)); //TODO REMOVE
 			return new ClientResponse(statusCode, payload);
 		} catch(ResourceException originalException) {
-			Status originalStatus = clientResource.getStatus();
-			String entityAstext = clientResource.getResponse().getEntityAsText().trim();
-			String originalDescription = originalStatus.getDescription().trim();
-			String description = originalDescription.isEmpty() ? 
-					entityAstext : originalDescription + ": " + entityAstext; 
-			Status newStatus = new Status(originalStatus.getCode(), originalException,
-					originalStatus.getName(), description, clientCall.getUri());
-			throw new ResourceException(newStatus, originalException);
+			throw handleException(clientCall, clientResource, originalException);
 		} finally {
 			clientResource.release();
 		}
+	}
+	
+	private ResourceException handleException(ClientCall clientCall, ClientResource clientResource, ResourceException originalException) {
+		Status originalStatus = clientResource.getStatus();
+		String originalDescription = originalStatus.getDescription().trim();
+		log.error("Handling exception '{}' from client call '{}'.", originalException, clientCall);
+		if(originalDescription.startsWith(CONNECTION_REFUSED)) {
+			throw new RuntimeException(CONNECTION_REFUSED + ": remote node may be down.", originalException);
+		} else {
+			final String entityText = getEntityText(clientResource.getResponse());
+			String newDescription = getNewDescription(originalDescription, entityText);
+			Status newStatus = getNewStatus(originalStatus, originalException, newDescription, clientCall.getUri());			
+			return new ResourceException(newStatus, originalException);			
+		}
+	}
+	
+	private String getEntityText(Response response) {
+		Representation rep = response.getEntity();
+		try {
+			if(rep != null) {
+				return rep.getText();
+			} else {
+				return "";
+			}
+		} catch (IOException e) {
+			log.error("Error while getting text from Restlet representation.", e);
+			return "";
+		}
+	}
+	
+	private String getNewDescription(String originalDescription, String entityText) {
+		if(originalDescription.isEmpty()) {
+			return entityText;
+		} else if(entityText.isEmpty()) {
+			return originalDescription;
+		} else {
+			return originalDescription + ": " + entityText;
+		}
+	}
+	
+	private Status getNewStatus(Status originalStatus, Throwable originalException, String description, String uri) {
+		return new Status(originalStatus.getCode(), originalException, originalStatus.getName(), description, uri);
 	}
 	
 	private Representation createRestletRepresentation(ClientCall clientCall) {
@@ -68,13 +105,22 @@ public class LapisTransmission {
 	}
 	
 	private byte[] getPayload(Representation representation) {
-		System.out.println("REPRESENTATION: " + representation); //TODO REMOVE
 		long size = representation.getSize();
 		if(size == Representation.UNKNOWN_SIZE || size > 0) {
-			try(InputStream stream = representation.getStream()) {
+			InputStream stream = null;
+			try {
+				stream = representation.getStream();
 				return ByteStreams.toByteArray(stream);
 			} catch(IOException e) {
 				throw new RuntimeException(e);
+			} finally {
+				if(stream != null) {
+					try {
+						stream.close();
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
 			}
 		} else {
 			return new byte[0];

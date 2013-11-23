@@ -1,6 +1,5 @@
 package edu.osu.lapis.restlets;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.restlet.Component;
@@ -10,6 +9,8 @@ import org.restlet.routing.VirtualHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 public class RestletServer {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -17,7 +18,7 @@ public class RestletServer {
 	private int port = Integer.MIN_VALUE;
 	private boolean initialized = false;
 	private Component server;
-	List<UnattachedRestlet> unattachedRestlets = new ArrayList<>();
+	List<UnattachedRestlet> unattachedRestlets = Lists.newArrayList();
 	
 	public RestletServer() {
 		// constructor
@@ -62,6 +63,14 @@ public class RestletServer {
 			server.getDefaultHost().attach(uriPattern, restlet);
 		} else {
 			unattachedRestlets.add(new UnattachedRestlet(uriPattern, restlet));
+		}
+	}
+	
+	public void stopServer() {
+		try {
+			server.stop();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 	

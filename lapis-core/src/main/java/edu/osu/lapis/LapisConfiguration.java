@@ -1,12 +1,10 @@
 package edu.osu.lapis;
 
-import javax.annotation.PostConstruct;
+import java.util.Properties;
 
+import org.apache.commons.lang3.Validate;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import edu.osu.lapis.communication.DataClientCommunicationImpl;
 import edu.osu.lapis.communication.NetworkClientCommunicationImpl;
@@ -33,81 +31,126 @@ import edu.osu.lapis.util.Attributes;
  * Java-based Spring context for wiring LAPIS together.
  *
  */
-@Configuration 
 public class LapisConfiguration {
-
-	//properties to set
-	/** the name of this LAPIS node */
-	private @Value("${name}") String name;
-	/** the URL for the coordinator node */
-	private @Value("${coordinator.url}") String coordinatorUrl;
-	/** the port on which this node will listen */
-	private @Value("${port}") int port;
-	/** true if this node is the coordinator on its network */
-	private @Value("${isCoordinator}") boolean isCoordinator;
-	/** the URL for this LAPIS node */
-	private @Value("${node.url:http://localhost}") String nodeUrl;
-	//TODO THERE MIGHT BE A BETTER WAY TO DO THIS
 	
-	@Bean
-	public LapisDataClient lapisDataClient() {
+	private final Properties properties;
+	private final LapisSerialization lapisSerialization;
+	private final MediaType serializationMediaType;
+	private final int port;
+	private final NetworkTable networkTable;
+	private final boolean isCoordinator;
+	private final LapisNetworkClient lapisNetworkClient;
+	private final LapisDataClient lapisDataClient;
+	private final LocalDataTable localDataTable;
+	private final RestletServer restletServer;
+	
+	public LapisConfiguration(Properties properties) {
+		this.properties = properties;
+		this.lapisSerialization = getLapisSerializationInternal();
+		this.serializationMediaType = MediaType.APPLICATION_JSON;
+		this.port = getPort();
+		this.networkTable = getNetworkTable();
+		this.isCoordinator = isCoordinator();
+		this.lapisNetworkClient = getLapisNetworkClient();
+		this.lapisDataClient = getLapisDataClientInternal();
+		this.localDataTable = new LocalDataTable();
+		this.restletServer = getRestletServerInternal();
+	}
+	
+	public LapisDataClient getLapisDataClient() {
+		return this.lapisDataClient;
+	}
+
+	public LocalDataTable getLocalDataTable() {
+		return this.localDataTable;
+	}
+
+	public RestletServer getRestletServer() {
+		return this.restletServer;
+	}
+
+	private LapisSerialization getLapisSerializationInternal() {
+		JsonSerialization json = new JsonSerialization();
+		json.setPrettyPrinting(true);
+		return json;
+	}
+
+	private int getPort() {
+		String portStr = this.properties.getProperty("port"); //TODO ADD DEFAULT
+		Validate.notEmpty(portStr, "'port' property must be specified.");
+		try {
+			return Integer.parseInt(portStr);
+		} catch(Exception e) {
+			throw new RuntimeException("Unable to parse 'port' property value '" + portStr + "' as integer." );
+		}
+	}
+	
+	private NetworkTable getNetworkTable() {
+		NetworkTable nt = new NetworkTable();
+		nt.setLocalNode(getLocalNode());
+		return nt;
+	}
+	
+	private LapisNode getLocalNode() {
+		String nodeName = this.properties.getProperty("name");
+		Validate.notEmpty(nodeName, "'name' property must have non-empty value.");
+		return new LapisNode(nodeName, "http://localhost:" + this.port); //TODO fix -- get the IP address to use
+	}
+	
+	private boolean isCoordinator() {
+		return Boolean.parseBoolean(this.properties.getProperty("isCoordinator"));
+	}
+	
+	private LapisNetworkClient getLapisNetworkClient() {
+		LapisNetworkClient netClient = new LapisNetworkClient();
+		netClient.setNetworkTable(this.networkTable);
+		netClient.setNetworkClientCommunicationImpl(getNetworkClientCommunicationImpl());
+		return netClient;
+	}
+	
+	private NetworkClientCommunicationImpl getNetworkClientCommunicationImpl() {
+		NetworkClientCommunicationImpl impl = new NetworkClientCommunicationImpl();
+		impl.setLapisNetworkTransmission(getLapisNetworkTransmission());
+		impl.setLapisSerialization(this.lapisSerialization);
+		return impl;
+	}
+	
+	private LapisNetworkTransmission getLapisNetworkTransmission() {
+		String coordinatorUrl = this.properties.getProperty("coordinator.url");
+		Validate.notEmpty(coordinatorUrl, "Coordinator URL must not be empty");
+		LapisNetworkTransmission netTrans = new LapisNetworkTransmission();
+		netTrans.setCoordinatorBaseUrl(coordinatorUrl);
+		netTrans.setLapisTransmission(new LapisTransmission()); //TODO MAYBE CREATE A BEAN
+		return netTrans;
+	}
+
+	private LapisDataClient getLapisDataClientInternal() {
 		LapisDataClient lapisDataClient = new LapisDataClient();
-		lapisDataClient.setGlobalDataTable(globalDataTable());
-		lapisDataClient.setDataClientCommunicationImpl(getDataClientCommunicationImpl());
+		lapisDataClient.setGlobalDataTable(new GlobalDataTable());
+		lapisDataClient.setDataClientCommunicationImpl(getDataClientCommunicationImplInternal());
 		return lapisDataClient;
 	}
 	
-	private DataClientCommunicationImpl getDataClientCommunicationImpl() { //TODO RENAME
+	private DataClientCommunicationImpl getDataClientCommunicationImplInternal() {
 		DataClientCommunicationImpl impl = new DataClientCommunicationImpl();
-		impl.setLapisSerialization(lapisSerialization());
-		impl.setLapisDataTransmission(getLapisDataTransmission());
+		impl.setLapisSerialization(this.lapisSerialization);
+		impl.setLapisDataTransmission(getLapisDataTransmissionInternal());
 		return impl;
 	}
 
-	private LapisDataTransmission getLapisDataTransmission() {
+	private LapisDataTransmission getLapisDataTransmissionInternal() {
 		LapisDataTransmission lapisDataTransmission = new LapisDataTransmission();
-		lapisDataTransmission.setLapisNetworkClient(getLapisNetworkClient());
+		lapisDataTransmission.setLapisNetworkClient(this.lapisNetworkClient);
 		lapisDataTransmission.setVariableMetaDataPath("metadata");
 		lapisDataTransmission.setVariableValuePath("model");
 		lapisDataTransmission.setLapisTransmission(new LapisTransmission());
 		return lapisDataTransmission;
 	}
 
-	private LapisNetworkClient getLapisNetworkClient() {
-		LapisNetworkClient netClient = new LapisNetworkClient(); //TODO MAYBE RENAME
-		netClient.setNetworkTable(networkTable());
-		netClient.setNetworkClientCommunicationImpl(networkClientCommunicationImpl()); //TODO RENAME
-		return netClient;
-	}
-
-	@Bean
-	public NetworkClientCommunicationImpl networkClientCommunicationImpl() { //TODO RENAME
-		NetworkClientCommunicationImpl impl = new NetworkClientCommunicationImpl();
-		impl.setLapisNetworkTransmission(getLapisNetworkTransmission());
-		impl.setLapisSerialization(lapisSerialization());
-		return impl;
-	}
-
-	private LapisNetworkTransmission getLapisNetworkTransmission() {
-		if(isCoordinator) {
-			return null; 
-		} else {
-			LapisNetworkTransmission netTrans = new LapisNetworkTransmission();
-			netTrans.setCoordinatorBaseUrl(coordinatorUrl);
-			netTrans.setLapisTransmission(new LapisTransmission()); //TODO MAYBE CREATE A BEAN
-			return netTrans;
-		}
-	}
-
-	@Bean
-	public LocalDataTable localDataTable() {
-		return new LocalDataTable();
-	}
-
-	@Bean 
-	public RestletServer getRestletServer() {
+	private RestletServer getRestletServerInternal() {
+		
 		RestletServer restletServer = new RestletServer();
-		restletServer.setPort(port);
+		restletServer.setPort(this.port);
 		
 		Restlet networkRestlet = getNetworkRestlet();
 		restletServer.attachRestlet("/network/{" + Attributes.MODEL_NAME_ATTRIBUTE + '}', networkRestlet);
@@ -122,21 +165,20 @@ public class LapisConfiguration {
 		
 		restletServer.attachRestlet("/heartbeat", new HeartbeatRestlet());
 		
-		if(isCoordinator) {
+		if(this.isCoordinator) {
 			setUpCoordinatorRestlet(restletServer);
 		}
 		
 		return restletServer;
 	}
 	
-	public Restlet getNetworkRestlet() {
-		//TODO CLEAN UP AT SOME POINT
+	private Restlet getNetworkRestlet() {
 		NetworkRestlet networkRestlet = new NetworkRestlet();
-		networkRestlet.setLapisSerialization(lapisSerialization());
-		networkRestlet.setNetworkTable(networkTable());
-		networkRestlet.setResponseMediaType(serializationMediaType());
+		networkRestlet.setLapisSerialization(this.lapisSerialization);
+		networkRestlet.setNetworkTable(this.networkTable);
+		networkRestlet.setResponseMediaType(this.serializationMediaType);
 		Restlet withFilters = networkRestlet.getNetworkRestletWithFilters();
-		if(isCoordinator) {
+		if(this.isCoordinator) {
 			CoordinatorNetworkApiFilter coordinatorNetworkApiFilter = new CoordinatorNetworkApiFilter();
 			coordinatorNetworkApiFilter.setNext(withFilters);
 			return coordinatorNetworkApiFilter;
@@ -145,19 +187,19 @@ public class LapisConfiguration {
 		}
 	}
 	
-	public VariableMetaDataApiRestlet getVariableMetaDataApiRestlet() {
+	private VariableMetaDataApiRestlet getVariableMetaDataApiRestlet() {
 		VariableMetaDataApiRestlet variableMetaDataApiRestlet = new VariableMetaDataApiRestlet();
-		variableMetaDataApiRestlet.setLocalDataTable(localDataTable());
-		variableMetaDataApiRestlet.setLapisSerialization(lapisSerialization());
-		variableMetaDataApiRestlet.setResponseMediaType(serializationMediaType());
+		variableMetaDataApiRestlet.setLocalDataTable(this.localDataTable);
+		variableMetaDataApiRestlet.setLapisSerialization(this.lapisSerialization);
+		variableMetaDataApiRestlet.setResponseMediaType(this.serializationMediaType);
 		return variableMetaDataApiRestlet;
 	}
 	
 	private Restlet getVariableValueApiRestlet() {
 		VariableValueApiRestlet variableValueApiRestlet = new VariableValueApiRestlet();
-		variableValueApiRestlet.setLapisSerialization(lapisSerialization());
-		variableValueApiRestlet.setLocalDataTable(localDataTable());
-		variableValueApiRestlet.setResponseMediaType(serializationMediaType());
+		variableValueApiRestlet.setLapisSerialization(this.lapisSerialization);
+		variableValueApiRestlet.setLocalDataTable(this.localDataTable);
+		variableValueApiRestlet.setResponseMediaType(this.serializationMediaType);
 		return variableValueApiRestlet.getVariableValueRestletWithFilters();
 	}
 	
@@ -169,56 +211,32 @@ public class LapisConfiguration {
 	
 	private Restlet getCoordinatorRestlet() {
 		CoordinatorRestlet coordinatorRestlet = new CoordinatorRestlet();
-		coordinatorRestlet.setLapisSerialization(lapisSerialization());
-		coordinatorRestlet.setNetworkTable(networkTable());
-		coordinatorRestlet.setResponseMediaType(serializationMediaType());
+		coordinatorRestlet.setLapisSerialization(this.lapisSerialization);
+		coordinatorRestlet.setNetworkTable(this.networkTable);
+		coordinatorRestlet.setResponseMediaType(this.serializationMediaType);
 		coordinatorRestlet.setNotifier(getNotifier());
 		return coordinatorRestlet.getCoordinatorRestletWithFilters();
 	}
 
 	private Notifier getNotifier() {
 		Notifier notifier = new Notifier();
-		notifier.setLapisSerialization(lapisSerialization());
-		notifier.setNetworkTable(networkTable());
+		notifier.setLapisSerialization(this.lapisSerialization);
+		notifier.setNetworkTable(this.networkTable);
 		notifier.setLapisTransmission(new LapisTransmission());
 		return notifier;
 	}
 	
-	@Bean
-	public NetworkTable networkTable() {
-		NetworkTable nt = new NetworkTable();
-		nt.setLocalNode(getLocalNode());
-		return nt;
-	}
-
-	@Bean
-	public MediaType serializationMediaType() {
-		return MediaType.APPLICATION_JSON;
-	}
-	
-	@Bean 
-	public LapisSerialization lapisSerialization() {
-		JsonSerialization json = new JsonSerialization();
-		json.setPrettyPrinting(true);
-		return json;
-	}
-	
-	@Bean
-	public LapisNode getLocalNode() {
-		return new LapisNode(name, "http://localhost:" + port); //TODO fix -- get the IP address to use
-	}
-	
-	@PostConstruct
-	public void postConstruct() {
-		if(!isCoordinator) {
-			networkClientCommunicationImpl().addNodeToNetwork(getLocalNode());
-		} else {
-			//nothing to do
+	/**
+	 * Attempts to join the network if this node is not the coordinator.
+	 */
+	public void attemptToJoinNetwork() {
+		if(!this.isCoordinator) {
+			try {				
+				this.lapisNetworkClient.addNodeToNetwork(networkTable.getLocalNode());
+			} catch(Exception e) {
+				//TODO HANDLE BETTER
+				e.printStackTrace();
+			}
 		}
-	}
-
-	@Bean
-	public GlobalDataTable globalDataTable() {
-		return new GlobalDataTable();
 	}
 }

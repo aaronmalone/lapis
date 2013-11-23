@@ -12,7 +12,6 @@ public class Attributes {
 		return getAttribute(message, MODEL_NAME_ATTRIBUTE, String.class);
 	}
 	
-	//TODO COMMENT OUT TO SEE HOW OFTEN IT'S USED
 	public static String getVariableName(Message message) {
 		return getAttribute(message, VARIABLE_NAME_ATTRIBUTE, String.class);
 	}

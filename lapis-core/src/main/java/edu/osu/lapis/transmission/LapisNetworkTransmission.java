@@ -4,9 +4,14 @@ import static edu.osu.lapis.transmission.ClientCall.RestMethod.DELETE;
 import static edu.osu.lapis.transmission.ClientCall.RestMethod.GET;
 import static edu.osu.lapis.transmission.ClientCall.RestMethod.PUT;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.osu.lapis.util.LapisRestletUtils;
 
 public class LapisNetworkTransmission {
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private final String COORDINATOR = "coordinator";
 	private LapisTransmission lapisTransmission;
@@ -30,6 +35,7 @@ public class LapisNetworkTransmission {
 	}
 	
 	public byte[] getLapisNode(String nodeName) {
+		logger.debug("Retrieving node information for node '{}'.", nodeName);
 		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
 		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
 	}

@@ -11,6 +11,7 @@ import org.restlet.Response;
 import org.restlet.data.Method;
 import org.restlet.data.Protocol;
 
+//TODO UNFINISHED
 public class LapisNetworkTransmissionTest {
 
 	private LapisNetworkTransmission lapisNetworkTransmission;
@@ -39,7 +40,7 @@ public class LapisNetworkTransmissionTest {
 	}
 	
 	@Test
-	public void testANodeToNetwork() {
+	public void testAddNodeToNetwork() {
 		//TODO IMPLEMENT
 	}
 }

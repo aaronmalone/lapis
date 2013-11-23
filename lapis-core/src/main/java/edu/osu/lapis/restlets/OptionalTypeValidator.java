@@ -10,7 +10,7 @@ import org.restlet.data.Status;
 import org.restlet.routing.Filter;
 
 import edu.osu.lapis.data.LapisDataType;
-import edu.osu.lapis.data.LapisVariable;
+import edu.osu.lapis.data.LapisVariable2;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.util.Attributes;
 
@@ -67,7 +67,7 @@ public class OptionalTypeValidator extends Filter {
 	
 	private LapisDataType getTypeOfLocalVariable(Request request) {
 		String variableName = Attributes.getModelName(request);
-		LapisVariable localVariable = localDataTable.get(variableName);
-		return localVariable.getType();
+		LapisVariable2 localVariable = localDataTable.get(variableName);
+		return localVariable.getLapisDataType();
 	}
 }

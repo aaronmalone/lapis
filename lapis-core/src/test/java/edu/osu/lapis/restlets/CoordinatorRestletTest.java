@@ -54,7 +54,7 @@ public class CoordinatorRestletTest {
 	
 	@Before
 	public void clearNetworkTable() {
-		List<LapisNode> nodes = new ArrayList<>(networkTable.getNodesList());
+		List<LapisNode> nodes = new ArrayList<LapisNode>(networkTable.getNodesList());
 		for(LapisNode node : nodes) {
 			networkTable.removeNode(node);
 		}
@@ -138,7 +138,8 @@ public class CoordinatorRestletTest {
 		networkTable.addNode(arbitraryNode);
 		Response response = new Response(request);
 		coordinatorRestlet.handle(request, response);
-		try (InputStream input = response.getEntity().getStream()){
+		try {
+			InputStream input = response.getEntity().getStream();
 			LapisNode responseNode = lapisSerialization.deserializeLapisNode(input);
 			Assert.assertEquals(arbitraryNode.getNodeName(), responseNode.getNodeName());
 			Assert.assertEquals(arbitraryNode.getUrl(), responseNode.getUrl());

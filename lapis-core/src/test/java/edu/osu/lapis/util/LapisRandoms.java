@@ -22,7 +22,7 @@ public class LapisRandoms {
 		abstract void setValue(Object array, int index);
 	}
 	
-	private static final Map<Class<?>, ArrayPopulator> populatorMap = new HashMap<>();
+	private static final Map<Class<?>, ArrayPopulator> populatorMap = new HashMap<Class<?>, ArrayPopulator>();
 	
 	static {
 		populatorMap.put(Integer.TYPE, new ArrayPopulator() {

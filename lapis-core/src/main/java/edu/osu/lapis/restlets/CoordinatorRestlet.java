@@ -63,6 +63,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	@Override
 	public void post(Request request, Response response) {
 		LapisNode updatedNode = Attributes.getAttribute(request, LAPIS_NODE_ATTRIBUTE, LapisNode.class);
+		getLogger().info("Updated node on network: " + updatedNode);
 		networkTable.updateNode(updatedNode);
 		notifier.notifyNetworkOfUpdate(updatedNode);
 	}
@@ -70,6 +71,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	@Override
 	public void put(Request request, Response response) {
 		LapisNode newNode = Attributes.getAttribute(request, LAPIS_NODE_ATTRIBUTE, LapisNode.class);
+		getLogger().info("New node on network: " + newNode);
 		networkTable.addNode(newNode);
 		notifier.notifyNetworkOfNewNode(newNode);
 	}
@@ -100,8 +102,8 @@ public class CoordinatorRestlet extends LapisRestletBase {
 			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
 			response.setEntity(entity);
 		} else {
-			System.out.println("coordinator restlet: node not found"); //TODO REMOVE
 			String msg = "The specified LAPIS node, \"" + nodeName + "\", is not present in the network table.";
+			getLogger().warning(msg);
 			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND, msg);
 			response.setEntity(msg, MediaType.TEXT_PLAIN);
 		}
