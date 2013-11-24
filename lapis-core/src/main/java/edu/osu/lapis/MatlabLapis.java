@@ -5,6 +5,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.osu.lapis.data.Dimensions;
 import edu.osu.lapis.data.LapisDataType;
@@ -17,6 +19,8 @@ public class MatlabLapis {
 	static {
 		LapisLogging.init();
 	}
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private final LapisOperationThing lapisOperationThing = new LapisOperationThing();
 	private final LapisCoreApi lapisCoreApi;
@@ -33,6 +37,7 @@ public class MatlabLapis {
 	/* PUBLISH */
 
 	public void publish(String localVariableName, Object initialValue) {
+		logger.trace("Publishing variable {} with initial value {}.", localVariableName, initialValue);
 		Validate.notNull("Initial value of published variable cannot be null.");
 		lapisCoreApi.publish(localVariableName, createNewLapisVariable(localVariableName, initialValue));
 	}
@@ -41,24 +46,33 @@ public class MatlabLapis {
 
 	@SuppressWarnings("deprecation")
 	public Object get(String variableFullName) {
+		logger.trace("Called get({})", variableFullName);
 		return lapisCoreApi.getRemoteValue(variableFullName);
 	}
 	
 	public void set(String variableFullName, Object value) {
+		logger.trace("Called set({}, {})", variableFullName, value);
 		lapisCoreApi.setRemoteValue(variableFullName, value);
 	}
 	
 	/* OPERATION METHODS */
 	
 	public boolean hasOperation() {
-		return lapisOperationThing.hasOperation();
+		boolean hasOp = lapisOperationThing.hasOperation();
+		if(hasOp) {
+			logger.trace("hasOperation() returning true...");
+		}
+		return hasOp;
 	}
 	
 	public LapisOperation retrieveOperation() {
-		return lapisOperationThing.retrieveOperation();
+		LapisOperation op = lapisOperationThing.retrieveOperation();
+		logger.trace("Called retrieveOperation(). Returning {}.", op);
+		return op;
 	}
 	
 	public void operationResult(LapisOperation operation, Object resultData) {
+		logger.trace("Called operationResult({}, {})", operation, resultData);
 		lapisOperationThing.operationResult(operation, resultData);
 	}
 	
@@ -104,8 +118,9 @@ public class MatlabLapis {
 	}
 	
 	private Object waitForOperationResult(LapisOperation operation) throws TimeoutException {
+		logger.trace("Waiting for result of operation {}.", operation);
 		Object result = null;
-		final long timeToWaitMillis = 1750; //TODO MAKE CONFIGURABLE
+		final long timeToWaitMillis = 1999; //TODO MAKE CONFIGURABLE
 		final long initialTimeMillis = System.currentTimeMillis();
 		while(result == null && System.currentTimeMillis() - initialTimeMillis < timeToWaitMillis) {
 			result = lapisOperationThing.retrieveOperationResult(operation);

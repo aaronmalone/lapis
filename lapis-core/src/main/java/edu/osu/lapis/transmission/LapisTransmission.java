@@ -88,7 +88,7 @@ public class LapisTransmission {
 	private String getNewDescription(String originalDescription, String entityText) {
 		if(originalDescription.isEmpty()) {
 			return entityText;
-		} else if(entityText.isEmpty()) {
+		} else if(entityText.isEmpty() || entityText.length() > 250) {
 			return originalDescription;
 		} else {
 			return originalDescription + ": " + entityText;

@@ -2,6 +2,7 @@ package edu.osu.lapis.restlets;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.concurrent.TimeoutException;
 
 import org.restlet.Request;
 import org.restlet.Response;
@@ -22,6 +23,7 @@ import edu.osu.lapis.restlets.filters.VariableValueExtractor;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.serialization.SerializationObject;
 import edu.osu.lapis.util.Attributes;
+import edu.osu.lapis.util.StackTraceUtil;
 
 public class VariableValueApiRestlet extends LapisRestletBase {
 	
@@ -72,12 +74,21 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 	public void get(Request request, Response response) {
 		try {
 			String variableName = Attributes.getVariableName(request);
+			logger.debug("Call to get value of variable '{}'", variableName);
 			LapisVariable2 localVariable = localDataTable.get(variableName);
 			response.setEntity(getResponseRepresentation(variableName, localVariable));
-		} catch (Exception e) { 
+		} catch (Exception e) {
 			logger.error("Error while retrieving variable value.", e);
-			response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Unable to retrieve variable value.");
-			response.setEntity("Unable to retrieve variable value.", MediaType.TEXT_PLAIN);
+			//TODO CAN PROBABLY IMPROVE THIS
+			Throwable cause = e.getCause();
+			if(cause instanceof TimeoutException) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, cause, cause.getMessage());
+				response.setEntity(cause.getMessage(), MediaType.TEXT_PLAIN);
+			} else {
+				String stackTrace = StackTraceUtil.getStrackTraceAsString(e);
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Unable to retrieve variable value.");
+				response.setEntity("Unable to retrieve variable value:\n" + stackTrace, MediaType.TEXT_PLAIN);				
+			}
 		}
 	}
 	
