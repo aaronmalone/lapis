@@ -22,7 +22,7 @@ classdef LapisAPI < handle
             
             obj.lapisTimer = timer('TimerFcn', @(event, data)lapisUpdate(obj));
             set(obj.lapisTimer, 'ExecutionMode', 'fixedRate');
-            set(obj.lapisTimer, 'Period', 0.5);
+            set(obj.lapisTimer, 'Period', 0.05);
             set(obj.lapisTimer, 'BusyMode', 'drop');
             set(obj.lapisTimer, 'ErrorFcn', @(event, data)timerErr(obj));
             
@@ -66,6 +66,13 @@ classdef LapisAPI < handle
             obj.dataTable(name) = data;
             obj.lapisJava.publish(java.lang.String(name), data.data);
         end
+        
+        function obj = forceLapisUpdate(obj)
+            stop(obj.lapisTimer);
+            obj.lapisUpdate();
+            start(obj.lapisTimer);
+        end
+        
         
         function obj = lapisUpdate(obj, varargin)
             %Timer callback for lapis interupt handling
@@ -124,7 +131,11 @@ classdef LapisAPI < handle
         function result = get(obj, modelName, varName)
             %Gets a variable on another LAPIS node.  Args(modelName, variablename, data)
             fullName = [varName  '@'  modelName];
-            result = obj.lapisJava.get(java.lang.String(fullName));
+            try 
+                result = obj.lapisJava.get(java.lang.String(fullName));
+            catch e
+                disp('There was an error getting the value.  Please try again.');
+            end
         end
         
         function obj = shutdown(obj)

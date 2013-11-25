@@ -3,17 +3,19 @@
 %IN A DIFFERENT MATLAB WINDOW FIRST!!!!!!!!!!!!!!!!!!!
 
 % NOTE FOR LOGGING (optional):
-% the following two lines from classpath.txt must be commented out (or
-% logging won't work)
-
+% the following two lines from $matlabroot/toolbox/local/classpath.txt must be commented out (or logging won't work ...it will give a WARN)
 % #$matlabroot/java/jarext/jxbrowser/slf4j-api.jar
 % #$matlabroot/java/jarext/jxbrowser/slf4j-log4j12.jar
 
-delete(timerfindall)
+%BEWARE OF OVERPOLLING when using a lapis.get operation.  It will
+%behave unexpectedly.  Use sets when possible (for current implementation)
+
+delete(timerfindall) %Deletes all left over timers (for safety)
 clear all
 clear classes
 clear java
-javaaddpath([pwd '\lapis-core-1.0-SNAPSHOT-jar-with-dependencies.jar']);
+javaaddpath([pwd '\lapis-core-1.0-SNAPSHOT-jar-with-dependencies.jar']);  %add the lapis jar file.  Future releases will include this in the LapisAPI class.
+
 
 %% set up LAPIS
 coordinatorAddress = 'http://127.0.0.1:7777';
@@ -39,7 +41,7 @@ lap.publish('node1finish', node2finish);
 %%
 % Wait for Node1 to finish counting
 while 1
-    
+    disp('Waiting for node 1.');
     if node2finish.data
         break;  %other node is ready
     end
@@ -55,9 +57,9 @@ while 1
     disp(x.data);
     pause(1);       %pause for 1 second
     
-    if x(5) == 0
+    if x(1) == 0
         
-        lap.set('Node1', 'simFinishFlag', 1);
+        lap.set('Node1', 'node2FinishFlag', 1);
         finishFlag.data = 1;
         
         break;
@@ -66,6 +68,21 @@ end
 
 disp('Done with my counting!')
 
+%Use this below at your own risk.  There is a bug that is still being
+%resolved here using GET operations when both models are in while loops and GETting.  Race condition!
+% while 1
+%     
+%     finish = lap.get('Node1', 'simFinishFlag');
+%     
+%     if finish
+%         disp('Done!');
+%         lap.shutdown();
+%         break;
+%     end
+%     pause(0.02);
+%     lap.forceLapisUpdate();
+% end
 
-%Don't do this too soon (or do it manually), as Node1 still needs to get your counting vector!
+
+%Remember to shutdown LAPIS!  You have to manually for this example.
 % lap.shutdown();
