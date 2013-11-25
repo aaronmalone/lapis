@@ -9,7 +9,6 @@ import org.junit.Assert;
 
 import edu.osu.lapis.data.Dimensions;
 import edu.osu.lapis.data.LapisDataType;
-import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.serialization.SerializationObject;
 

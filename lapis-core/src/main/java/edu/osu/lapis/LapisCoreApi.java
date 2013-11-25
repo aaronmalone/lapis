@@ -20,6 +20,8 @@ public class LapisCoreApi {
 	private LocalDataTable localDataTable;
 	private LapisDataClient lapisDataClient;
 	private LapisConfiguration lapisConfiguration;
+	private String name;
+	private boolean shutdown;
 	
 	/**
 	 * Start LAPIS and initialize with default properties.
@@ -38,6 +40,7 @@ public class LapisCoreApi {
 	 * @param properties the properties to use in initialization
 	 */
 	public LapisCoreApi(Properties properties) {
+		this.name = properties.getProperty("name");
 		this.lapisConfiguration = new LapisConfiguration(properties);
 		localDataTable = lapisConfiguration.getLocalDataTable();
 		lapisDataClient = lapisConfiguration.getLapisDataClient();
@@ -50,6 +53,7 @@ public class LapisCoreApi {
 		localDataTable.put(localVariableName, lapisVariable);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public <T> T getRemoteValue(String variableFullName, Class<T> expectedClassType) {
 		LapisDataType expectedLapisType = LapisDataType.getTypeForClass(expectedClassType);
 		Object remoteValue = lapisDataClient.getRemoteVariableValue(variableFullName, expectedLapisType);
@@ -72,12 +76,14 @@ public class LapisCoreApi {
 		lapisDataClient.setRemoteVariableValue(variableFullName, value);
 	}
 	
-	public void shutdown() {
+	public synchronized void shutdown() {
 		RestletServer restletServer = this.lapisConfiguration.getRestletServer();
-		if(restletServer != null) {
+		if(restletServer != null && !shutdown) {
+			System.err.println("Shutting down servers for node '" + name + "'.");
 			restletServer.stopServer();
+			shutdown = true;
 		} else {
-			System.err.println("Restlet Server null.");
+			System.err.println("Restlet Server was null, or was already shut down.");
 		}
 	}
 
@@ -120,5 +126,9 @@ public class LapisCoreApi {
 		} catch (IOException e) {
 			throw new RuntimeException("Error loading properties file: " + propertiesFileName, e);
 		}
+	}
+
+	public String getName() {
+		return name;
 	}
 }

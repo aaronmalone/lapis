@@ -1,5 +1,7 @@
 package edu.osu.lapis;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.lang3.Validate;
@@ -11,7 +13,7 @@ import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.LapisSettable;
 import edu.osu.lapis.data.LapisVariable2;
 
-public class JavaLapis {
+public class LapisApi {
 	
 	static {
 		LapisLogging.init();
@@ -19,12 +21,29 @@ public class JavaLapis {
 	
 	private final LapisCoreApi lapisCoreApi;
 
-	public JavaLapis(String propertiesFileName) {
+	public LapisApi(String propertiesFileName) {
 		this.lapisCoreApi = new LapisCoreApi(propertiesFileName);
 	}
 	
-	public JavaLapis(Properties properties) {
+	public LapisApi(Properties properties) {
 		this.lapisCoreApi = new LapisCoreApi(properties);
+	}
+	
+	public LapisApi(String nodeName, String coordinatorAddress, String myAddress) {
+		try {
+			Properties properties = new Properties();
+			properties.setProperty("name", nodeName);
+			properties.setProperty("coordinator.url", coordinatorAddress);
+			properties.setProperty("port", Integer.toString(new URL(myAddress).getPort()));
+			properties.setProperty("isCoordinator", Boolean.toString(coordinatorAddress.equals(myAddress)));
+			this.lapisCoreApi = new LapisCoreApi(properties);
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public LapisApi(String nodeName, String coordinatorAddress) {
+		this(nodeName, coordinatorAddress, coordinatorAddress);
 	}
 
 	/**

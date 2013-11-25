@@ -3,12 +3,12 @@ package edu.osu.lapis.sim;
 import java.util.Arrays;
 import java.util.Properties;
 
-import edu.osu.lapis.JavaLapis;
+import edu.osu.lapis.LapisApi;
 import edu.osu.lapis.util.Sleep;
 
 public class Sim {
 	
-	private static JavaLapis lapisApi = new JavaLapis(getProperties());
+	private static LapisApi lapisApi = new LapisApi(getProperties());
 
 	public static void main(String[] args) {
 		
@@ -49,8 +49,8 @@ public class Sim {
 		System.out.println("Telling Node1 that I'm finished...");
 		lapisApi.set("simFinishFlag@Node1", Double.valueOf(1));
 		
-		Sleep.sleep(99999999);
 		System.out.println("Finished.");
+		Sleep.sleep(1000);
 		System.exit(0);
 	}
 

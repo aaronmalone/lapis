@@ -1,5 +1,9 @@
 package edu.osu.lapis;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
@@ -20,18 +24,38 @@ public class MatlabLapis {
 		LapisLogging.init();
 	}
 	
+	private static final Map<String, LapisCoreApi> instanceMap
+		= new HashMap<String, LapisCoreApi>();
+	
+	private static void shutdownAndClearInstances(String instanceName) {
+		LapisCoreApi apiInstance = instanceMap.remove(instanceName);
+		if(apiInstance != null) {
+			apiInstance.shutdown();
+		}
+	}
+	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private final LapisOperationThing lapisOperationThing = new LapisOperationThing();
 	private final LapisCoreApi lapisCoreApi;
 	
-	public MatlabLapis(String name, String coordinatorAddress, String port, String isCoordinator) {
+	public MatlabLapis(String name, String coordinatorAddress) throws MalformedURLException {
+		this(name, coordinatorAddress, new Double(new URL(coordinatorAddress).getPort()), Boolean.TRUE);
+	}
+	
+	public MatlabLapis(String name, String coordinatorAddress, String myAddress) throws MalformedURLException {
+		this(name, coordinatorAddress, new Double( new URL(myAddress).getPort() ), Boolean.FALSE);
+	}
+	
+	public MatlabLapis(String name, String coordinatorAddress, Double port, Boolean isCoordinator) {
+		shutdownAndClearInstances(name);
 		Properties properties = new Properties();
 		properties.setProperty("name", name);
 		properties.setProperty("coordinator.url", coordinatorAddress);
-		properties.setProperty("port", port);
-		properties.setProperty("isCoordinator", isCoordinator.toLowerCase());
+		properties.setProperty("port", Long.toString(Math.round(port)));
+		properties.setProperty("isCoordinator",Boolean.toString(isCoordinator));
 		lapisCoreApi = new LapisCoreApi(properties);
+		instanceMap.put(name, lapisCoreApi);
 	}
 	
 	/* PUBLISH */
@@ -135,6 +159,7 @@ public class MatlabLapis {
 	}
 
 	public void shutdown() {
-		lapisCoreApi.shutdown();
+		String name = lapisCoreApi.getName();
+		shutdownAndClearInstances(name);
 	}
 }

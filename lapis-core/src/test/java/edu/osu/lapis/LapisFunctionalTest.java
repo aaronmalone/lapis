@@ -10,8 +10,8 @@ import edu.osu.lapis.util.LapisRandoms;
 
 public class LapisFunctionalTest {
 	
-	private JavaLapis nonCoordinatorLapis;
-	private JavaLapis coordinatorLapis;
+	private LapisApi nonCoordinatorLapis;
+	private LapisApi coordinatorLapis;
 
 	public static void main(String[] args) {
 		try {
@@ -25,8 +25,8 @@ public class LapisFunctionalTest {
 	}
 	
 	public void test() {
-			coordinatorLapis = new JavaLapis(getCoordinatorProperties());
-			nonCoordinatorLapis = new JavaLapis(getNonCoordinatorProperties());
+			coordinatorLapis = new LapisApi(getCoordinatorProperties());
+			nonCoordinatorLapis = new LapisApi(getNonCoordinatorProperties());
 			testPublishGetAndSetVariables();
 			testDimensionMismatch();
 	}
