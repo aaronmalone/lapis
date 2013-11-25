@@ -76,7 +76,7 @@ classdef LapisAPI < handle
                 op = obj.lapisJava.retrieveOperation;
                 varName = char(op.getVariableName);
                 
-                
+				import edu.osu.lapis.LapisOperationType;
                 if op.getOperationType == LapisOperationType.GET
                     obj.lapisJava.operationResult(op, obj.dataTable(varName).data);
                     
@@ -112,7 +112,7 @@ classdef LapisAPI < handle
         function obj = set(obj,modelName, varName, data)
            %Sets a variable on another LAPIS node.  Args(modelName, variablename, data)
            
-           if ~isa(x, 'double')
+           if ~isa(data, 'double')
               error('Setting types other than doubles are not currently supported'); 
            end
            
