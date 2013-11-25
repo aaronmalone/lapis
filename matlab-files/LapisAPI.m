@@ -8,12 +8,15 @@ classdef LapisAPI < handle
         lapisJava;          %Java LAPIS API
         modelName;          %Name of model
         coordinatorAddress; %Coordinator address
+        modelAddress;       %Model port and address
+        isCoordinator;      %Status of coordinator
     end
     
     
     methods
         
-        function obj = LapisAPI(modelName, coordinatorAddress, port, isCoordinator)
+        function obj = LapisAPI(varargin)
+            %Constructor.  If model is coordinator, use: Args(modelName, coordinatorAddress).  If model is not coordinator, use Args(modelName, coordinatorAddress, modelAddress)
             
             obj.dataTable = containers.Map;
             
@@ -23,18 +26,37 @@ classdef LapisAPI < handle
             set(obj.lapisTimer, 'BusyMode', 'drop');
             set(obj.lapisTimer, 'ErrorFcn', @(event, data)timerErr(obj));
             
-            
-            
             import edu.osu.lapis.MatlabLapis;
-            obj.lapisJava = MatlabLapis(java.lang.String(modelName), java.lang.String(coordinatorAddress), java.lang.String(port), java.lang.String(isCoordinator));
+            import edu.osu.lapis.LapisOperationType;
             
-            
+            if nargin == 2  %Model is the coordinator
+                obj.modelName = varargin{1};
+                obj.coordinatorAddress = varargin{2};
+                obj.modelAddress = obj.coordinatorAddress;
+                obj.isCoordinator = true;
+                
+                obj.lapisJava = MatlabLapis(java.lang.String(obj.modelName), ...
+                    java.lang.String(obj.coordinatorAddress));
+                
+            elseif nargin == 3   %Model is not coordinator
+                obj.modelName = varargin{1};
+                obj.coordinatorAddress = varargin{2};
+                obj.modelAddress = varargin{3};
+                obj.isCoordinator = false;
+                
+                obj.lapisJava = MatlabLapis(java.lang.String(obj.modelName), ...
+                    java.lang.String(obj.coordinatorAddress), ...
+                    java.lang.String(obj.modelAddress));
+            else
+                error('There is no Constructor signature with the specified number of parameters');
+            end
+
              start(obj.lapisTimer);
         end
         
         
         function obj = publish(obj, name, data)
-            
+            %Publishes a variable.  Args(variableName, LapisDataObject).
             
             if ~isa(data, 'LAPISData')
                 error('Published datatype must be type "LAPISData"');
@@ -46,14 +68,15 @@ classdef LapisAPI < handle
         end
         
         function obj = lapisUpdate(obj, varargin)
-            
+            %Timer callback for lapis interupt handling
             
             hasOp = obj.lapisJava.hasOperation;
+           
             if hasOp == 1
                 op = obj.lapisJava.retrieveOperation;
                 varName = char(op.getVariableName);
                 
-                import edu.osu.lapis.LapisOperationType;
+                
                 if op.getOperationType == LapisOperationType.GET
                     obj.lapisJava.operationResult(op, obj.dataTable(varName).data);
                     
@@ -66,59 +89,12 @@ classdef LapisAPI < handle
                     
                 end
             end
-            
-            
-            %             keys = obj.dataTable.keys();
-            %
-            %
-            %             for i = 1:length(keys)
-            %
-            %                 % Set the Java data first
-            %                 if obj.dataTable(keys{i}).changeFlag
-            %
-            %                     data = obj.dataTable(keys{i}).data;
-            %                     %%%
-            %                     %%%
-            %                     %set java lapis data
-            %                      javaData = javaArray('java.lang.Double', size(data,1),size(data,2));
-            %
-            %
-            %
-            %                     for m = 1:size(data,1)
-            %                         for n = 1:size(data,2)
-            %                             javaData(m,n) = java.lang.Double(data(m,n));
-            %                         end
-            %                     end
-            %
-            %                     javaData;
-            %
-            %                     %%%
-            %                     %%%
-            %
-            %
-            %
-            %                     %Resets the flag
-            %                     t = obj.dataTable(keys{i});
-            %                     t.changeFlag = 0;
-            %                 end
-            %
-            %             end
-            
-            
-            %%%
-            %%%
-            %%%
-            %Check for new data from Java and change if needed
-            %%%
-            %%%
-            %%%
-            
-            
+
         end
         
         
         function obj = timerErr(obj, varargin)
-            
+            %Timer error function.  Restarts timer if there is a failure.
             warning(lasterr);
             start(obj.lapisTimer);
             
@@ -126,26 +102,34 @@ classdef LapisAPI < handle
         
         
         function obj = delete(obj)
+           %Deletes the object.
            
+            obj.shutdown;
             delete(obj.lapisTimer);
             
         end
         
         function obj = set(obj,modelName, varName, data)
-
+           %Sets a variable on another LAPIS node.  Args(modelName, variablename, data)
+           
+           if ~isa(x, 'double')
+              error('Setting types other than doubles are not currently supported'); 
+           end
+           
            fullName = [varName  '@'  modelName];
            obj.lapisJava.set(fullName, data);
            
         end
         
         function result = get(obj, modelName, varName)
-            
+            %Gets a variable on another LAPIS node.  Args(modelName, variablename, data)
             fullName = [varName  '@'  modelName];
             result = obj.lapisJava.get(java.lang.String(fullName));
         end
         
         function obj = shutdown(obj)
-           obj.lapisJava.shutdown
+            %Shuts down the LAPIS nework.  This step is required if clearing variables.
+           obj.lapisJava.shutdown();
         end
         
     end
