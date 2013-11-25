@@ -1,13 +1,15 @@
-%%
+%% Node1 simulation file.  Increments a vector and then waits for Node2 to decrement the same vector.
 
-% NOTE:
+%YOU MUST RUN THIS FILE BEFORE RUNNING node2simulation.m
+
+% NOTE FOR LOGGING (optional):
 % the following two lines from classpath.txt must be commented out (or
 % logging won't work)
 
 % #$matlabroot/java/jarext/jxbrowser/slf4j-api.jar
 % #$matlabroot/java/jarext/jxbrowser/slf4j-log4j12.jar
 
-delete(timerfindall)
+delete(timerfindall)  %Deletes all left over timers (for safety)
 clear all
 clear classes
 clear java
@@ -28,19 +30,12 @@ lap.publish('finishFlag', finishFlag);
 simFinishFlag = LAPISData('simFinishFlag', [0]);    %simulation finished flag
 lap.publish('simFinishFlag', simFinishFlag);
 
+node2status = LAPISData('node2status', [0]);    %simulation finished flag
+lap.publish('node2status', node2status);
+
+
+
 %%
-% Wait for models to be ready
-while 1
-    
-        node2status = lap.get('Node2', 'ready');
-      
-        if node2status 
-            break;  %other node is ready
-        end
-    
-    pause(0.5);
-    
-end
     
 % Start the simulation
 while 1
@@ -52,6 +47,7 @@ while 1
     if x(1) == 10
 
         lap.set('Node2', 'node2copy', x.data);
+        lap.set('Node2', 'node1finish', 1);
         finishFlag.data = 1;
         
         break;
@@ -71,4 +67,7 @@ node2Copy = lap.get('Node2', 'node2copy');
 disp('Node2 copy: ');
 disp(node2Copy)
 disp('Simulation Finished!');
+
+
+lap.shutdown();
 

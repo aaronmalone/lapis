@@ -1,6 +1,8 @@
-%%
+%% Node 2 Simulation File.  Decrements 5 element vector once Node1 is finished incrementing the same vector.
+%IMPORTANT:  IN ORDER FOR THIS FILE TO WORK, YOU MUST START node1simulation.m
+%IN A DIFFERENT MATLAB WINDOW FIRST!!!!!!!!!!!!!!!!!!!
 
-% NOTE:
+% NOTE FOR LOGGING (optional):
 % the following two lines from classpath.txt must be commented out (or
 % logging won't work)
 
@@ -31,29 +33,30 @@ lap.publish('simFinishFlag', simFinishFlag);
 ready = LAPISData('ready', [1]);    %simulation finished flag
 lap.publish('ready', ready);
 
+node2finish = LAPISData('node1finish', [0]);    %simulation finished flag
+lap.publish('node1finish', node2finish);
 
 %%
-% Wait for models to be ready
+% Wait for Node1 to finish counting
 while 1
-        node1status = lap.get('Node1', 'finishFlag');
-        disp(node1status);
-        if node1status 
-            break;  %other node is ready
-        end
     
-    pause(0.5);
+    if node2finish.data
+        break;  %other node is ready
+    end
+    
+    pause(1);
     
 end
-    
+
 % Start the simulation
 while 1
     
     x.data = x.data - 1;    %increment the array by 1
     disp(x.data);
     pause(1);       %pause for 1 second
-
+    
     if x(5) == 0
-
+        
         lap.set('Node1', 'simFinishFlag', 1);
         finishFlag.data = 1;
         
@@ -63,3 +66,6 @@ end
 
 disp('Done with my counting!')
 
+
+%Don't do this too soon (or do it manually), as Node1 still needs to get your counting vector!
+% lap.shutdown();
