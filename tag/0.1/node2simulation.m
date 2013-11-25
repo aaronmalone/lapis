@@ -29,14 +29,14 @@ simFinishFlag = LAPISData('simFinishFlag', [0]);    %simulation finished flag
 lap.publish('simFinishFlag', simFinishFlag);
 
 ready = LAPISData('ready', [1]);    %simulation finished flag
-lap.publish('simFinishFlag', ready);
+lap.publish('ready', ready);
 
 
 %%
 % Wait for models to be ready
 while 1
         node1status = lap.get('Node1', 'finishFlag');
-        
+        disp(node1status);
         if node1status 
             break;  %other node is ready
         end

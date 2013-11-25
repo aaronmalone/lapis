@@ -22,7 +22,7 @@ classdef LapisAPI < handle
             
             obj.lapisTimer = timer('TimerFcn', @(event, data)lapisUpdate(obj));
             set(obj.lapisTimer, 'ExecutionMode', 'fixedRate');
-            set(obj.lapisTimer, 'Period', 0.02);
+            set(obj.lapisTimer, 'Period', 0.5);
             set(obj.lapisTimer, 'BusyMode', 'drop');
             set(obj.lapisTimer, 'ErrorFcn', @(event, data)timerErr(obj));
             
