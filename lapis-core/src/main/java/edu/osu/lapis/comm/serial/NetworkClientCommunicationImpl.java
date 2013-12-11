@@ -1,4 +1,4 @@
-package edu.osu.lapis.communication;
+package edu.osu.lapis.comm.serial;
 
 import java.util.List;
 

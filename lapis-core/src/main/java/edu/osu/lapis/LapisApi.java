@@ -4,14 +4,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import org.apache.commons.lang3.Validate;
-
 import com.google.common.util.concurrent.Callables;
 
-import edu.osu.lapis.data.Dimensions;
-import edu.osu.lapis.data.LapisDataType;
+import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisSettable;
-import edu.osu.lapis.data.LapisVariable2;
+import edu.osu.lapis.data.LapisVariable;
 
 public class LapisApi {
 	
@@ -19,14 +16,14 @@ public class LapisApi {
 		LapisLogging.init();
 	}
 	
-	private final LapisCoreApi lapisCoreApi;
+	private final LapisCore lapisCore;
 
 	public LapisApi(String propertiesFileName) {
-		this.lapisCoreApi = new LapisCoreApi(propertiesFileName);
+		this.lapisCore = new LapisCore(propertiesFileName);
 	}
 	
 	public LapisApi(Properties properties) {
-		this.lapisCoreApi = new LapisCoreApi(properties);
+		this.lapisCore = new LapisCore(properties);
 	}
 	
 	public LapisApi(String nodeName, String coordinatorAddress, String myAddress) {
@@ -36,7 +33,7 @@ public class LapisApi {
 			properties.setProperty("coordinator.url", coordinatorAddress);
 			properties.setProperty("port", Integer.toString(new URL(myAddress).getPort()));
 			properties.setProperty("isCoordinator", Boolean.toString(coordinatorAddress.equals(myAddress)));
-			this.lapisCoreApi = new LapisCoreApi(properties);
+			this.lapisCore = new LapisCore(properties);
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
@@ -54,80 +51,78 @@ public class LapisApi {
 	 * @param reference the object to publish
 	 */
 	public void publish(String variableName, Object reference) {
-		LapisVariable2 lapisVariable = createLapisVariable(variableName, reference);
-		lapisCoreApi.publish(variableName, lapisVariable);
+		LapisVariable lapisVariable = createLapisVariable(variableName, reference);
+		lapisCore.publish(variableName, lapisVariable);
 	}
 
-	private LapisVariable2 createLapisVariable(String name, Object reference) {
-		LapisDataType type = LapisDataType.getTypeForObject(reference);
-		Validate.notNull(type, "Type cannot be null."); //TODO IMPROVE ERROR MESSAGE
-		return new LapisVariable2(name, type, Dimensions.getDimensions(reference), 
+	private LapisVariable createLapisVariable(String name, Object reference) {
+		return new LapisVariable(name, LapisPermission.READ_WRITE,
 				Callables.returning(reference), new LapisSettable(reference));
 	}
 	
 	//all the get methods
 	public double getDouble(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, Double.TYPE);
+		return lapisCore.getRemoteValue(fullName, Double.TYPE);
 	}
 	
 	public int[] getArrayOfInt(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, int[].class);
+		return lapisCore.getRemoteValue(fullName, int[].class);
 	}
 
 	public long[] getArrayOfLong(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, long[].class);
+		return lapisCore.getRemoteValue(fullName, long[].class);
 	}
 
 	public double[] getArrayOfDouble(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, double[].class);
+		return lapisCore.getRemoteValue(fullName, double[].class);
 	}
 
 	public byte[] getArrayOfByte(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, byte[].class);
+		return lapisCore.getRemoteValue(fullName, byte[].class);
 	}
 
 	public boolean[] getArrayOfBoolean(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, boolean[].class);
+		return lapisCore.getRemoteValue(fullName, boolean[].class);
 	}
 
 	public int[][] getTwoDimensionalArrayOfInt(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, int[][].class);
+		return lapisCore.getRemoteValue(fullName, int[][].class);
 	}
 
 	public long[][] getTwoDimensionalArrayOfLong(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, long[][].class);
+		return lapisCore.getRemoteValue(fullName, long[][].class);
 	}
 
 	public double[][] getTwoDimensionalArrayOfDouble(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, double[][].class);
+		return lapisCore.getRemoteValue(fullName, double[][].class);
 	}
 
 	public byte[][] getTwoDimensionalArrayOfByte(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, byte[][].class);
+		return lapisCore.getRemoteValue(fullName, byte[][].class);
 	}
 
 	public boolean[][] getTwoDimensionalArrayOfBoolean(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, boolean[][].class);
+		return lapisCore.getRemoteValue(fullName, boolean[][].class);
 	}
 
 	public int[][][] getThreeDimensionalArrayOfInt(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, int[][][].class);
+		return lapisCore.getRemoteValue(fullName, int[][][].class);
 	}
 
 	public long[][][] getThreeDimensionalArrayOfLong(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, long[][][].class);
+		return lapisCore.getRemoteValue(fullName, long[][][].class);
 	}
 
 	public double[][][] getThreeDimensionalArrayOfDouble(String fullName) {
-		return lapisCoreApi.getRemoteValue(fullName, double[][][].class);
+		return lapisCore.getRemoteValue(fullName, double[][][].class);
 	}
 
 	public byte[][][] getThreeDimensionalArrayOfByte(String variableFullName) {
-		return lapisCoreApi.getRemoteValue(variableFullName, byte[][][].class);
+		return lapisCore.getRemoteValue(variableFullName, byte[][][].class);
 	}
 
 	public boolean[][][] getThreeDimensionalArrayOfBoolean(String variableFullName) {
-		return lapisCoreApi.getRemoteValue(variableFullName, boolean[][][].class);
+		return lapisCore.getRemoteValue(variableFullName, boolean[][][].class);
 	}
 	
 	/**
@@ -137,7 +132,7 @@ public class LapisApi {
 	 * @param value the new value
 	 */
 	public void set(String variableFullName, Object value) {
-		lapisCoreApi.setRemoteValue(variableFullName, value);
+		lapisCore.setRemoteValue(variableFullName, value);
 	}
 	
 //   TODO figure out if we really need this.

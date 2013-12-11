@@ -1,11 +1,11 @@
-package edu.osu.lapis;
+package edu.osu.lapis.comm.client;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.osu.lapis.communication.NetworkClientCommunicationImpl;
+import edu.osu.lapis.comm.serial.NetworkClientCommunicationImpl;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
 

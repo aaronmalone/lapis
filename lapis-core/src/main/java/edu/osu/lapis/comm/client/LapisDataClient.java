@@ -1,10 +1,12 @@
-package edu.osu.lapis;
+package edu.osu.lapis.comm.client;
+
+import org.apache.commons.lang3.Validate;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import edu.osu.lapis.communication.DataClientCommunicationImpl;
+import edu.osu.lapis.comm.serial.DataClientCommunicationImpl;
 import edu.osu.lapis.data.GlobalDataTable;
-import edu.osu.lapis.data.LapisDataType;
+import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.data.VariableMetaData;
 
@@ -19,10 +21,10 @@ public class LapisDataClient {
 	 * @param expectedType
 	 * @return the value of the remote variable
 	 */
-	public Object getRemoteVariableValue(String fullName, LapisDataType expectedType) {
+	public <T> T getRemoteVariableValue(String fullName, Class<T> cls) {
 		VariableFullName variableFullName = new VariableFullName(fullName);
-		validateVariableExistenceAndType(variableFullName, expectedType);
-		return dataClientCommunicationImpl.getVariableValue(variableFullName);
+		validateVariableExistence(variableFullName);
+		return dataClientCommunicationImpl.getVariableValue(variableFullName, cls);
 	}
 	
 	public VariableMetaData getRemoteVariableMetaData(String fullName) {
@@ -35,9 +37,10 @@ public class LapisDataClient {
 	 * @param value the value to set
 	 */
 	public void setRemoteVariableValue(String fullName, Object value) {
-		LapisDataType expectedType = LapisDataType.getTypeForObject(value);
 		VariableFullName variableFullName = new VariableFullName(fullName);
-		validateVariableExistenceAndType(variableFullName, expectedType);
+		validateVariableExistence(variableFullName);
+		Validate.isTrue(globalDataTable.get(fullName).getLapisPermission() == LapisPermission.READ_WRITE, 
+				"The remote variable %s is read-only.", fullName);
 		dataClientCommunicationImpl.setVariableValue(variableFullName, value);
 	}
 		
@@ -52,27 +55,11 @@ public class LapisDataClient {
 	 * @param expectedType the expected type
 	 */
 	@VisibleForTesting
-	void validateVariableExistenceAndType(VariableFullName variableFullName, LapisDataType expectedType) {
+	void validateVariableExistence(VariableFullName variableFullName) {
 		VariableMetaData metaData = globalDataTable.get(variableFullName);
-		if(metaData == null || metaData.getType() != expectedType) {
-//			metaData = dataClientCommunicationImpl.getVariableMetaData(variableFullName);
+		if(metaData == null) {
 			metaData = getRemoteVariableMetaData(variableFullName.toString());
 			globalDataTable.put(variableFullName, metaData);
-			checkRemoteVariableAgainstExpectedType(metaData, expectedType);
-		}
-	}
-	
-	/**
-	 * Validates that the variable meta-data has the expected type.
-	 * @param metaData the variable meta-data
-	 * @param expectedType the expected type
-	 */
-	private void checkRemoteVariableAgainstExpectedType(VariableMetaData metaData, LapisDataType expectedType) {		
-		if(metaData.getType() != expectedType) {
-			throw new IllegalArgumentException("Remote variable  has type " 
-					+ metaData.getType() 
-					+ " but we attempted to get/set it as "
-					+ expectedType + ".");
 		}
 	}
 

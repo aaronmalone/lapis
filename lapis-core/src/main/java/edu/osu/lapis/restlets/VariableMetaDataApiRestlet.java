@@ -10,8 +10,7 @@ import org.restlet.representation.Representation;
 
 import com.google.common.collect.Lists;
 
-import edu.osu.lapis.data.LapisPermission;
-import edu.osu.lapis.data.LapisVariable2;
+import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.serialization.LapisSerialization;
@@ -36,7 +35,7 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	
 	private void respondWithMetaDataForOneVariable(Response response, String variableName) {
 		getLogger().info("Call to retrieve variable meta-data for variable '" + variableName + "'");
-		LapisVariable2 localVariable = localDataTable.get(variableName);
+		LapisVariable localVariable = localDataTable.get(variableName);
 		if(localVariable != null) {
 			byte[] serialized = lapisSerialization.serialize(getVariableMetaData(localVariable));
 			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
@@ -50,7 +49,7 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	private void respondWithMetaDataForAllVariables(Response response) {
 		getLogger().info("Call to retrieve variable meta-data for all variables");
 		List<VariableMetaData> metaList = Lists.newArrayList();
-		for(LapisVariable2 local : localDataTable.getAll()) {
+		for(LapisVariable local : localDataTable.getAll()) {
 			metaList.add(getVariableMetaData(local));
 		}
 		byte[] serialized = lapisSerialization.serialize(metaList);
@@ -59,12 +58,11 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 		response.setStatus(Status.SUCCESS_OK);
 	}
 	
-	private VariableMetaData getVariableMetaData(LapisVariable2 lapisVar) {
+	private VariableMetaData getVariableMetaData(LapisVariable lapisVar) {
 		VariableMetaData meta = new VariableMetaData();
 		meta.setName(lapisVar.getName());
-		meta.setType(lapisVar.getLapisDataType());
-		meta.setDimension(lapisVar.getDimensions());
-		meta.setLapisPermission(LapisPermission.READ_WRITE); //TODO CHANGE PERM
+		meta.setLapisPermission(lapisVar.getLapisPermission());
+		meta.setType(lapisVar.getValue().getClass());
 		return meta;
 	}
 	

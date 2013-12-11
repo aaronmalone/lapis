@@ -2,7 +2,7 @@ package edu.osu.lapis.transmission;
 
 import static edu.osu.lapis.transmission.ClientCall.RestMethod.GET;
 import static edu.osu.lapis.transmission.ClientCall.RestMethod.POST;
-import edu.osu.lapis.LapisNetworkClient;
+import edu.osu.lapis.comm.client.LapisNetworkClient;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.util.LapisRestletUtils;

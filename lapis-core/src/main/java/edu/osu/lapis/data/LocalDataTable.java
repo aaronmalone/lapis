@@ -13,20 +13,20 @@ public class LocalDataTable {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	
-	private final Map<String, LapisVariable2> localDataMap = 
-			Collections.synchronizedMap(new HashMap<String, LapisVariable2>());
+	private final Map<String, LapisVariable> localDataMap = 
+			Collections.synchronizedMap(new HashMap<String, LapisVariable>());
 	
-	public void put(String localName, LapisVariable2 variable) {
+	public void put(String localName, LapisVariable variable) {
 		log.info("Adding variable {} to local data table.",localName);
 		localDataMap.put(localName, variable);
 	}
 	
-	public LapisVariable2 get(String localName) {
+	public LapisVariable get(String localName) {
 		return localDataMap.get(localName);
 	}
 	
-	public List<LapisVariable2> getAll() {
-		return new ArrayList<LapisVariable2>(localDataMap.values());
+	public List<LapisVariable> getAll() {
+		return new ArrayList<LapisVariable>(localDataMap.values());
 	}
 
 	public void remove(String localName) {
