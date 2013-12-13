@@ -3,7 +3,7 @@
 %IN A DIFFERENT MATLAB WINDOW FIRST!!!!!!!!!!!!!!!!!!!
 
 % NOTE FOR LOGGING (optional):
-% the following two lines from $matlabroot/toolbox/local/classpath.txt must be commented out (or logging won't work ...it will give a WARN)
+% the following two lines from $matlabroot/toolbox/local/classpath.txt must be commented out (or else logging won't work ...it will give a WARN)
 % #$matlabroot/java/jarext/jxbrowser/slf4j-api.jar
 % #$matlabroot/java/jarext/jxbrowser/slf4j-log4j12.jar
 
@@ -70,18 +70,19 @@ disp('Done with my counting!')
 
 %Use this below at your own risk.  There is a bug that is still being
 %resolved here using GET operations when both models are in while loops and GETting.  Race condition!
-% while 1
-%     
-%     finish = lap.get('Node1', 'simFinishFlag');
-%     
-%     if finish
-%         disp('Done!');
-%         lap.shutdown();
-%         break;
-%     end
-%     pause(0.02);
-%     lap.forceLapisUpdate();
-% end
+lap.forceLapisUpdate();
+while 1
+    lap.forceLapisUpdate();
+    finish = lap.get('Node1', 'simFinishFlag');
+    
+    if finish
+        disp('Done!');
+        lap.shutdown();
+        break;
+    end
+    pause(0.02);
+    lap.forceLapisUpdate();
+end
 
 
 %Remember to shutdown LAPIS!  You have to manually for this example.

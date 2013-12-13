@@ -22,7 +22,7 @@ classdef LapisAPI < handle
             
             obj.lapisTimer = timer('TimerFcn', @(event, data)lapisUpdate(obj));
             set(obj.lapisTimer, 'ExecutionMode', 'fixedRate');
-            set(obj.lapisTimer, 'Period', 0.05);
+            set(obj.lapisTimer, 'Period', 0.5);
             set(obj.lapisTimer, 'BusyMode', 'drop');
             set(obj.lapisTimer, 'ErrorFcn', @(event, data)timerErr(obj));
             
@@ -133,8 +133,10 @@ classdef LapisAPI < handle
             fullName = [varName  '@'  modelName];
             try 
                 result = obj.lapisJava.get(java.lang.String(fullName));
-            catch e
+            catch e 
                 disp('There was an error getting the value.  Please try again.');
+                obj.forceLapisUpdate();
+                result = obj.lapisJava.get(java.lang.String(fullName));
             end
         end
         

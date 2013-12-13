@@ -76,5 +76,8 @@ disp('Simulation Finished!');
 simFinishFlag.data = 1;
 
 
-lap.shutdown();
+
+
+%Make sure you shut down LAPIS before clearing it!
+% lap.shutdown();
 
