@@ -1,5 +1,7 @@
 package edu.osu.lapis;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
@@ -17,8 +19,26 @@ public class MatlabLapis {
 		LapisLogging.init();
 	}
 	
-	private final LapisOperationThing lapisOperationThing = new LapisOperationThing();
+	private final LapisOperationHandler lapisOperationHandler = new LapisOperationHandler();
 	private final LapisCore lapisCoreApi;
+	
+	public MatlabLapis(String name, String coordinatorAddress) {
+		this(name, coordinatorAddress, getPort(coordinatorAddress), Boolean.TRUE.toString());
+	}
+	
+	public MatlabLapis(String name, String coordinatorAddress, String modelAddress) {
+		//TODO ACTUALLY USE MODEL ADDRESS
+		this(name, coordinatorAddress, getPort(modelAddress), Boolean.FALSE.toString());
+	}
+	
+	private static String getPort(String url) {
+		try {
+			URL urlObj = new URL(url);
+			return Integer.toString(urlObj.getPort());
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("Unable to parse port from address: " + url);
+		}
+	}
 	
 	public MatlabLapis(String name, String coordinatorAddress, String port, String isCoordinator) {
 		Properties properties = new Properties();
@@ -32,8 +52,8 @@ public class MatlabLapis {
 	/* PUBLISH */
 
 	public void publish(String localVariableName, Object initialValue) {
-		Validate.notNull("Initial value of published variable cannot be null.");
-		lapisCoreApi.publish(localVariableName, createNewLapisVariable(localVariableName, initialValue));
+		Validate.notNull(initialValue, "Initial value of published variable cannot be null.");
+		lapisCoreApi.publish(localVariableName, createNewLapisVariable(localVariableName));
 	}
 	
 	/* REMOTE METHODS */
@@ -49,18 +69,18 @@ public class MatlabLapis {
 	/* OPERATION METHODS */
 	
 	public boolean hasOperation() {
-		return lapisOperationThing.hasOperation();
+		return lapisOperationHandler.hasOperation();
 	}
 	
 	public LapisOperation retrieveOperation() {
-		return lapisOperationThing.retrieveOperation();
+		return lapisOperationHandler.retrieveOperation();
 	}
 	
 	public void operationResult(LapisOperation operation, Object resultData) {
-		lapisOperationThing.operationResult(operation, resultData);
+		lapisOperationHandler.operationResult(operation, resultData);
 	}
 	
-	private LapisVariable createNewLapisVariable(String name, Object initialValue) {
+	private LapisVariable createNewLapisVariable(String name) {
 		return new LapisVariable(name, LapisPermission.READ_WRITE, 
 				createCallableForMatlabVariable(name), createSettableForMatlabVariable(name));
 	}
@@ -69,7 +89,7 @@ public class MatlabLapis {
 		return new Callable<Object>() {
 			@Override public Object call() throws Exception {
 				LapisOperation getOperation = new LapisOperation(name);
-				lapisOperationThing.addOperation(getOperation);
+				lapisOperationHandler.addOperation(getOperation);
 				return waitForOperationResult(getOperation);
 			}
 		};
@@ -79,7 +99,7 @@ public class MatlabLapis {
 		return new Settable() {
 			@Override public void set(Object value) {
 				LapisOperation setOperation = new LapisOperation(name, value);
-				lapisOperationThing.addOperation(setOperation);
+				lapisOperationHandler.addOperation(setOperation);
 				Object result = null;
 				try {
 					result = waitForOperationResult(setOperation);
@@ -103,7 +123,7 @@ public class MatlabLapis {
 		final long timeToWaitMillis = 1750; //TODO MAKE CONFIGURABLE
 		final long initialTimeMillis = System.currentTimeMillis();
 		while(result == null && System.currentTimeMillis() - initialTimeMillis < timeToWaitMillis) {
-			result = lapisOperationThing.retrieveOperationResult(operation);
+			result = lapisOperationHandler.retrieveOperationResult(operation);
 			if(result == null) {
 				Sleep.sleep(5);
 			}

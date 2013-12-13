@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class LapisOperationThing {
+public class LapisOperationHandler {
 	
 	private Map<LapisOperation, Object> resultDataMap = Collections.synchronizedMap(new HashMap<LapisOperation, Object>());
 	private BlockingQueue<LapisOperation> operationsQueue = new LinkedBlockingQueue<LapisOperation>();	
