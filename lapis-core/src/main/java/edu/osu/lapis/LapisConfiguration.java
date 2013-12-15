@@ -6,9 +6,11 @@ import org.apache.commons.lang3.Validate;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 
-import edu.osu.lapis.communication.DataClientCommunicationImpl;
-import edu.osu.lapis.communication.NetworkClientCommunicationImpl;
-import edu.osu.lapis.communication.Notifier;
+import edu.osu.lapis.comm.Notifier;
+import edu.osu.lapis.comm.client.LapisDataClient;
+import edu.osu.lapis.comm.client.LapisNetworkClient;
+import edu.osu.lapis.comm.serial.DataClientCommunicationImpl;
+import edu.osu.lapis.comm.serial.NetworkClientCommunicationImpl;
 import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.network.LapisNode;

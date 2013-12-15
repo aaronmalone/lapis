@@ -9,7 +9,7 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 
-import edu.osu.lapis.communication.Notifier;
+import edu.osu.lapis.comm.Notifier;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.restlets.filters.LapisNodeExtractor;

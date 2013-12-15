@@ -1,9 +1,9 @@
 package edu.osu.lapis.restlets;
 
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.Validate;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -14,9 +14,10 @@ import org.restlet.representation.Representation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.osu.lapis.data.LapisVariable2;
+import edu.osu.lapis.data.LapisPermission;
+import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
-import edu.osu.lapis.restlets.filters.DeserializedTypeAndDimensionValidator;
+import edu.osu.lapis.restlets.filters.NotReadOnlyValidator;
 import edu.osu.lapis.restlets.filters.VariableNameAttrValidator;
 import edu.osu.lapis.restlets.filters.VariablePresentValidator;
 import edu.osu.lapis.restlets.filters.VariableValueExtractor;
@@ -39,15 +40,13 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 		filter.setPostFilters(
 				new VariableNameAttrValidator(),
 				new VariablePresentValidator(localDataTable),
-				new OptionalTypeValidator(localDataTable),
-				new VariableValueExtractor(lapisSerialization),
-				new DeserializedTypeAndDimensionValidator(localDataTable));
+				new NotReadOnlyValidator(localDataTable),
+				new VariableValueExtractor(lapisSerialization));
 		filter.setPostTargetRestlet(this);
 	
 		filter.setGetFilters(
 				new VariableNameAttrValidator(),
-				new VariablePresentValidator(localDataTable),
-				new OptionalTypeValidator(localDataTable));
+				new VariablePresentValidator(localDataTable));
 		filter.setGetTargetRestlet(this);
 		
 		return filter;
@@ -60,13 +59,12 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 		SerializationObject serializationObject = Attributes.getAttribute(request, 
 				VariableValueExtractor.DESERIALIZED_VARIABLE_VALUE, SerializationObject.class);
 		String variableName = Attributes.getVariableName(request);
-		LapisVariable2 localVariable = localDataTable.get(variableName);
+		LapisVariable localVariable = localDataTable.get(variableName);
 		updateValue(localVariable, serializationObject);
 	}
 	
-	private void updateValue(LapisVariable2 localVariable, SerializationObject serializationObject) {
-		assert localVariable.getLapisDataType() == serializationObject.getType();
-		assert Arrays.equals(localVariable.getDimensions(), serializationObject.getDimension());
+	private void updateValue(LapisVariable localVariable, SerializationObject serializationObject) {
+		Validate.isTrue(localVariable.getLapisPermission() == LapisPermission.READ_WRITE, "Cannot update read-only variable");
 		localVariable.setValue(serializationObject.getData());
 	}
 
@@ -75,7 +73,7 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 		try {
 			String variableName = Attributes.getVariableName(request);
 			logger.debug("Call to get value of variable '{}'", variableName);
-			LapisVariable2 localVariable = localDataTable.get(variableName);
+			LapisVariable localVariable = localDataTable.get(variableName);
 			response.setEntity(getResponseRepresentation(variableName, localVariable));
 		} catch (Exception e) {
 			logger.error("Error while retrieving variable value.", e);
@@ -92,19 +90,16 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 		}
 	}
 	
-	private Representation getResponseRepresentation(String name, LapisVariable2 localVariable) {
+	private Representation getResponseRepresentation(String name, LapisVariable localVariable) {
 		SerializationObject serializationObject = createSerializationObject(name, localVariable);
 		byte[] serialized = lapisSerialization.serialize(serializationObject);
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
 		return new InputRepresentation(inputStream, responseMediaType, serialized.length);
 	}
 	
-	private SerializationObject createSerializationObject(String name, LapisVariable2 localVariable) {
-		SerializationObject serializationObject = new SerializationObject();
-		serializationObject.setName(name);
-		serializationObject.setData(localVariable.getValue());
-		serializationObject.setType(localVariable.getLapisDataType());
-		serializationObject.setDimension(localVariable.getDimensions());
+	private SerializationObject createSerializationObject(String name, LapisVariable localVariable) {
+		Object value = localVariable.getValue();
+		SerializationObject serializationObject = new SerializationObject(name, value);
 		return serializationObject;
 	}
 	

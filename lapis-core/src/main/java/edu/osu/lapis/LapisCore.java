@@ -8,14 +8,13 @@ import java.util.Properties;
 
 import com.google.common.io.Files;
 
-import edu.osu.lapis.data.LapisDataType;
-import edu.osu.lapis.data.LapisVariable2;
+import edu.osu.lapis.comm.client.LapisDataClient;
+import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
-import edu.osu.lapis.data.VariableMetaData;
 //TODO MOVE RESTLET STUFF AWAY FROM THE SURFACE
 import edu.osu.lapis.restlets.RestletServer;
 
-public class LapisCoreApi {
+public class LapisCore {
 	
 	private LocalDataTable localDataTable;
 	private LapisDataClient lapisDataClient;
@@ -26,12 +25,12 @@ public class LapisCoreApi {
 	/**
 	 * Start LAPIS and initialize with default properties.
 	 */
-	public LapisCoreApi() {
+	public LapisCore() {
 		//default
 		this(getDefaultProperties());
 	}
 	
-	public LapisCoreApi(String propertiesFileName) {
+	public LapisCore(String propertiesFileName) {
 		this(getPropertiesFromFile(propertiesFileName));
 	}
 
@@ -39,7 +38,7 @@ public class LapisCoreApi {
 	 * Start LAPIS and initialize with the given properties
 	 * @param properties the properties to use in initialization
 	 */
-	public LapisCoreApi(Properties properties) {
+	public LapisCore(Properties properties) {
 		this.name = properties.getProperty("name");
 		this.lapisConfiguration = new LapisConfiguration(properties);
 		localDataTable = lapisConfiguration.getLocalDataTable();
@@ -49,27 +48,16 @@ public class LapisCoreApi {
 		lapisConfiguration.attemptToJoinNetwork();
 	}
 
-	public void publish(String localVariableName, LapisVariable2 lapisVariable) {
+	public void publish(String localVariableName, LapisVariable lapisVariable) {
 		localDataTable.put(localVariableName, lapisVariable);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <T> T getRemoteValue(String variableFullName, Class<T> expectedClassType) {
-		LapisDataType expectedLapisType = LapisDataType.getTypeForClass(expectedClassType);
-		Object remoteValue = lapisDataClient.getRemoteVariableValue(variableFullName, expectedLapisType);
-		if(remoteValue.getClass().equals(Double.class))
-			return (T) remoteValue; //well...
-		else
-			return expectedClassType.cast(remoteValue);
+		return lapisDataClient.getRemoteVariableValue(variableFullName, expectedClassType);
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Deprecated //do we want to keep this
-	public <T> T getRemoteValue(String variableFullName) {
-		VariableMetaData metaData = lapisDataClient.getRemoteVariableMetaData(variableFullName);
-		LapisDataType type = metaData.getType();
-		Object remoteValue = lapisDataClient.getRemoteVariableValue(variableFullName, type);
-		return (T) remoteValue;
+	public Object getRemoteValue(String variableFullName) {
+		return lapisDataClient.getRemoteVariableValue(variableFullName, Object.class);
 	}
 	
 	public void setRemoteValue(String variableFullName, Object value) {

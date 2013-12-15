@@ -1,7 +1,5 @@
-package edu.osu.lapis.communication;
+package edu.osu.lapis.comm.serial;
 
-import edu.osu.lapis.data.Dimensions;
-import edu.osu.lapis.data.LapisDataType;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.serialization.LapisSerialization;
@@ -28,23 +26,26 @@ public class DataClientCommunicationImpl {
 		}
 	}
 
-	//TODO MAYBE REMOVE SERIALIZATION OBJECT AT THIS LEVEL
-	public Object getVariableValue(VariableFullName fullName) {
+	public <T> T getVariableValue(VariableFullName fullName, Class<T> cls) {
+		Object dataObj;
 		try {
 			byte[] data = lapisDataTransmission.getVariableValue(fullName);
 			SerializationObject serializationObj = lapisSerialization.deserializeModelData(data);
-			return serializationObj.getData();
+			dataObj = serializationObj.getData();
 		} catch (Exception e) {
 			throw new RuntimeException("Error while retrieving variable value: " + fullName, e);
 		}
+		//TODO ADD HANDLING FOR EMPTY ARRAY
+		if(cls.isInstance(dataObj)) {
+			return cls.cast(dataObj);
+		} else {
+			throw new RuntimeException("Couldn't cast dataObj " + dataObj + " of type " 
+					+ dataObj.getClass() + " to " + cls + ".");
+		}
 	}
 
-	public void setVariableValue(VariableFullName fullName, Object value) {
-		SerializationObject obj = new SerializationObject();
-		obj.setName(fullName.getLocalName());
-		obj.setData(value);
-		obj.setType(LapisDataType.getTypeForObject(value));
-		obj.setDimension(Dimensions.getDimensions(value));
+	public  <T> void setVariableValue(VariableFullName fullName, T value) {
+		SerializationObject obj = new SerializationObject(fullName.getLocalName(), value);
 		byte[] serialized = lapisSerialization.serialize(obj);
 		lapisDataTransmission.setVariableValue(fullName, serialized);
 	}

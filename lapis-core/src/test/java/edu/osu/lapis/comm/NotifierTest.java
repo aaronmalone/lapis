@@ -1,4 +1,4 @@
-package edu.osu.lapis.communication;
+package edu.osu.lapis.comm;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;

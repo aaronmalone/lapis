@@ -16,7 +16,7 @@ import org.restlet.data.Protocol;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 
-import edu.osu.lapis.LapisNetworkClient;
+import edu.osu.lapis.comm.client.LapisNetworkClient;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.util.LapisRestletUtils;

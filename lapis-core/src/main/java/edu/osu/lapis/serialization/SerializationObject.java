@@ -2,8 +2,6 @@ package edu.osu.lapis.serialization;
 
 import java.io.Serializable;
 
-import edu.osu.lapis.data.LapisDataType;
-
 @SuppressWarnings("serial")
 
 /**
@@ -11,44 +9,29 @@ import edu.osu.lapis.data.LapisDataType;
  */
 public class SerializationObject implements Serializable{
 	
-	private String name;
-	private LapisDataType type;
-	private int[] dimension;
-	private Object data;
-
-	public SerializationObject() {
-		//no-args constructor
+	private final String name;
+	private final Class<?> originalType;
+	private final Object data;
+	
+	public SerializationObject(String name, Object data) {
+		this(name, data.getClass(), data);
+	}
+	
+	public SerializationObject(String name, Class<?> originalType, Object data) {
+		this.name = name;
+		this.originalType = originalType;
+		this.data = data;
 	}
 
 	public String getName() {
 		return name;
 	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public LapisDataType getType() {
-		return type;
-	}
-
-	public void setType(LapisDataType type) {
-		this.type = type;
-	}
-
-	public int[] getDimension() {
-		return dimension;
-	}
-
-	public void setDimension(int[] dimension) {
-		this.dimension = dimension;
-	}
-
+	
 	public Object getData() {
 		return data;
 	}
 
-	public void setData(Object data) {
-		this.data = data;
+	public Class<?> getOriginalType() {
+		return originalType;
 	}
 }

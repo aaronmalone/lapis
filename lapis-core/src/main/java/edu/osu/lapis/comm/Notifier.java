@@ -1,4 +1,4 @@
-package edu.osu.lapis.communication;
+package edu.osu.lapis.comm;
 
 import static edu.osu.lapis.transmission.ClientCall.RestMethod.DELETE;
 import static edu.osu.lapis.transmission.ClientCall.RestMethod.GET;
