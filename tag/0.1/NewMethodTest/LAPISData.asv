@@ -1,46 +1,74 @@
 classdef LAPISData < handle
     
     properties
+        
         name;
         data;
         changeFlag = 0;
         lapReference;
     end
-
+    
+    
+    
     methods
-
+        
+        
         function obj = LAPISData(name, data)
             obj.name = name;
             obj.data = data;
         end
-                
-        function obj = set.data(obj, value)                     
-            try
-                obj.lapReference.setCachedValue(obj.name, value);
-                obj.data = value;
-            catch e
-                warning('Value was not set in LAPIS');
-                obj.data = value;
-            end
+        
+        
+        function obj = set.data(obj, value)
+            
+%             disp(['the data set is ' num2str(value)]);
+
+        try
+            obj.lapReference.setCachedValue(obj.name, value);
+            obj.data = value;
+        catch e
+            warni
+            
+        end
             
         end
         
-        function result = get.data(obj)           
+        function result = get.data(obj)
+            
+%             disp(['the data goten is ' num2str(obj.data)]);
+  
+            %TODO: make sure you can still get the data if no lapis ref is
+            %defined.
+            
+            
             try
-                 result = obj.lapReference.retrieveCachedValue(obj.name);
+                result = obj.lapReference.checkForGETOperation(obj.name);
+                
+                if ~isempty(result)
+                   obj.data = result; 
+                end
+
             catch e
-                warning('Value was not gotten');
+                disp(e.message);
+                disp('Value was not gotten');
                 result = obj.data;
             end
+            
+            result = obj.data;
+            
         end
         
-               
+        
+        
         function obj = setLapisReference(obj, lap)
             
             obj.lapReference = lap;
             
         end
+        
+        
 
+        
         function result = display(obj)
             disp(' ');
             disp('LAPISData Object : ');

@@ -75,6 +75,15 @@ classdef LapisAPI < handle
         end
         
         
+        function obj = setCachedValue(obj, varName, data)            
+            obj.lapisJava.setCachedValue(varName, data);
+        end
+        
+        function result = retrieveCachedValue(obj, varName)
+           result = obj.lapisJava.retrieveCachedValue(varName); 
+        end
+        
+        
         function obj = lapisUpdate(obj, varargin)
             %Timer callback for lapis interupt handling
             
