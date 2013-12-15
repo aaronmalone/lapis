@@ -20,11 +20,11 @@ classdef LapisAPI < handle
             
             obj.dataTable = containers.Map;
             
-            obj.lapisTimer = timer('TimerFcn', @(event, data)lapisUpdate(obj));
-            set(obj.lapisTimer, 'ExecutionMode', 'fixedRate');
-            set(obj.lapisTimer, 'Period', 0.5);
-            set(obj.lapisTimer, 'BusyMode', 'drop');
-            set(obj.lapisTimer, 'ErrorFcn', @(event, data)timerErr(obj));
+%             obj.lapisTimer = timer('TimerFcn', @(event, data)lapisUpdate(obj));
+%             set(obj.lapisTimer, 'ExecutionMode', 'fixedRate');
+%             set(obj.lapisTimer, 'Period', 0.5);
+%             set(obj.lapisTimer, 'BusyMode', 'drop');
+%             set(obj.lapisTimer, 'ErrorFcn', @(event, data)timerErr(obj));
             
             import edu.osu.lapis.MatlabLapis;
             import edu.osu.lapis.LapisOperationType;
@@ -51,7 +51,7 @@ classdef LapisAPI < handle
                 error('There is no Constructor signature with the specified number of parameters');
             end
 
-             start(obj.lapisTimer);
+%              start(obj.lapisTimer);
         end
         
         
@@ -61,16 +61,17 @@ classdef LapisAPI < handle
             if ~isa(data, 'LAPISData')
                 error('Published datatype must be type "LAPISData"');
             end
-            
+
+            data.setLapisReference(obj);
             
             obj.dataTable(name) = data;
             obj.lapisJava.publish(java.lang.String(name), data.data);
         end
         
         function obj = forceLapisUpdate(obj)
-            stop(obj.lapisTimer);
-            obj.lapisUpdate();
-            start(obj.lapisTimer);
+%             stop(obj.lapisTimer);
+%             obj.lapisUpdate();
+%             start(obj.lapisTimer);
         end
         
         
@@ -89,7 +90,7 @@ classdef LapisAPI < handle
                 
                 varName = char(op.getVariableName);
                 
-				import edu.osu.lapis.LapisOperationType;
+				import edu.osu.lapis.LapisOperationType
                 if op.getOperationType == LapisOperationType.GET
                     obj.lapisJava.operationResult(op, obj.dataTable(varName).data);
                     
@@ -106,10 +107,45 @@ classdef LapisAPI < handle
         end
         
         
+        function result = checkForGETOperation(obj, varName)
+            
+            hasOp = obj.lapisJava.hasOperation;
+            
+            if hasOp == 1
+
+                op = obj.lapisJava.retrieveOperation
+                
+                disp(['I got an operation ']); 
+                
+                networkVarName = char(op.getVariableName);
+                
+				import edu.osu.lapis.LapisOperationType
+                if op.getOperationType == LapisOperationType.SET && strcmp(char(networkVarName), varName)
+                    
+                    %SET%
+                    handl = obj.dataTable(varName);
+                    handl.data = op.getData;
+                    
+                    result = op.getData;
+                    
+                    obj.lapisJava.operationResult(op, 1);
+                else
+                    
+                    result = [];
+                end
+            else
+                
+                result = [];
+                
+            end
+            
+        end
+        
+        
         function obj = timerErr(obj, varargin)
             %Timer error function.  Restarts timer if there is a failure.
             warning(lasterr);
-            start(obj.lapisTimer);
+%             start(obj.lapisTimer);
             
         end
         

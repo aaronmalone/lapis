@@ -43,12 +43,14 @@ lap.publish('node1finish', node2finish);
 while 1
 %     disp('Waiting for node 1.');
     
-    lap.get('Node1', 'simFinishFlag');
+    lap.get('Node1', 'x');
+    
+    
     if node2finish.data
         break;  %other node is ready
     end
-    lap.forceLapisUpdate();
-%     pause(1);
+%     lap.forceLapisUpdate();
+     pause(1);
     
 end
 

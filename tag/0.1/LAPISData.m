@@ -18,6 +18,16 @@ classdef LAPISData < handle
         end
         
         
+        function obj = set.data(obj, value)
+            
+            disp(['the data set is ' num2str(value)]);
+            
+            obj.data = value;
+            
+        end
+        
+        
+        
         function obj = subsasgn(obj, S, B)
             
             if strcmp(S.type, '()')

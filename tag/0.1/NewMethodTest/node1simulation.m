@@ -46,14 +46,16 @@ lap.publish('node2status', node2status);
 % Start the simulation
 while 1
     
-    x.data = x.data + 1;    %increment the array by 1
-    disp(x.data);
+%     x.data = x.data + 1;    %increment the array by 1
+%     disp(x.data);
 %     pause(1);       %pause for 1 second
 
-    if x(1) > 100000
+    disp(lap.get('Node2', 'node2copy'));
 
-        lap.set('Node2', 'node2copy', x.data);
-        lap.set('Node2', 'node1finish', 1);
+    if x(1) > 1000000
+
+%         lap.set('Node2', 'node2copy', x.data);
+%         lap.set('Node2', 'node1finish', 1);
         finishFlag.data = 1;
         
         break;
