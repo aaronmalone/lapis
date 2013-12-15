@@ -14,7 +14,7 @@ delete(timerfindall) %Deletes all left over timers (for safety)
 clear all
 clear classes
 clear java
-javaaddpath([pwd '\lapis-core-1.0-SNAPSHOT-jar-with-dependencies.jar']);  %add the lapis jar file.  Future releases will include this in the LapisAPI class.
+javaaddpath([pwd '\lapis-matlab-1.0-SNAPSHOT-jar-with-dependencies.jar']);  %add the lapis jar file.  Future releases will include this in the LapisAPI class.
 
 
 %% set up LAPIS
