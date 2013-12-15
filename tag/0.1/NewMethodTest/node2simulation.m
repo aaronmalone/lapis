@@ -41,12 +41,13 @@ lap.publish('node1finish', node2finish);
 %%
 % Wait for Node1 to finish counting
 while 1
-%     disp('Waiting for node 1.');
+     disp('Waiting for node 1.');
+
     
-    lap.get('Node1', 'x');
-    
-    
-    if node2finish.data
+
+    if lap.get('Node1', 'finishFlag')
+        
+        x.data = lap.get('Node1', 'x');
         break;  %other node is ready
     end
 %     lap.forceLapisUpdate();
@@ -59,9 +60,9 @@ while 1
     
     x.data = x.data - 1;    %increment the array by 1
     disp(x.data);
-%     pause(1);       %pause for 1 second
+     pause(1);       %pause for 1 second
     
-    if x(1) == 0
+    if x.data(1) < 0
         
         lap.set('Node1', 'node2FinishFlag', 1);
         finishFlag.data = 1;
@@ -76,12 +77,12 @@ disp('Done with my counting!')
 %resolved here using GET operations when both models are in while loops and GETting.  Race condition!
 % lap.forceLapisUpdate();
 while 1
-    lap.forceLapisUpdate();
+    
     finish = lap.get('Node1', 'simFinishFlag');
     
     if finish
         disp('Done!');
-        lap.shutdown();
+%         lap.shutdown();
         break;
     end
 %     pause(0.02);

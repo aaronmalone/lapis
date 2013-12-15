@@ -11,7 +11,6 @@
 %BEWARE OF OVERPOLLING when using a lapis.get operation.  It will
 %behave unexpectedly.  Use sets when possible (for current implementation)
 
-delete(timerfindall)  %Deletes all left over timers (for safety)
 clear all
 clear classes
 clear java
@@ -48,14 +47,10 @@ while 1
     
      x.data = x.data + 1;    %increment the array by 1
      disp(x.data);
-%     pause(1);       %pause for 1 second
+     pause(2);       %pause for 1 second
 
-    disp(lap.get('Node2', 'node2copy'));
+    if x.data(1) > 10
 
-    if x(1) > 1000
-
-%         lap.set('Node2', 'node2copy', x.data);
-%         lap.set('Node2', 'node1finish', 1);
         finishFlag.data = 1;
         
         break;
