@@ -26,9 +26,8 @@ classdef LapisAPI < handle
 %             set(obj.lapisTimer, 'BusyMode', 'drop');
 %             set(obj.lapisTimer, 'ErrorFcn', @(event, data)timerErr(obj));
             
-            import edu.osu.lapis.MatlabLapis;
-            import edu.osu.lapis.LapisOperationType;
-            
+           
+           
             if nargin == 2  %Model is the coordinator
                 obj.modelName = varargin{1};
                 obj.coordinatorAddress = varargin{2};
@@ -99,7 +98,7 @@ classdef LapisAPI < handle
                 
                 varName = char(op.getVariableName);
                 
-				import edu.osu.lapis.LapisOperationType
+				
                 if op.getOperationType == LapisOperationType.GET
                     obj.lapisJava.operationResult(op, obj.dataTable(varName).data);
                     
@@ -128,7 +127,7 @@ classdef LapisAPI < handle
                 
                 networkVarName = char(op.getVariableName);
                 
-				import edu.osu.lapis.LapisOperationType
+				
                 if op.getOperationType == LapisOperationType.SET && strcmp(char(networkVarName), varName)
                     
                     %SET%
