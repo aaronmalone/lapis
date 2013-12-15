@@ -11,7 +11,7 @@ public class LapisLogging {
 	static {
 		newProps.setProperty("org.restlet.engine.loggerFacadeClass","org.restlet.ext.slf4j.Slf4jLoggerFacade");
 		newProps.setProperty("org.slf4j.simpleLogger.logFile", "System.out");
-		newProps.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
+		newProps.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
 		newProps.setProperty("org.slf4j.simpleLogger.dateTimeFormat", "yyyy-MM-dd HH:mm:ss.SSS");
 		newProps.setProperty("org.slf4j.simpleLogger.levelInBrackets", "true");
 		newProps.setProperty("org.slf4j.simpleLogger.log.edu.osu.lapis", "info");

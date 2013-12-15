@@ -34,12 +34,10 @@ public class JsonSerialization implements LapisSerialization {
 		final TypeAdapter<Class<?>> typeAdapter = new TypeAdapter<Class<?>>() {
 			@Override
 			public void write(JsonWriter out, Class<?> value) throws IOException {
-				System.out.println("writing out class name..."); //TODO REMOVE
 				out.value(value.getName());
 			}
 			@Override
 			public Class<?> read(JsonReader in) throws IOException {
-				System.out.println("Why am I reading in a class?"); //TODO REMOVE
 				return null;
 			}
 		};
@@ -47,12 +45,9 @@ public class JsonSerialization implements LapisSerialization {
 		@SuppressWarnings("unchecked")
 		@Override
 		public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-			System.out.print("type is " + type.getRawType()); //TODO REMOVE
 			if(type.getRawType().equals(Class.class)) {
-				System.out.println(" returning adapter"); //TODO REMOVE
 				return (TypeAdapter<T>) typeAdapter;
 			} else
-				System.out.println(" returning null."); //TODO REMOVE
 				return null;
 		}
 	};
