@@ -5,7 +5,7 @@ import org.junit.Test;
 
 public class LapisFunctionalTestAsUnitTest {
 
-	@Ignore 
+	@Ignore
 	@Test
 	public void test() {
 		new LapisFunctionalTest().test();

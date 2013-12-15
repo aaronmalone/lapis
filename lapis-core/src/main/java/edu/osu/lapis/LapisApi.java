@@ -10,6 +10,9 @@ import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisSettable;
 import edu.osu.lapis.data.LapisVariable;
 
+/**
+ * LAPIS API exposed to Java clients.
+ */
 public class LapisApi {
 	
 	static {
@@ -18,14 +21,28 @@ public class LapisApi {
 	
 	private final LapisCore lapisCore;
 
+	/**
+	 * Construct using properties in properties file.
+	 */
 	public LapisApi(String propertiesFileName) {
 		this.lapisCore = new LapisCore(propertiesFileName);
 	}
-	
+
+	/**
+	 * Construct using properties.
+	 */
 	public LapisApi(Properties properties) {
 		this.lapisCore = new LapisCore(properties);
 	}
 	
+	/**
+	 * Construct using the specified properties. This resulting LAPIS node will 
+	 * be a coordinator node if the coordinatorAddress and myAddress arguments 
+	 * are the same.  
+	 * @param nodeName the name of this node on the LAPIS network
+	 * @param coordinatorAddress the address of the coordinator on the LAPIS network
+	 * @param myAddress the address of the current node
+	 */
 	public LapisApi(String nodeName, String coordinatorAddress, String myAddress) {
 		try {
 			Properties properties = new Properties();
