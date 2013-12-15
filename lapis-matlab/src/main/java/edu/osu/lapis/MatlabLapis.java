@@ -10,7 +10,6 @@ import org.apache.commons.lang3.Validate;
 import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.Settable;
-import edu.osu.lapis.data.VariableFullName;
 
 public class MatlabLapis {
 	
@@ -20,7 +19,6 @@ public class MatlabLapis {
 	
 	private final LapisCore lapisCoreApi;
 	private final MatlabDataCache dataCache = new MatlabDataCache();
-	private final String nodeName;
 	
 	public MatlabLapis(String name, String coordinatorAddress) {
 		this(name, coordinatorAddress, getPort(coordinatorAddress), Boolean.TRUE.toString());
@@ -32,7 +30,6 @@ public class MatlabLapis {
 	}
 	
 	public MatlabLapis(String name, String coordinatorAddress, String port, String isCoordinator) {
-		this.nodeName = name;
 		Properties properties = new Properties();
 		properties.setProperty("name", name);
 		properties.setProperty("coordinator.url", coordinatorAddress);
@@ -79,24 +76,24 @@ public class MatlabLapis {
 		};
 	}
 
+	/* REMOTE METHODS */
+	
 	public Object get(String variableFullName) {
-		VariableFullName variableNameObject = new VariableFullName(variableFullName); 
-		String nodeName = variableNameObject.getModelName();
-		if(this.nodeName.equals(nodeName)) {
-			return dataCache.getCachedValue(variableNameObject.getLocalName());
-		} else {
-			return lapisCoreApi.getRemoteValue(variableFullName);			
-		}
+		return lapisCoreApi.getRemoteValue(variableFullName);
 	}
 	
 	public void set(String variableFullName, Object value) {
-		VariableFullName variableNameObject = new VariableFullName(variableFullName); 
-		String nodeName = variableNameObject.getModelName();
-		if(this.nodeName.equals(nodeName)) {
-			dataCache.setCachedValue(variableNameObject.getLocalName(), value);
-		} else {
-			lapisCoreApi.setRemoteValue(variableFullName, value);
-		}
+		lapisCoreApi.setRemoteValue(variableFullName, value);
+	}
+
+	/* CACHED VALUE METHODS */
+	
+	public Object retrieveCachedValue(String name) {
+		return dataCache.getCachedValue(name);
+	}
+	
+	public void setCachedValue(String name, Object value) {
+		dataCache.setCachedValue(name, value);
 	}
 		
 	public void shutdown() {
