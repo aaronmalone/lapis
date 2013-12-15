@@ -26,7 +26,7 @@ classdef LapisAPI < handle
 %             set(obj.lapisTimer, 'BusyMode', 'drop');
 %             set(obj.lapisTimer, 'ErrorFcn', @(event, data)timerErr(obj));
             
-           
+           import edu.osu.lapis.MatlabLapis;
            
             if nargin == 2  %Model is the coordinator
                 obj.modelName = varargin{1};

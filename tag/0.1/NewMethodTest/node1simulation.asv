@@ -52,7 +52,7 @@ while 1
 
     disp(lap.get('Node2', 'node2copy'));
 
-    if x(1) > 1000
+    if x(1) > 1000000
 
 %         lap.set('Node2', 'node2copy', x.data);
 %         lap.set('Node2', 'node1finish', 1);
