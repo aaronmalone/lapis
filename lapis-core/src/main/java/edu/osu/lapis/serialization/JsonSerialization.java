@@ -103,7 +103,6 @@ public class JsonSerialization implements LapisSerialization {
 	
 	@Override
 	public byte[] serialize(SerializationObject serializationObject) {
-		System.out.println("serialize(SerializationObject): " + serializationObject); //TODO REMOVE
 		return getGson().toJson(serializationObject).getBytes();
 	}
 	
@@ -114,7 +113,6 @@ public class JsonSerialization implements LapisSerialization {
 	
 	@Override
 	public SerializationObject deserializeModelData(byte[] serialized) {
-		System.out.println("deserializeModelData: serialized: " + new String(serialized)); //TODO REMOVE
 		return deserializeModelData(new ByteArrayInputStream(serialized));
 	}
 
