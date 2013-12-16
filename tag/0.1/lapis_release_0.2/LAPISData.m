@@ -28,7 +28,7 @@ classdef LAPISData < handle
                 obj.lapReference.setCachedValue(obj.name, value);
                 obj.data = value;
             catch e
-                warning('Value was not set in LAPIS');
+%                 warning('Value was not set in LAPIS');
                 obj.data = value;
             end
             
