@@ -1,10 +1,17 @@
 classdef LapisAPI < handle
-    
-    
+%     LAPIS API object.  Responsible for connecting and maintaing a LAPIS
+%     network connection. Use this API to do SETs and GETs on a LAPIS
+%     network.  Depends on a LAPIS java JAR file.
+% EXAMPLE:   
+% coordinatorAddress = 'http://127.0.0.1:7777';
+% nodeName = 'Node1';
+% lap = LapisAPI(nodeName, coordinatorAddress); 
+
+
+
     properties
         
         dataTable;          %Datatable for local published variables
-        lapisTimer;         %Interupt timer for LAPIS network
         lapisJava;          %Java LAPIS API
         modelName;          %Name of model
         coordinatorAddress; %Coordinator address
@@ -19,12 +26,6 @@ classdef LapisAPI < handle
             %Constructor.  If model is coordinator, use: Args(modelName, coordinatorAddress).  If model is not coordinator, use Args(modelName, coordinatorAddress, modelAddress)
             
             obj.dataTable = containers.Map;
-            
-%             obj.lapisTimer = timer('TimerFcn', @(event, data)lapisUpdate(obj));
-%             set(obj.lapisTimer, 'ExecutionMode', 'fixedRate');
-%             set(obj.lapisTimer, 'Period', 0.5);
-%             set(obj.lapisTimer, 'BusyMode', 'drop');
-%             set(obj.lapisTimer, 'ErrorFcn', @(event, data)timerErr(obj));
             
            import edu.osu.lapis.MatlabLapis;
            
@@ -49,8 +50,6 @@ classdef LapisAPI < handle
             else
                 error('There is no Constructor signature with the specified number of parameters');
             end
-
-%              start(obj.lapisTimer);
         end
         
         
@@ -66,104 +65,20 @@ classdef LapisAPI < handle
             obj.dataTable(name) = data;
             obj.lapisJava.publish(java.lang.String(name), data.data);
         end
-        
-        function obj = forceLapisUpdate(obj)
-%             stop(obj.lapisTimer);
-%             obj.lapisUpdate();
-%             start(obj.lapisTimer);
-        end
-        
-        
-        function obj = setCachedValue(obj, varName, data)            
+                
+        function obj = setCachedValue(obj, varName, data)    
+%             Setter to put a value into the Java datatable
             obj.lapisJava.setCachedValue(varName, data);
         end
         
         function result = retrieveCachedValue(obj, varName)
+%             Getter method to get a value from the Java datatable
            result = obj.lapisJava.retrieveCachedValue(varName); 
         end
         
-        
-        function obj = lapisUpdate(obj, varargin)
-            %Timer callback for lapis interupt handling
-            
-            hasOp = obj.lapisJava.hasOperation;
-            disp(['I got an operation signal: ' num2str(hasOp)]); 
-            if hasOp == 1
-                
-               
-                
-                op = obj.lapisJava.retrieveOperation
-                
-                 disp(['I got an operation: ']); 
-                
-                varName = char(op.getVariableName);
-                
-				
-                if op.getOperationType == LapisOperationType.GET
-                    obj.lapisJava.operationResult(op, obj.dataTable(varName).data);
-                    
-                else
-                    %SET%
-                    handl = obj.dataTable(varName);
-                    handl.data = op.getData;
-                    
-                    obj.lapisJava.operationResult(op, 1);
-                    
-                end
-            end
-
-        end
-        
-        
-        function result = checkForGETOperation(obj, varName)
-            
-            hasOp = obj.lapisJava.hasOperation;
-            
-            if hasOp == 1
-
-                op = obj.lapisJava.retrieveOperation
-                
-                disp(['I got an operation ']); 
-                
-                networkVarName = char(op.getVariableName);
-                
-				
-                if op.getOperationType == LapisOperationType.SET && strcmp(char(networkVarName), varName)
-                    
-                    %SET%
-                    handl = obj.dataTable(varName);
-                    handl.data = op.getData;
-                    
-                    result = op.getData;
-                    
-                    obj.lapisJava.operationResult(op, 1);
-                else
-                    
-                    result = [];
-                end
-            else
-                
-                result = [];
-                
-            end
-            
-        end
-        
-        
-        function obj = timerErr(obj, varargin)
-            %Timer error function.  Restarts timer if there is a failure.
-            warning(lasterr);
-%             start(obj.lapisTimer);
-            
-        end
-        
-        
         function obj = delete(obj)
            %Deletes the object.
-           
             obj.shutdown;
-            delete(obj.lapisTimer);
-            
         end
         
         function obj = set(obj,modelName, varName, data)

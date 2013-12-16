@@ -8,9 +8,6 @@
 % #$matlabroot/java/jarext/jxbrowser/slf4j-log4j12.jar
 
 
-%BEWARE OF OVERPOLLING when using a lapis.get operation.  It will
-%behave unexpectedly.  Use sets when possible (for current implementation)
-
 clear all
 clear classes
 clear java
@@ -62,7 +59,7 @@ disp('waiting for Node 2 to finish');
 
 %Wait for Node 2 to set the simulation finish flag
 while node2FinishFlag.data ~= 1
-%     pause(0.5);
+     pause(0.5);
 end
 
 node2Copy = lap.get('Node2', 'node2copy');

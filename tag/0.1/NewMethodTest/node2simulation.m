@@ -7,10 +7,7 @@
 % #$matlabroot/java/jarext/jxbrowser/slf4j-api.jar
 % #$matlabroot/java/jarext/jxbrowser/slf4j-log4j12.jar
 
-%BEWARE OF OVERPOLLING when using a lapis.get operation.  It will
-%behave unexpectedly.  Use sets when possible (for current implementation)
 
-delete(timerfindall) %Deletes all left over timers (for safety)
 clear all
 clear classes
 clear java
@@ -41,26 +38,21 @@ lap.publish('node1finish', node2finish);
 %%
 % Wait for Node1 to finish counting
 while 1
-     disp('Waiting for node 1.');
-
-    
-
-    if lap.get('Node1', 'finishFlag')
-        
+    disp('Waiting for node 1...');
+    if lap.get('Node1', 'finishFlag')        
         x.data = lap.get('Node1', 'x');
         break;  %other node is ready
     end
-%     lap.forceLapisUpdate();
-     pause(1);
+    pause(1);
     
 end
 
 % Start the simulation
 while 1
     
-    x.data = x.data - 1;    %increment the array by 1
+    x.data = x.data - 1;    %decrement the array by 1
     disp(x.data);
-     pause(1);       %pause for 1 second
+    pause(1);       %pause for 1 second
     
     if x.data(1) < 0
         
@@ -73,20 +65,13 @@ end
 
 disp('Done with my counting!')
 
-%Use this below at your own risk.  There is a bug that is still being
-%resolved here using GET operations when both models are in while loops and GETting.  Race condition!
-% lap.forceLapisUpdate();
+
 while 1
-    
     finish = lap.get('Node1', 'simFinishFlag');
-    
     if finish
         disp('Done!');
-%         lap.shutdown();
         break;
     end
-%     pause(0.02);
-%     lap.forceLapisUpdate();
 end
 
 
