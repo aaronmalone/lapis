@@ -6,18 +6,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import edu.osu.lapis.Logger;
 
 public class LocalDataTable {
 	
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger logger = Logger.getLogger(getClass());
 	
 	private final Map<String, LapisVariable> localDataMap = 
 			Collections.synchronizedMap(new HashMap<String, LapisVariable>());
 	
 	public void put(String localName, LapisVariable variable) {
-		log.info("Adding variable {} to local data table.",localName);
+		logger.info("Adding variable %s to local data table.",localName);
 		localDataMap.put(localName, variable);
 	}
 	

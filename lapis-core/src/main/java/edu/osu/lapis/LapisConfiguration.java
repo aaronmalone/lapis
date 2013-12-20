@@ -1,5 +1,7 @@
 package edu.osu.lapis;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.lang3.Validate;
@@ -38,7 +40,6 @@ public class LapisConfiguration {
 	private final Properties properties;
 	private final LapisSerialization lapisSerialization;
 	private final MediaType serializationMediaType;
-	private final int port;
 	private final NetworkTable networkTable;
 	private final boolean isCoordinator;
 	private final LapisNetworkClient lapisNetworkClient;
@@ -46,11 +47,10 @@ public class LapisConfiguration {
 	private final LocalDataTable localDataTable;
 	private final RestletServer restletServer;
 	
-	public LapisConfiguration(Properties properties) {
+	public LapisConfiguration(Properties properties) {		
 		this.properties = properties;
 		this.lapisSerialization = getLapisSerializationInternal();
 		this.serializationMediaType = MediaType.APPLICATION_JSON;
-		this.port = getPort();
 		this.networkTable = getNetworkTable();
 		this.isCoordinator = isCoordinator();
 		this.lapisNetworkClient = getLapisNetworkClient();
@@ -76,16 +76,6 @@ public class LapisConfiguration {
 		json.setPrettyPrinting(true);
 		return json;
 	}
-
-	private int getPort() {
-		String portStr = this.properties.getProperty("port"); //TODO ADD DEFAULT
-		Validate.notEmpty(portStr, "'port' property must be specified.");
-		try {
-			return Integer.parseInt(portStr);
-		} catch(Exception e) {
-			throw new RuntimeException("Unable to parse 'port' property value '" + portStr + "' as integer." );
-		}
-	}
 	
 	private NetworkTable getNetworkTable() {
 		NetworkTable nt = new NetworkTable();
@@ -95,8 +85,10 @@ public class LapisConfiguration {
 	
 	private LapisNode getLocalNode() {
 		String nodeName = this.properties.getProperty("name");
+		String nodeAddress = this.properties.getProperty("localNodeAddress");
 		Validate.notEmpty(nodeName, "'name' property must have non-empty value.");
-		return new LapisNode(nodeName, "http://localhost:" + this.port); //TODO fix -- get the IP address to use
+		LapisNode node = new LapisNode(nodeName, nodeAddress);
+		return node ;
 	}
 	
 	private boolean isCoordinator() {
@@ -122,7 +114,7 @@ public class LapisConfiguration {
 		Validate.notEmpty(coordinatorUrl, "Coordinator URL must not be empty");
 		LapisNetworkTransmission netTrans = new LapisNetworkTransmission();
 		netTrans.setCoordinatorBaseUrl(coordinatorUrl);
-		netTrans.setLapisTransmission(new LapisTransmission()); //TODO MAYBE CREATE A BEAN
+		netTrans.setLapisTransmission(new LapisTransmission());
 		return netTrans;
 	}
 
@@ -152,7 +144,7 @@ public class LapisConfiguration {
 	private RestletServer getRestletServerInternal() {
 		
 		RestletServer restletServer = new RestletServer();
-		restletServer.setPort(this.port);
+		restletServer.setPort(getPort());
 		
 		Restlet networkRestlet = getNetworkRestlet();
 		restletServer.attachRestlet("/network/{" + Attributes.MODEL_NAME_ATTRIBUTE + '}', networkRestlet);
@@ -173,6 +165,18 @@ public class LapisConfiguration {
 		
 		return restletServer;
 	}
+	
+	private int getPort() {
+		String address = this.properties.getProperty("localNodeAddress");
+		Validate.notEmpty(address, "Address of local node must be specified.");
+		try {
+			URL url = new URL(address);
+			int port = url.getPort();
+			return port != -1 ? port : 80;
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("Error parsing URL: " + address, e);
+		}
+	}	
 	
 	private Restlet getNetworkRestlet() {
 		NetworkRestlet networkRestlet = new NetworkRestlet();
@@ -236,8 +240,8 @@ public class LapisConfiguration {
 			try {				
 				this.lapisNetworkClient.addNodeToNetwork(networkTable.getLocalNode());
 			} catch(Exception e) {
-				//TODO HANDLE BETTER
-				e.printStackTrace();
+				//one retry
+				this.lapisNetworkClient.addNodeToNetwork(networkTable.getLocalNode());
 			}
 		}
 	}

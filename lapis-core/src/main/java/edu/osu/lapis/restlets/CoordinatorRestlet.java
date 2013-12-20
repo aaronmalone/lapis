@@ -9,6 +9,7 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 
+import edu.osu.lapis.Logger;
 import edu.osu.lapis.comm.Notifier;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
@@ -20,6 +21,8 @@ import edu.osu.lapis.util.Attributes;
 import edu.osu.lapis.util.LapisRestletUtils;
 
 public class CoordinatorRestlet extends LapisRestletBase {
+	
+	private final Logger logger = Logger.getLogger(getClass());
 	
 	private final String LAPIS_NODE_ATTRIBUTE = 
 			LapisNodeExtractor.DESERIALIZED_LAPIS_NODE_ATTR;
@@ -63,7 +66,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	@Override
 	public void post(Request request, Response response) {
 		LapisNode updatedNode = Attributes.getAttribute(request, LAPIS_NODE_ATTRIBUTE, LapisNode.class);
-		getLogger().info("Updated node on network: " + updatedNode);
+		logger.info("Updated node on network: " + updatedNode);
 		networkTable.updateNode(updatedNode);
 		notifier.notifyNetworkOfUpdate(updatedNode);
 	}
@@ -71,7 +74,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	@Override
 	public void put(Request request, Response response) {
 		LapisNode newNode = Attributes.getAttribute(request, LAPIS_NODE_ATTRIBUTE, LapisNode.class);
-		getLogger().info("New node on network: " + newNode);
+		logger.info("New node on network: " + newNode);
 		networkTable.addNode(newNode);
 		notifier.notifyNetworkOfNewNode(newNode);
 	}
@@ -103,7 +106,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 			response.setEntity(entity);
 		} else {
 			String msg = "The specified LAPIS node, \"" + nodeName + "\", is not present in the network table.";
-			getLogger().warning(msg);
+			logger.warn(msg);
 			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND, msg);
 			response.setEntity(msg, MediaType.TEXT_PLAIN);
 		}

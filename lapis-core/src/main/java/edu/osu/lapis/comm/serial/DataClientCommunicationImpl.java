@@ -12,7 +12,6 @@ import edu.osu.lapis.transmission.LapisDataTransmission;
  * not deal directly with the underlying protocols used for communication.
  */
 public class DataClientCommunicationImpl {
-	//TODO MAYBE IT SHOULDN'T BE CALLED THE COMMUNICATION LAYER?
 
 	private LapisSerialization lapisSerialization;
 	private LapisDataTransmission lapisDataTransmission;

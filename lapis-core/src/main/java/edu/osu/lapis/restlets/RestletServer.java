@@ -6,14 +6,14 @@ import org.restlet.Component;
 import org.restlet.Restlet;
 import org.restlet.data.Protocol;
 import org.restlet.routing.VirtualHost;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import edu.osu.lapis.Logger;
+
 public class RestletServer {
 	
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger logger = Logger.getLogger(getClass());
 	
 	private int port = Integer.MIN_VALUE;
 	private boolean initialized = false;
@@ -26,7 +26,7 @@ public class RestletServer {
 
 	public synchronized void initialize() {
 		if(!initialized) {
-			log.debug("Initializing RestletServer...");
+			logger.debug("Initializing RestletServer...");
 			initialized = true;
 			server = new Component();
 			server.getServers().add(Protocol.HTTP, port);
@@ -37,9 +37,9 @@ public class RestletServer {
 	
 	private void attachRestlets() {
 		VirtualHost virtualHost = server.getDefaultHost();
-		log.trace("Attaching Restlets...");
+		logger.trace("Attaching Restlets...");
 		for(UnattachedRestlet unattached : unattachedRestlets) {
-			log.trace("Attaching Restlet {} to URI pattern {}...", unattached.restlet, unattached.uriPattern);
+			logger.trace("Attaching Restlet %s to URI pattern %s...", unattached.restlet, unattached.uriPattern);
 			virtualHost.attach(unattached.uriPattern, unattached.restlet);
 		}
 		unattachedRestlets.clear();
@@ -47,7 +47,7 @@ public class RestletServer {
 	
 	private void startServer() {
 		try {
-			log.debug("Starting server...");
+			logger.debug("Starting server...");
 			server.start();
 		} catch (Exception e) {
 			if(e instanceof RuntimeException) {

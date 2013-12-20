@@ -6,19 +6,30 @@ import org.restlet.Restlet;
 import org.restlet.data.Method;
 import org.restlet.data.Status;
 
+import edu.osu.lapis.Logger;
+
 /**
  * A base class for Restlets. Subclass should override the methods corresponding
  * to the HTTP REST operations they implement.
  */
 public class LapisRestletBase extends Restlet {
+	
+	private Logger logger = Logger.getLogger(getClass());
+	
+	/**
+	 * Restlet's logging causes kittens to be punted.
+	 * Punish anyone who calls this.
+	 */
+	@Override public java.util.logging.Logger getLogger() {
+		throw new RuntimeException("Don't call Restlet.getLogger()!");
+	}
 
 	@Override
 	public final void handle(Request request, Response response) {
 		try {
 			handleInternal(request, response);
 		} catch(Exception e) {
-			getLogger().warning("Exception while handling request '" + request 
-					+ "': " + e);
+		logger.warn(e, "Exception while handling request: %s", request);
 			response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
@@ -34,7 +45,7 @@ public class LapisRestletBase extends Restlet {
 		} else if(meth.equals(Method.DELETE)) {
 			delete(request, response);
 		} else {
-			throw new IllegalStateException("SHUT. DOWN. EVERYTHING!"); //TODO BETTER MESSAGE
+			throw new IllegalStateException("SHUT. DOWN. EVERYTHING!"); //TODO write better message
 		}
 	}
 

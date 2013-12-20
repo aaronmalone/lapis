@@ -2,16 +2,14 @@ package edu.osu.lapis.comm.client;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import edu.osu.lapis.Logger;
 import edu.osu.lapis.comm.serial.NetworkClientCommunicationImpl;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
 
 public class LapisNetworkClient {
 	
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger logger = Logger.getLogger(getClass());
 	
 	private NetworkTable networkTable;
 	private NetworkClientCommunicationImpl networkClientCommunicationImpl;
@@ -50,7 +48,7 @@ public class LapisNetworkClient {
 	public LapisNode getLapisNode(String nodeName) {
 		LapisNode node = networkTable.getNode(nodeName);
 		if(node == null) {
-			log.info("Node {} not found in network table. Retrieving from coordinator.", nodeName); //TODO CHANGE TO DEBUG
+			logger.debug("Node %s not found in network table. Retrieving from coordinator.", nodeName);
 			node = networkClientCommunicationImpl.getLapisNode(nodeName);
 			networkTable.addNode(node);
 		}

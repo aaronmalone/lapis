@@ -10,6 +10,7 @@ import org.restlet.representation.Representation;
 
 import com.google.common.collect.Lists;
 
+import edu.osu.lapis.Logger;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableMetaData;
@@ -18,6 +19,8 @@ import edu.osu.lapis.util.Attributes;
 import edu.osu.lapis.util.LapisRestletUtils;
 
 public class VariableMetaDataApiRestlet extends LapisRestletBase {
+	
+	private final Logger logger = Logger.getLogger(getClass());
 
 	private LocalDataTable localDataTable;
 	private LapisSerialization lapisSerialization;
@@ -34,7 +37,7 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	}
 	
 	private void respondWithMetaDataForOneVariable(Response response, String variableName) {
-		getLogger().info("Call to retrieve variable meta-data for variable '" + variableName + "'");
+		logger.info("Call to retrieve variable meta-data for variable: %s", variableName);
 		LapisVariable localVariable = localDataTable.get(variableName);
 		if(localVariable != null) {
 			byte[] serialized = lapisSerialization.serialize(getVariableMetaData(localVariable));
@@ -47,7 +50,7 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	}
 	
 	private void respondWithMetaDataForAllVariables(Response response) {
-		getLogger().info("Call to retrieve variable meta-data for all variables");
+		logger.info("Call to retrieve variable meta-data for all variables");
 		List<VariableMetaData> metaList = Lists.newArrayList();
 		for(LapisVariable local : localDataTable.getAll()) {
 			metaList.add(getVariableMetaData(local));

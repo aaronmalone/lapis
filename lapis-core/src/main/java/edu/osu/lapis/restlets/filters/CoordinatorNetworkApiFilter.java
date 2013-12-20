@@ -12,7 +12,7 @@ import org.restlet.routing.Filter;
  * LAPIS coordinator node. This filter can be applied to error out any operation
  * that does not apply to the /network API of the coordinator.
  */
-public class CoordinatorNetworkApiFilter extends Filter{
+public class CoordinatorNetworkApiFilter extends Filter {
 
 	@Override protected int beforeHandle(Request request, Response response) {
 		Method method = request.getMethod();

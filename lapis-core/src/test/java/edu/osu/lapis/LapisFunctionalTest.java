@@ -216,6 +216,7 @@ public class LapisFunctionalTest {
 		Properties p = new Properties();
 		p.setProperty("name", "non-coor");
 		p.setProperty("coordinator.url", "http://localhost:12345");
+		p.setProperty("localNodeAddress", "http://localhost:8888");
 		p.setProperty("port", "8888");
 		p.setProperty("isCoordinator", Boolean.toString(false));
 		return p;
@@ -225,6 +226,7 @@ public class LapisFunctionalTest {
 		Properties p = new Properties();
 		p.setProperty("name", "coord");
 		p.setProperty("coordinator.url", "http://localhost:12345");
+		p.setProperty("localNodeAddress", "http://localhost:12345");
 		p.setProperty("port", "12345");
 		p.setProperty("isCoordinator", Boolean.toString(true));
 		return p;

@@ -1,10 +1,9 @@
 package edu.osu.lapis;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import edu.osu.lapis.data.LapisPermission;
@@ -21,30 +20,22 @@ public class MatlabLapis {
 	private final MatlabDataCache dataCache = new MatlabDataCache();
 	
 	public MatlabLapis(String name, String coordinatorAddress) {
-		this(name, coordinatorAddress, getPort(coordinatorAddress), Boolean.TRUE.toString());
+		this(name, coordinatorAddress, coordinatorAddress, Boolean.TRUE.toString());
 	}
 	
-	public MatlabLapis(String name, String coordinatorAddress, String modelAddress) {
-		//TODO ACTUALLY USE MODEL ADDRESS
-		this(name, coordinatorAddress, getPort(modelAddress), Boolean.FALSE.toString());
+	public MatlabLapis(String name, String coordinatorAddress, String myAddress) {
+		
+		this(name, coordinatorAddress, myAddress, 
+				Boolean.toString(StringUtils.equals(coordinatorAddress, myAddress)));
 	}
 	
-	public MatlabLapis(String name, String coordinatorAddress, String port, String isCoordinator) {
+	public MatlabLapis(String name, String coordinatorAddress, String myAddress, String isCoordinator) {
 		Properties properties = new Properties();
 		properties.setProperty("name", name);
 		properties.setProperty("coordinator.url", coordinatorAddress);
-		properties.setProperty("port", port);
 		properties.setProperty("isCoordinator", isCoordinator.toLowerCase());
+		properties.setProperty("localNodeAddress", myAddress);
 		lapisCoreApi = new LapisCore(properties);
-	}
-	
-	private static String getPort(String url) {
-		try {
-			URL urlObj = new URL(url);
-			return Integer.toString(urlObj.getPort());
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("Unable to parse port from address: " + url);
-		}
 	}
 	
 	/* PUBLISH */
@@ -94,6 +85,14 @@ public class MatlabLapis {
 	
 	public void setCachedValue(String name, Object value) {
 		dataCache.setCachedValue(name, value);
+	}
+	
+	public void setLoggingLevel(String category, String levelName) {
+		Logger.setLevel(category, levelName);
+	}
+	
+	public void setLoggingLevel(String category, org.apache.log4j.Level level) {
+		Logger.setLevel(category, level);
 	}
 		
 	public void shutdown() {

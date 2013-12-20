@@ -6,9 +6,8 @@ import static edu.osu.lapis.transmission.ClientCall.RestMethod.POST;
 import static edu.osu.lapis.transmission.ClientCall.RestMethod.PUT;
 
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import edu.osu.lapis.Logger;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.serialization.LapisSerialization;
@@ -25,7 +24,7 @@ import edu.osu.lapis.util.LapisRestletUtils;
  */
 public class Notifier {
 	
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger logger = Logger.getLogger(getClass());
 	
 	private NetworkTable networkTable;
 	private LapisSerialization lapisSerialization;
@@ -36,19 +35,19 @@ public class Notifier {
 	 * @param updatedNode the updated node
 	 */
 	public void notifyNetworkOfUpdate(LapisNode updatedNode) {
-		log.info("Notifying network of updated node: {}", updatedNode);
+		logger.info("Notifying network of updated node: %s", updatedNode);
 		byte[] nodeData = lapisSerialization.serialize(updatedNode);
 		notifyInternal(updatedNode, POST, nodeData);
 	}
 	
 	public void notifyNetworkOfNewNode(LapisNode newNode) {
-		log.info("Notifying network of new node: {}", newNode);
+		logger.info("Notifying network of new node: %s", newNode);
 		byte[] nodeData = lapisSerialization.serialize(newNode);
 		notifyInternal(newNode, PUT, nodeData);
 	}
 	
 	public void notifyNetworkOfDelete(LapisNode node) {
-		log.info("Notifying network of deleted node: {}", node);
+		logger.info("Notifying network of deleted node: %s", node);
 		notifyInternal(node, DELETE, null);
 	}
 	
@@ -85,10 +84,10 @@ public class Notifier {
 				String uri = LapisRestletUtils.buildUri(nodeToNotify.getUrl(), relativeUrl);
 				ClientCall clientCall = new ClientCall(methodToUse, uri, dataToSend);
 				try {
-					log.debug("About to execute notification with client call {}", clientCall);
+					logger.debug("About to execute notification with client call %s", clientCall);
 					lapisTransmission.executeClientCall(clientCall);					
 				} catch(Throwable t) {
-					log.error("Error executing notification with client call " + clientCall + ".", t);
+					logger.error(t, "Error executing notification with client call: %s", clientCall);
 					throw new RuntimeException(t);
 				}
 			}

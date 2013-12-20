@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.time.StopWatch;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -11,9 +12,8 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import edu.osu.lapis.Logger;
 import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
@@ -28,7 +28,7 @@ import edu.osu.lapis.util.StackTraceUtil;
 
 public class VariableValueApiRestlet extends LapisRestletBase {
 	
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	private Logger logger = Logger.getLogger(getClass());
 	
 	private LocalDataTable localDataTable;
 	private LapisSerialization lapisSerialization;
@@ -72,11 +72,11 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 	public void get(Request request, Response response) {
 		try {
 			String variableName = Attributes.getVariableName(request);
-			logger.debug("Call to get value of variable '{}'", variableName);
+			logger.debug("Call to get value of variable: %s", variableName);
 			LapisVariable localVariable = localDataTable.get(variableName);
 			response.setEntity(getResponseRepresentation(variableName, localVariable));
 		} catch (Exception e) {
-			logger.error("Error while retrieving variable value.", e);
+			logger.error(e, "Error while retrieving variable value.");
 			//TODO CAN PROBABLY IMPROVE THIS
 			Throwable cause = e.getCause();
 			if(cause instanceof TimeoutException) {
@@ -92,9 +92,13 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 	
 	private Representation getResponseRepresentation(String name, LapisVariable localVariable) {
 		SerializationObject serializationObject = createSerializationObject(name, localVariable);
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		byte[] serialized = lapisSerialization.serialize(serializationObject);
+		stopWatch.stop();
+		logger.trace("Took %d millis to serialize %s.", stopWatch.getTime(), name);
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
-		return new InputRepresentation(inputStream, responseMediaType, serialized.length);
+		return new InputRepresentation(inputStream, responseMediaType, serialized.length); 
 	}
 	
 	private SerializationObject createSerializationObject(String name, LapisVariable localVariable) {

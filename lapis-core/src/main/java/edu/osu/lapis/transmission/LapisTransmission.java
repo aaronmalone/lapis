@@ -4,20 +4,22 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.restlet.Response;
 import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
+import edu.osu.lapis.Logger;
+import edu.osu.lapis.transmission.ClientCall.RestMethod;
+
 public class LapisTransmission {
 	
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger logger = Logger.getLogger(getClass());
 	
 	private final String CONNECTION_REFUSED = "Connection refused";
 	
@@ -27,10 +29,15 @@ public class LapisTransmission {
 	}
 	
 	public ClientResponse executeClientCall(ClientCall clientCall) {
-		ClientResource clientResource = new ClientResource(clientCall.getUri());		
+		String uri = clientCall.getUri();
+		RestMethod method = clientCall.getMethod();
+		ClientResource clientResource = new ClientResource(uri);		
 		final Representation representation;
+		logger.trace("About to execute %s on %s", method, uri);
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		try {
-			switch(clientCall.getMethod()) {
+			switch(method) {
 			case GET:
 				representation = clientResource.get();
 				break;
@@ -44,9 +51,10 @@ public class LapisTransmission {
 				representation = clientResource.delete();
 				break;
 			default:
-				throw new IllegalArgumentException("Cannot handle client call with method: " 
-						+ clientCall.getMethod());
+				throw new IllegalArgumentException("Cannot handle client call with method: " + method);
 			}
+			stopWatch.stop();
+			logger.trace("Took %d millis to execute %s on %s", stopWatch.getTime(), method, uri);
 			int statusCode = clientResource.getStatus().getCode();
 			byte[] payload = representation != null ? getPayload(representation) : null;
 			return new ClientResponse(statusCode, payload);
@@ -60,7 +68,7 @@ public class LapisTransmission {
 	private ResourceException handleException(ClientCall clientCall, ClientResource clientResource, ResourceException originalException) {
 		Status originalStatus = clientResource.getStatus();
 		String originalDescription = originalStatus.getDescription().trim();
-		log.error("Handling exception '{}' from client call '{}'.", originalException, clientCall);
+		logger.error("Handling exception '%s' from client call '%s'.", originalException, clientCall);
 		if(originalDescription.startsWith(CONNECTION_REFUSED)) {
 			throw new RuntimeException(CONNECTION_REFUSED + ": remote node may be down.", originalException);
 		} else {
@@ -80,8 +88,8 @@ public class LapisTransmission {
 				return "";
 			}
 		} catch (IOException e) {
-			log.error("Error while getting text from Restlet representation.", e);
-			return "";
+			logger.error(e, "Error while getting text from Restlet representation.");
+			throw new RuntimeException(e);
 		}
 	}
 	
