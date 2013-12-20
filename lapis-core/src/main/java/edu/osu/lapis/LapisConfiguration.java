@@ -85,10 +85,23 @@ public class LapisConfiguration {
 	
 	private LapisNode getLocalNode() {
 		String nodeName = this.properties.getProperty("name");
-		String nodeAddress = this.properties.getProperty("localNodeAddress");
 		Validate.notEmpty(nodeName, "'name' property must have non-empty value.");
-		LapisNode node = new LapisNode(nodeName, nodeAddress);
+		LapisNode node = new LapisNode(nodeName, getLocalNodeAddress());
 		return node ;
+	}
+	
+	private String getLocalNodeAddress() {
+		String address = this.properties.getProperty("localNodeAddress");
+		Validate.notEmpty(address, "Local node address must not be empty.");
+		return getWithHttp(address);
+	}
+	
+	private String getWithHttp(String address) {
+		if(!address.toLowerCase().startsWith("http://") && !address.contains(":/")) {
+			return "http://" + address;
+		} else {
+			return address;
+		}
 	}
 	
 	private boolean isCoordinator() {
@@ -110,12 +123,17 @@ public class LapisConfiguration {
 	}
 	
 	private LapisNetworkTransmission getLapisNetworkTransmission() {
-		String coordinatorUrl = this.properties.getProperty("coordinator.url");
-		Validate.notEmpty(coordinatorUrl, "Coordinator URL must not be empty");
+		String coordinatorUrl = getCoordinatorUrl();
 		LapisNetworkTransmission netTrans = new LapisNetworkTransmission();
 		netTrans.setCoordinatorBaseUrl(coordinatorUrl);
 		netTrans.setLapisTransmission(new LapisTransmission());
 		return netTrans;
+	}
+	
+	private String getCoordinatorUrl() {
+		String coordinatorUrl = this.properties.getProperty("coordinator.url");
+		Validate.notEmpty(coordinatorUrl, "Coordinator URL must not be empty");		
+		return getWithHttp(coordinatorUrl);		
 	}
 
 	private LapisDataClient getLapisDataClientInternal() {
@@ -167,7 +185,7 @@ public class LapisConfiguration {
 	}
 	
 	private int getPort() {
-		String address = this.properties.getProperty("localNodeAddress");
+		String address = getLocalNodeAddress();
 		Validate.notEmpty(address, "Address of local node must be specified.");
 		try {
 			URL url = new URL(address);
