@@ -1,10 +1,17 @@
 classdef LapisAPI < handle
-    
-    
+%     LAPIS API object.  Responsible for connecting and maintaing a LAPIS
+%     network connection. Use this API to do SETs and GETs on a LAPIS
+%     network.  Depends on a LAPIS java JAR file.
+% EXAMPLE:   
+% coordinatorAddress = 'http://127.0.0.1:7777';
+% nodeName = 'Node1';
+% lap = LapisAPI(nodeName, coordinatorAddress); 
+
+
+
     properties
         
         dataTable;          %Datatable for local published variables
-        lapisTimer;         %Interupt timer for LAPIS network
         lapisJava;          %Java LAPIS API
         modelName;          %Name of model
         coordinatorAddress; %Coordinator address
@@ -20,15 +27,13 @@ classdef LapisAPI < handle
             
             obj.dataTable = containers.Map;
             
-            obj.lapisTimer = timer('TimerFcn', @(event, data)lapisUpdate(obj));
-            set(obj.lapisTimer, 'ExecutionMode', 'fixedRate');
-            set(obj.lapisTimer, 'Period', 0.02);
-            set(obj.lapisTimer, 'BusyMode', 'drop');
-            set(obj.lapisTimer, 'ErrorFcn', @(event, data)timerErr(obj));
+            % set up logging
+            org.apache.log4j.helpers.LogLog.setInternalDebugging(1)
+            org.apache.log4j.PropertyConfigurator.configure([pwd char(java.lang.System.getProperty('file.separator')) 'log4j.properties'])
+            org.apache.log4j.helpers.LogLog.setInternalDebugging(0)
             
             import edu.osu.lapis.MatlabLapis;
-            import edu.osu.lapis.LapisOperationType;
-            
+           
             if nargin == 2  %Model is the coordinator
                 obj.modelName = varargin{1};
                 obj.coordinatorAddress = varargin{2};
@@ -50,8 +55,6 @@ classdef LapisAPI < handle
             else
                 error('There is no Constructor signature with the specified number of parameters');
             end
-
-             start(obj.lapisTimer);
         end
         
         
@@ -61,52 +64,26 @@ classdef LapisAPI < handle
             if ~isa(data, 'LAPISData')
                 error('Published datatype must be type "LAPISData"');
             end
-            
+
+            data.setLapisReference(obj);
             
             obj.dataTable(name) = data;
             obj.lapisJava.publish(java.lang.String(name), data.data);
         end
-        
-        function obj = lapisUpdate(obj, varargin)
-            %Timer callback for lapis interupt handling
-            
-            hasOp = obj.lapisJava.hasOperation;
-           
-            if hasOp == 1
-                op = obj.lapisJava.retrieveOperation;
-                varName = char(op.getVariableName);
                 
-				import edu.osu.lapis.LapisOperationType;
-                if op.getOperationType == LapisOperationType.GET
-                    obj.lapisJava.operationResult(op, obj.dataTable(varName).data);
-                    
-                else
-                    %SET%
-                    handl = obj.dataTable(varName);
-                    handl.data = op.getData;
-                    
-                    obj.lapisJava.operationResult(op, 1);
-                    
-                end
-            end
-
+        function obj = setCachedValue(obj, varName, data)    
+%             Setter to put a value into the Java datatable
+            obj.lapisJava.setCachedValue(varName, data);
         end
         
-        
-        function obj = timerErr(obj, varargin)
-            %Timer error function.  Restarts timer if there is a failure.
-            warning(lasterr);
-            start(obj.lapisTimer);
-            
+        function result = retrieveCachedValue(obj, varName)
+%             Getter method to get a value from the Java datatable
+           result = obj.lapisJava.retrieveCachedValue(varName); 
         end
-        
         
         function obj = delete(obj)
            %Deletes the object.
-           
             obj.shutdown;
-            delete(obj.lapisTimer);
-            
         end
         
         function obj = set(obj,modelName, varName, data)
@@ -124,7 +101,13 @@ classdef LapisAPI < handle
         function result = get(obj, modelName, varName)
             %Gets a variable on another LAPIS node.  Args(modelName, variablename, data)
             fullName = [varName  '@'  modelName];
-            result = obj.lapisJava.get(java.lang.String(fullName));
+            try 
+                result = obj.lapisJava.get(java.lang.String(fullName));
+            catch e 
+                disp('There was an error getting the value.  Please try again.');
+                obj.forceLapisUpdate();
+                result = obj.lapisJava.get(java.lang.String(fullName));
+            end
         end
         
         function obj = shutdown(obj)
