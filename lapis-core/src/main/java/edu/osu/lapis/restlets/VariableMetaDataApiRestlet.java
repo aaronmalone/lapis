@@ -45,7 +45,7 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 			response.setEntity(entity);
 		} else {
 			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			response.setEntity(String.format("The variable \"%s\" does not exist in this node.", variableName), MediaType.TEXT_PLAIN);
+			response.setEntity(String.format("The variable \"%s\" has not been published by this node.", variableName), MediaType.TEXT_PLAIN);
 		}
 	}
 	

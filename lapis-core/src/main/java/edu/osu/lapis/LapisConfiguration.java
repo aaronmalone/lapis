@@ -7,6 +7,7 @@ import java.util.Properties;
 import org.apache.commons.lang3.Validate;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
+import org.restlet.resource.ResourceException;
 
 import edu.osu.lapis.comm.Notifier;
 import edu.osu.lapis.comm.client.LapisDataClient;
@@ -250,6 +251,7 @@ public class LapisConfiguration {
 		return notifier;
 	}
 	
+	//TODO MOVE THIS LOGIC ELSEWHERE
 	/**
 	 * Attempts to join the network if this node is not the coordinator.
 	 */
@@ -258,8 +260,13 @@ public class LapisConfiguration {
 			try {				
 				this.lapisNetworkClient.addNodeToNetwork(networkTable.getLocalNode());
 			} catch(Exception e) {
-				//one retry
-				this.lapisNetworkClient.addNodeToNetwork(networkTable.getLocalNode());
+				String underlyingErrorMsg = e instanceof ResourceException ? e.toString() : e.getMessage();
+				String runtimeExcMsg = "Encountered exception while trying to connect to "
+						+ "connect to the LAPIS network coordinator and add this node"
+						+ " to the network. The coordinator address is '" 
+						+ getCoordinatorUrl() + "'. The error message of the " +
+						"underlying error is: " +underlyingErrorMsg;
+				throw new RuntimeException(runtimeExcMsg, e);
 			}
 		}
 	}

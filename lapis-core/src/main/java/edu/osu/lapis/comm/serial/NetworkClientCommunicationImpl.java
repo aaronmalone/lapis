@@ -19,21 +19,13 @@ public class NetworkClientCommunicationImpl {
 	private LapisSerialization lapisSerialization;
 	
 	public List<LapisNode> getAllLapisNodesOnNetwork() {
-		try {
-			byte[] data = lapisNetworkTransmission.getAllLapisNodesOnNetwork();
-			return lapisSerialization.deserializeNetworkData(data);
-		} catch(Exception e) {
-			throw new RuntimeException("Error retrieving network information from coordinator.", e);
-		}
+		byte[] data = lapisNetworkTransmission.getAllLapisNodesOnNetwork();
+		return lapisSerialization.deserializeNetworkData(data);
 	}
 	
 	public LapisNode getLapisNode(String nodeName) {
-		try {
-			byte[] data = lapisNetworkTransmission.getLapisNode(nodeName);
-			return lapisSerialization.deserializeLapisNode(data);
-		} catch (Exception e) {
-			throw new RuntimeException("Error retrieving data for node: " + nodeName, e);
-		}
+		byte[] data = lapisNetworkTransmission.getLapisNode(nodeName);
+		return lapisSerialization.deserializeLapisNode(data);
 	}
 	
 	public void addNodeToNetwork(LapisNode lapisNode) {

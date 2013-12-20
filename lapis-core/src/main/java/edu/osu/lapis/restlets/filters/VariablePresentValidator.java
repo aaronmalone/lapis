@@ -24,7 +24,7 @@ public class VariablePresentValidator extends Filter {
 		LapisVariable localVariable = localDataTable.get(variableName);
 		if(localVariable == null) {
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			response.setEntity("Variable '" + variableName + "' has not been published by this node.", 
+			response.setEntity("The variable '" + variableName + "' has not been published by this node.", 
 					MediaType.TEXT_PLAIN);
 			return SKIP;
 		} else {

@@ -28,6 +28,7 @@ classdef LapisAPI < handle
             obj.dataTable = containers.Map;
             
             % set up logging
+            java.lang.System.setProperty('line.separator',char(10))
             org.apache.log4j.helpers.LogLog.setInternalDebugging(1)
             org.apache.log4j.PropertyConfigurator.configure([pwd char(java.lang.System.getProperty('file.separator')) 'log4j.properties'])
             org.apache.log4j.helpers.LogLog.setInternalDebugging(0)
@@ -105,7 +106,6 @@ classdef LapisAPI < handle
                 result = obj.lapisJava.get(java.lang.String(fullName));
             catch e 
                 disp('There was an error getting the value.  Please try again.');
-                obj.forceLapisUpdate();
                 result = obj.lapisJava.get(java.lang.String(fullName));
             end
         end

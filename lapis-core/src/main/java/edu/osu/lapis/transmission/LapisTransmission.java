@@ -6,7 +6,6 @@ import java.io.InputStream;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.restlet.Response;
-import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
@@ -20,8 +19,6 @@ import edu.osu.lapis.transmission.ClientCall.RestMethod;
 public class LapisTransmission {
 	
 	private final Logger logger = Logger.getLogger(getClass());
-	
-	private final String CONNECTION_REFUSED = "Connection refused";
 	
 	public byte[] executeClientCallReturnBytes(ClientCall clientCall) {
 		ClientResponse response = executeClientCall(clientCall);
@@ -65,46 +62,29 @@ public class LapisTransmission {
 		}
 	}
 	
-	private ResourceException handleException(ClientCall clientCall, ClientResource clientResource, ResourceException originalException) {
-		Status originalStatus = clientResource.getStatus();
-		String originalDescription = originalStatus.getDescription().trim();
-		logger.error("Handling exception '%s' from client call '%s'.", originalException, clientCall);
-		if(originalDescription.startsWith(CONNECTION_REFUSED)) {
-			throw new RuntimeException(CONNECTION_REFUSED + ": remote node may be down.", originalException);
-		} else {
-			final String entityText = getEntityText(clientResource.getResponse());
-			String newDescription = getNewDescription(originalDescription, entityText);
-			Status newStatus = getNewStatus(originalStatus, originalException, newDescription, clientCall.getUri());			
-			return new ResourceException(newStatus, originalException);			
-		}
+	private LapisClientException handleException(ClientCall clientCall, ClientResource clientResource, ResourceException originalException) {
+		logger.debug("Encountered exception '%s' executing client call '%s'.", originalException, clientCall);
+		final String originalDescription = clientResource.getStatus().getDescription().trim();
+		final String entityText = getEntityText(clientResource.getResponse());
+		final String newMessage = entityText.trim().isEmpty() ? originalDescription : entityText;
+		return new LapisClientException(newMessage, originalException);
 	}
 	
 	private String getEntityText(Response response) {
 		Representation rep = response.getEntity();
 		try {
 			if(rep != null) {
-				return rep.getText();
+				String text = rep.getText();
+				logger.trace("Call that resulted in exception had this text in its response representation: %s", text);
+				return text;
 			} else {
+				logger.trace("Call that resulted in exception has null response representation.");
 				return "";
 			}
 		} catch (IOException e) {
 			logger.error(e, "Error while getting text from Restlet representation.");
 			throw new RuntimeException(e);
 		}
-	}
-	
-	private String getNewDescription(String originalDescription, String entityText) {
-		if(originalDescription.isEmpty()) {
-			return entityText;
-		} else if(entityText.isEmpty() || entityText.length() > 250) {
-			return originalDescription;
-		} else {
-			return originalDescription + ": " + entityText;
-		}
-	}
-	
-	private Status getNewStatus(Status originalStatus, Throwable originalException, String description, String uri) {
-		return new Status(originalStatus.getCode(), originalException, originalStatus.getName(), description, uri);
 	}
 	
 	private Representation createRestletRepresentation(ClientCall clientCall) {

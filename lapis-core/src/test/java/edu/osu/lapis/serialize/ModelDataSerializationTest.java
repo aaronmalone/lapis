@@ -243,9 +243,7 @@ public class ModelDataSerializationTest implements LapisSerializationTestInterfa
 	}
 	
 	private SerializationObject serializeAndDeserialize(SerializationObject ld) {
-		System.out.println("TEST serializing...");
 		byte[] serialized = lapisSerialization.serialize(ld);
-		System.out.println("TEST deserializing...");
 		return lapisSerialization.deserializeModelData(serialized);
 	}
 	
@@ -284,12 +282,8 @@ public class ModelDataSerializationTest implements LapisSerializationTestInterfa
 	}
 	
 	private void validateSerializedObjects(SerializationObject original, SerializationObject deserialized) {
-		System.out.println("TEST re-serializing original...");
 		byte[] originalSerialized = lapisSerialization.serialize(original);
-		System.out.println("TEST re-serialized original: " + new  String(originalSerialized));
-		System.out.println("TEST re-serializing deserialized...");
 		byte[] deserialSerialized = lapisSerialization.serialize(deserialized);
-		System.out.println("TEST re-serialized deserialized: " + new String(deserialSerialized));
 		Assert.assertTrue("Serialized objects should be equal.", Arrays.equals(originalSerialized, deserialSerialized));
 	}
 	

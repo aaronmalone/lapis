@@ -105,7 +105,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
 			response.setEntity(entity);
 		} else {
-			String msg = "The specified LAPIS node, \"" + nodeName + "\", is not present in the network table.";
+			String msg = "The specified LAPIS node, \"" + nodeName + "\", is not present in the coordinator's network table.";
 			logger.warn(msg);
 			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND, msg);
 			response.setEntity(msg, MediaType.TEXT_PLAIN);

@@ -17,24 +17,14 @@ public class DataClientCommunicationImpl {
 	private LapisDataTransmission lapisDataTransmission;
 	
 	public VariableMetaData getVariableMetaData(VariableFullName fullName) {
-		try {
-			byte[] data = lapisDataTransmission.getVariableMetaData(fullName);
-			return lapisSerialization.deserializeMetaData(data);
-		} catch (Exception e) {
-			throw new RuntimeException("Error while retrieving variable meta-data for " + fullName, e);
-		}
+		byte[] data = lapisDataTransmission.getVariableMetaData(fullName);
+		return lapisSerialization.deserializeMetaData(data);
 	}
 
 	public <T> T getVariableValue(VariableFullName fullName, Class<T> cls) {
-		Object dataObj;
-		try {
-			byte[] data = lapisDataTransmission.getVariableValue(fullName);
-			SerializationObject serializationObj = lapisSerialization.deserializeModelData(data);
-			dataObj = serializationObj.getData();
-		} catch (Exception e) {
-			throw new RuntimeException("Error while retrieving variable value: " + fullName, e);
-		}
-		//TODO ADD HANDLING FOR EMPTY ARRAY
+		byte[] data = lapisDataTransmission.getVariableValue(fullName);
+		SerializationObject serializationObj = lapisSerialization.deserializeModelData(data);
+		Object dataObj = serializationObj.getData();
 		if(cls.isInstance(dataObj)) {
 			return cls.cast(dataObj);
 		} else {

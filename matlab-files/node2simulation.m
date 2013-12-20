@@ -66,6 +66,8 @@ while 1
         disp('Done!');
         break;
     end
+    disp('Waiting for Node 1 to set simFinishFlag (a published variable on Node 1)...')
+    pause(0.5)
 end
 
 

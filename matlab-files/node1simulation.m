@@ -59,9 +59,11 @@ disp('waiting for Node 2 to finish');
 
 %Wait for Node 2 to set the simulation finish flag
 while node2FinishFlag.data ~= 1
-     pause(0.5);
+    disp('Waiting for Node 2 to set node2FinishFlag (a published variable in this node)...')
+    pause(0.5);
 end
 
+disp('Getting node2copy...')
 node2Copy = lap.get('Node2', 'node2copy');
 
 disp('Node2 copy: ');

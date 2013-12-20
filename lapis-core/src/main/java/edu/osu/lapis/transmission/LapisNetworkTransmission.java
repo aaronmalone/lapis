@@ -32,7 +32,7 @@ public class LapisNetworkTransmission {
 	}
 	
 	public byte[] getLapisNode(String nodeName) {
-		logger.debug("Retrieving node information for node: '%s", nodeName);
+		logger.debug("Retrieving node information for node: '%s'", nodeName);
 		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
 		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
 	}
