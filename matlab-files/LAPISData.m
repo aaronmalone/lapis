@@ -39,7 +39,7 @@ classdef LAPISData < handle
             try
                  result = obj.lapReference.retrieveCachedValue(obj.name);
             catch e
-                warning('Value was not gotten');
+                warning('Value not retrieved from cache. This is normal when a variable is first published.');
                 result = obj.data;
             end
         end
