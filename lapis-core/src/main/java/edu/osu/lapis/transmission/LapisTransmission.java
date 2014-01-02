@@ -14,6 +14,7 @@ import org.restlet.resource.ResourceException;
 import com.google.common.io.ByteStreams;
 
 import edu.osu.lapis.Logger;
+import edu.osu.lapis.exception.LapisClientException;
 import edu.osu.lapis.transmission.ClientCall.RestMethod;
 
 public class LapisTransmission {

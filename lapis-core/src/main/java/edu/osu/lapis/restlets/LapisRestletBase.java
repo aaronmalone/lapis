@@ -3,6 +3,7 @@ package edu.osu.lapis.restlets;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
+import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Status;
 
@@ -29,8 +30,9 @@ public class LapisRestletBase extends Restlet {
 		try {
 			handleInternal(request, response);
 		} catch(Exception e) {
-		logger.warn(e, "Exception while handling request: %s", request);
+			logger.warn(e, "Exception while handling request: %s", request);
 			response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+			response.setEntity(e.getMessage(), MediaType.TEXT_PLAIN);
 		}
 	}
 	
