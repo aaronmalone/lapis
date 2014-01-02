@@ -14,11 +14,13 @@ public class LapisSettable implements Settable {
 	}
 	
 	@Override
-	public void set(Object obj) {
-		validateIsArray(obj);
-		Object source = obj;
+	public void set(Object srcArray) {
+		validateIsArray(srcArray);
 		Object destination = this.reference;
-		System.arraycopy(source, 0, destination, 0, Array.getLength(source));
+		validateIsArray(destination);
+		Validate.isTrue(Array.getLength(srcArray) == Array.getLength(destination), 
+				"Array to set has different length than original array.");
+		System.arraycopy(srcArray, 0, destination, 0, Array.getLength(srcArray));
 	}
 	
 	private void validateIsArray(Object obj) {
