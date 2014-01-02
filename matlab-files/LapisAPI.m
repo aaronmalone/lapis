@@ -28,7 +28,7 @@ classdef LapisAPI < handle
             obj.dataTable = containers.Map;
             
             % set up logging
-            java.lang.System.setProperty('line.separator',char(10))
+            java.lang.System.setProperty('line.separator',char(10)) %prevents double-spacing of log output
             org.apache.log4j.helpers.LogLog.setInternalDebugging(1)
             org.apache.log4j.PropertyConfigurator.configure([pwd char(java.lang.System.getProperty('file.separator')) 'log4j.properties'])
             org.apache.log4j.helpers.LogLog.setInternalDebugging(0)
