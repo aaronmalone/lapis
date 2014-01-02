@@ -15,10 +15,6 @@ import edu.osu.lapis.data.LapisVariable;
  */
 public class LapisApi {
 	
-	static {
-		LapisLogging.init();
-	}
-	
 	private final LapisCore lapisCore;
 
 	/**
@@ -151,22 +147,4 @@ public class LapisApi {
 	public void set(String variableFullName, Object value) {
 		lapisCore.setRemoteValue(variableFullName, value);
 	}
-	
-//   TODO figure out if we really need this.
-//	/**
-//	 * Update the value of a published LAPIS variable.
-//	 * 
-//	 * Essentially, this replaces LAPIS's own copy of the value with the new value.
-//	 * This is necessary when the type of the published variable is a Java primitive
-//	 * or a Java primitive wrapper (e.g. int or java.lang.Integer). It is not necessary
-//	 * to use this method when values within an array have been modified. Changes within
-//	 * an are visible to LAPIS. 
-//	 * @param localName the name of the published variable
-//	 * @param value the new value of the variable
-//	 */
-//	public void updateValue(String localName, Object value) {
-//		LapisVariable2 localVariable = localDataTable.get(localName);
-//		Validate.notNull(localVariable, "The variable \"%s\" has not been published.", localName);
-//		localDataTable.put(localName, createLapisVariable(localName, value, LapisPermission.READ_WRITE, true));
-//	}
 }

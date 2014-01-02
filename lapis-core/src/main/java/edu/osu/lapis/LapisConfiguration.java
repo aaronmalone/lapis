@@ -38,6 +38,12 @@ import edu.osu.lapis.util.Attributes;
  */
 public class LapisConfiguration {
 	
+	static {
+		//set this system property so we can route Restlet logging through slf4j
+		System.setProperty("org.restlet.engine.loggerFacadeClass",
+				"org.restlet.ext.slf4j.Slf4jLoggerFacade");
+	}
+	
 	private final Properties properties;
 	private final LapisSerialization lapisSerialization;
 	private final MediaType serializationMediaType;
