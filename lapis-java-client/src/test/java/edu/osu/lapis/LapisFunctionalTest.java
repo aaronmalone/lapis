@@ -10,13 +10,18 @@ import edu.osu.lapis.util.LapisRandoms;
 
 public class LapisFunctionalTest {
 	
+	private static final int COORDINATOR_PORT = 11122;
+	private static final String COORDINATOR_URL = "http://localhost:" + COORDINATOR_PORT;
+	private static final int NON_COORDINATOR_PORT = 8899;
+	private static final String NON_COORDINATOR_URL = "http://localhost:" + NON_COORDINATOR_PORT;
+	
 	private LapisApi nonCoordinatorLapis;
 	private LapisApi coordinatorLapis;
 
 	public static void main(String[] args) {
 		try {
 			new LapisFunctionalTest().test();
-			System.out.println("Finished.");
+			System.out.println("Finished functional test successfully.");
 			System.exit(0);
 		} catch(Throwable t) {
 			t.printStackTrace();
@@ -211,24 +216,24 @@ public class LapisFunctionalTest {
 		System.out.println("STACK TRACE PRINTED FOR VISIBILITY: ");
 		e.printStackTrace(System.out);
 	}
+	
+	private Properties getCoordinatorProperties() {
+		Properties p = new Properties();
+		p.setProperty("name", "coord");
+		p.setProperty("coordinator.url", COORDINATOR_URL);
+		p.setProperty("localNodeAddress", COORDINATOR_URL);
+		p.setProperty("port", Integer.toString(COORDINATOR_PORT));
+		p.setProperty("isCoordinator", Boolean.toString(true));
+		return p;
+	}
 
 	private Properties getNonCoordinatorProperties() {
 		Properties p = new Properties();
 		p.setProperty("name", "non-coor");
-		p.setProperty("coordinator.url", "http://localhost:12345");
-		p.setProperty("localNodeAddress", "http://localhost:8888");
-		p.setProperty("port", "8888");
+		p.setProperty("coordinator.url", COORDINATOR_URL);
+		p.setProperty("localNodeAddress", NON_COORDINATOR_URL);
+		p.setProperty("port", Integer.toString(NON_COORDINATOR_PORT));
 		p.setProperty("isCoordinator", Boolean.toString(false));
-		return p;
-	}
-
-	private Properties getCoordinatorProperties() {
-		Properties p = new Properties();
-		p.setProperty("name", "coord");
-		p.setProperty("coordinator.url", "http://localhost:12345");
-		p.setProperty("localNodeAddress", "http://localhost:12345");
-		p.setProperty("port", "12345");
-		p.setProperty("isCoordinator", Boolean.toString(true));
 		return p;
 	}
 }
