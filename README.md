@@ -10,13 +10,13 @@ This is a high-level description of the features of the LAPIS framework. Each fe
 
 #### Publish variables
 
-The core feature of LAPIS is the ability to "publish" variables, which exposes the variables through LAPIS's REST interface. Within the application, published variables can then be used like regular variables (though they should not be re-assigned). The present values of published variables can be retrieved through LAPIS's REST interface, and the values of these variables can be set through the same interface. LAPIS will propagate the change to the application code in a way that is transparent to the application.
+The core feature of the LAPIS framework is the ability to "publish" variables, which exposes the variables through LAPIS's REST interface. Within an application, published variables can then be used like regular variables (though they should not be re-assigned). The present values of published variables can be retrieved through LAPIS's REST interface, and the values of these variables can be set through the same interface. LAPIS will propagate the change to the application code in a way that is transparent to the application.
 
-Applications can also publish variables as "read-only" within LAPIS. The values of these variables are still available to be retrieved, but cannot be set through LAPIS's REST interface.
+Applications can also publish variables as "read-only" within LAPIS. The values of these variables are still available to be retrieved, but cannot be set, through LAPIS's REST interface.
 
 #### Redact variables
 
-Variables which have been published can be un-published through LAPIS' redact method. Redacted variables can then be used like regular variables. They will no longer be exposed in LAPIS's REST interface.
+Variables which have been published can be un-published through LAPIS's redact method. Redacted variables can then be used like regular variables. They will no longer be exposed in LAPIS's REST interface.
 
 #### LAPIS networks
 
