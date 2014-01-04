@@ -21,13 +21,16 @@ public class LapisNetworkClient {
 	public List<LapisNode> getAllNetworkNodes() {
 		List<LapisNode> nodes = networkTable.getNodesList();
 		if(nodes.isEmpty()) {
+			logger.debug("No nodes in network table. Refreshing...");
 			return getAllNetworkNodesForceRefresh();
 		} else {
+			logger.trace("Returning nodes from network table.");
 			return nodes;
 		}
 	}
 	
 	public void addNodeToNetwork(LapisNode lapisNode) {
+		logger.info("Adding node '%s' to the network.", lapisNode.getNodeName());
 		networkClientCommunicationImpl.addNodeToNetwork(lapisNode);
 	}
 	
@@ -36,6 +39,7 @@ public class LapisNetworkClient {
 	 * The local network table is updated and the list of nodes is returned.
 	 */
 	public List<LapisNode> getAllNetworkNodesForceRefresh() {
+		logger.debug("Retrieving all network nodes from coordinator.");
 		List<LapisNode> nodesList = networkClientCommunicationImpl.getAllLapisNodesOnNetwork();
 		networkTable.updateAllNodes(nodesList);
 		return nodesList;
@@ -48,7 +52,7 @@ public class LapisNetworkClient {
 	public LapisNode getLapisNode(String nodeName) {
 		LapisNode node = networkTable.getNode(nodeName);
 		if(node == null) {
-			logger.debug("Node %s not found in network table. Retrieving from coordinator.", nodeName);
+			logger.debug("Node '%s' not found in network table. Retrieving from coordinator.", nodeName);
 			node = networkClientCommunicationImpl.getLapisNode(nodeName);
 			networkTable.addNode(node);
 		}

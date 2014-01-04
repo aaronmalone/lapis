@@ -27,6 +27,7 @@ public class LapisNetworkTransmission {
 	}
 	
 	public byte[] getAllLapisNodesOnNetwork() {
+		logger.debug("Retrieving information for all nodes.");
 		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR);
 		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
 	}
