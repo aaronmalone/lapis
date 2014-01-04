@@ -1,5 +1,7 @@
 package edu.osu.lapis.comm.serial;
 
+import java.util.List;
+
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.serialization.LapisSerialization;
@@ -15,6 +17,11 @@ public class DataClientCommunicationImpl {
 
 	private LapisSerialization lapisSerialization;
 	private LapisDataTransmission lapisDataTransmission;
+	
+	public List<VariableMetaData> getVariableMetaDataForNode(String nodeName) {
+		byte[] data = lapisDataTransmission.getVariableMetaDataForNode(nodeName);
+		return lapisSerialization.deserializeMetaDataList(data);
+	}
 	
 	public VariableMetaData getVariableMetaData(VariableFullName fullName) {
 		byte[] data = lapisDataTransmission.getVariableMetaData(fullName);

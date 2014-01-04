@@ -4,69 +4,195 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Properties;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Files;
+import com.google.common.util.concurrent.Callables;
 
 import edu.osu.lapis.comm.client.LapisDataClient;
+import edu.osu.lapis.comm.client.LapisNetworkClient;
+import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
-//TODO MOVE RESTLET STUFF AWAY FROM THE SURFACE
+import edu.osu.lapis.data.VariableMetaData;
+import edu.osu.lapis.network.LapisNode;
+//TODO MOVE RESTLET CODE AWAY FROM THE SURFACE
 import edu.osu.lapis.restlets.RestletServer;
+import edu.osu.lapis.util.Sleep;
 
 public class LapisCore {
 	
+	private final Logger logger = Logger.getLogger(getClass());
+
+	private static final String READY_VARIABLE_NAME = "~READY~FLAG~";
+	private static final Object READY_VARIABLE_VALUE = new double[] { 1 };
+	@VisibleForTesting static long waitingForNodeRetryTime = 300;
+
 	private LocalDataTable localDataTable;
 	private LapisDataClient lapisDataClient;
+	private LapisNetworkClient lapisNetworkClient;
 	private LapisConfiguration lapisConfiguration;
 	private String name;
 	private boolean shutdown;
-	
+
 	/**
-	 * Start LAPIS and initialize with default properties.
+	 * Start LAPIS and initialize with properties in properties file.
 	 */
-	public LapisCore() {
-		//default
-		this(getDefaultProperties());
-	}
-	
 	public LapisCore(String propertiesFileName) {
 		this(getPropertiesFromFile(propertiesFileName));
 	}
 
 	/**
 	 * Start LAPIS and initialize with the given properties
-	 * @param properties the properties to use in initialization
+	 * 
+	 * @param properties
+	 *            the properties to use in initialization
 	 */
 	public LapisCore(Properties properties) {
 		this.name = properties.getProperty("name");
 		this.lapisConfiguration = new LapisConfiguration(properties);
 		localDataTable = lapisConfiguration.getLocalDataTable();
 		lapisDataClient = lapisConfiguration.getLapisDataClient();
+		lapisNetworkClient = lapisConfiguration.getLapisNetworkClient();
 		RestletServer restletServer = lapisConfiguration.getRestletServer();
 		restletServer.initialize();
 		lapisConfiguration.attemptToJoinNetwork();
 	}
 
-	public void publish(String localVariableName, LapisVariable lapisVariable) {
-		localDataTable.put(localVariableName, lapisVariable);
+	/**
+	 * Indicates that this node is 'ready'. Other nodes on the network may check 
+	 * if this node is ready and wait for it to become ready. 
+	 */
+	public void ready() {
+		if(localDataTable.get(READY_VARIABLE_NAME) == null) {
+			LapisVariable readyVariable = new LapisVariable(READY_VARIABLE_NAME, 
+					LapisPermission.READ_ONLY, Callables.returning(READY_VARIABLE_VALUE), null);
+			this.publish(READY_VARIABLE_NAME, readyVariable);
+			logger.info("Node '%s' ready.", getName());
+		}
 	}
 	
+	/**
+	 * Indicates that this node is 'not ready'. Other nodes on the network may 
+	 * check if this node is ready or not, and may wait for this node to become
+	 * ready.
+	 */
+	public void notReady() {
+		this.redact(READY_VARIABLE_NAME);
+		logger.info("Node '%s' set to not-ready.", getName());
+	}
+	
+	/**
+	 * Wait until a node on the network becomes ready. This method will wait 
+	 * indefinitely. If the waited-upon node is not yet on the LAPIS network,
+	 * this will wait until the node has joined, and then poll the node's 
+	 * ready flag.
+	 * @param nodeName the name of the node to wait on
+	 */
+	public void waitForReadyNode(String nodeName) {
+		waitForReadyNode(nodeName, -1);
+	}
+	
+	/**
+	 * Wait until a node on the network becomes ready. This method will wait 
+	 * until the node becomes ready or a certain number of milliseconds has 
+	 * elapsed. If the waited-upon node is not yet on the LAPIS network,
+	 * this will wait until the node has joined, and then poll the node's 
+	 * ready flag.
+	 * @param nodeName the name of the node to wait on
+	 * @param timeout the number of milliseconds to wait for the node
+	 */
+	public void waitForReadyNode(final String nodeName, final long timeout) {
+		logger.info("Will wait for node '%s' to be ready.", nodeName);
+		long untilTimeMillis = timeout < 0 ? Long.MAX_VALUE : System.currentTimeMillis() + timeout;
+		boolean nodeReady = checkIfNodeIsReadyUntil(nodeName, untilTimeMillis);
+		if(!nodeReady) {
+			throw new RuntimeException("Timed out while waiting for node '" 
+					+ nodeName + "' to become ready.");
+		}
+	}
+	
+	/**
+	 * Checks if the node is ready. This method will check repeatedly until the 
+	 * node becomes ready or the timeout is reached.
+	 * @param nodeName the name of the node to check
+	 * @param untilTimeMillis the time (see System.currentTimeMillis()) at 
+	 * which this check will time out
+	 * @return true if the node is ready; false is the timeout is reached before
+	 * the node becomes ready
+	 */
+	private boolean checkIfNodeIsReadyUntil(final String nodeName, final long untilTimeMillis) {
+		logger.debug("Checking if node '%s' is ready. Will continue checking until %d.", nodeName, untilTimeMillis);
+		while(System.currentTimeMillis() < untilTimeMillis) {
+			if(nodeIsOnNetwork(nodeName) && hasPublishedReadyFlag(nodeName)) {
+				return true;
+			}
+			Sleep.sleep(waitingForNodeRetryTime);
+		}
+		return false; //timed out
+	}
+	
+	/**
+	 * Checks if the node is on the network.
+	 * @param nodeName the name of the node to check for
+	 * @return true if the node is on the LAPIS network
+	 */
+	private boolean nodeIsOnNetwork(String nodeName) {
+		List<LapisNode> nodes = lapisNetworkClient.getAllNetworkNodesForceRefresh(); 
+		//TODO FIGURE OUT WHAT HAPPENS IF THIS NODE IS THE COORDINATOR
+		for(LapisNode node : nodes) {
+			if(node.getNodeName().equals(nodeName)) {
+				logger.trace("Node '%s' is on the network.", nodeName);
+				return true;
+			}
+		}
+		logger.trace("Node '%s' is not on the network.", nodeName);
+		return false;
+	}
+	
+	/**
+	 * Checks if the node has published its 'ready' flag.
+	 * NOTE: this will throw an exception if the node is not on the network
+	 * @param nodeName the node to check
+	 * @return true if the node has published its 'ready' flag.
+	 */
+	private boolean hasPublishedReadyFlag(String nodeName) {
+		List<VariableMetaData> metas = lapisDataClient.getVariableMetaDataForNode(nodeName);
+		for(VariableMetaData meta : metas) {
+			if (meta.getName().equals(READY_VARIABLE_NAME)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void redact(String localVariableName) {
+		logger.info("Redacting variable '%s'.", localVariableName);
+		localDataTable.remove(localVariableName);
+	}
+
+	public void publish(String localVariableName, LapisVariable lapisVariable) {
+		logger.info("Publishing variable '%s'.", localVariableName);
+		localDataTable.put(localVariableName, lapisVariable);
+	}
+
 	public <T> T getRemoteValue(String variableFullName, Class<T> expectedClassType) {
 		return lapisDataClient.getRemoteVariableValue(variableFullName, expectedClassType);
 	}
-	
+
 	public Object getRemoteValue(String variableFullName) {
 		return lapisDataClient.getRemoteVariableValue(variableFullName, Object.class);
 	}
-	
+
 	public void setRemoteValue(String variableFullName, Object value) {
 		lapisDataClient.setRemoteVariableValue(variableFullName, value);
 	}
-	
+
 	public synchronized void shutdown() {
 		RestletServer restletServer = this.lapisConfiguration.getRestletServer();
-		if(restletServer != null && !shutdown) {
+		if (restletServer != null && !shutdown) {
 			System.err.println("Shutting down servers for node '" + name + "'.");
 			restletServer.stopServer();
 			shutdown = true;
@@ -83,14 +209,11 @@ public class LapisCore {
 		this.lapisDataClient = lapisDataClient;
 	}
 
-	private static Properties getDefaultProperties() {
-		// TODO implement for real
-		return new Properties();
-	}
-	
 	/**
 	 * Start LAPIS and initialize with properties read from the properties file.
-	 * @param propertiesFileName the name of the file from which properties will be read
+	 * 
+	 * @param propertiesFileName
+	 *            the name of the file from which properties will be read
 	 */
 	private static Properties getPropertiesFromFile(String propertiesFileName) {
 		if(propertiesFileName.toLowerCase().endsWith(".json")) {

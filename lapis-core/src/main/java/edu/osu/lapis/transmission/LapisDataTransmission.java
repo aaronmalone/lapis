@@ -14,12 +14,22 @@ public class LapisDataTransmission {
 	private String variableValuePath;
 	private String variableMetaDataPath;
 	
+	private byte[] doGet(String uri) {
+		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
+	}
+	
+	public byte[] getVariableMetaDataForNode(String nodeName) {
+		LapisNode remoteNode = lapisNetworkClient.getLapisNode(nodeName);
+		String uri = LapisRestletUtils.buildUri(remoteNode.getUrl(), variableMetaDataPath);
+		return doGet(uri);
+	}
+	
 	public byte[] getVariableValue(VariableFullName variableFullName) {
 		LapisNode remoteNode = getValidLapisNodeInVarName(variableFullName);
 		String host = remoteNode.getUrl();
 		String name = variableFullName.getLocalName();
 		String uri = LapisRestletUtils.buildUri(host, variableValuePath, name);
-		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
+		return doGet(uri);
 	}
 	
 	public byte[] getVariableMetaData(VariableFullName variableFullName) {
@@ -27,7 +37,7 @@ public class LapisDataTransmission {
 		String host = remoteNode.getUrl();
 		String name = variableFullName.getLocalName();
 		String uri = LapisRestletUtils.buildUri(host, variableMetaDataPath, name);
-		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
+		return doGet(uri);
 	}
 	
 	public void setVariableValue(VariableFullName variableFullName, byte[] serialized) {

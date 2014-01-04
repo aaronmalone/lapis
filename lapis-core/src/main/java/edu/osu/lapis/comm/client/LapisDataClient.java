@@ -1,5 +1,7 @@
 package edu.osu.lapis.comm.client;
 
+import java.util.List;
+
 import org.apache.commons.lang3.Validate;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -29,6 +31,10 @@ public class LapisDataClient {
 	
 	public VariableMetaData getRemoteVariableMetaData(String fullName) {
 		return dataClientCommunicationImpl.getVariableMetaData(new VariableFullName(fullName));
+	}
+	
+	public List<VariableMetaData> getVariableMetaDataForNode(String nodeName) {
+		return dataClientCommunicationImpl.getVariableMetaDataForNode(nodeName);
 	}
 	
 	/**

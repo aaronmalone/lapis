@@ -147,4 +147,24 @@ public class LapisApi {
 	public void set(String variableFullName, Object value) {
 		lapisCore.setRemoteValue(variableFullName, value);
 	}
+
+	public void waitForReadyNode(String nodeName) {
+		lapisCore.waitForReadyNode(nodeName);
+	}
+	
+	public void waitForReadyNode(String nodeName, long timeout) {
+		lapisCore.waitForReadyNode(nodeName, timeout);
+	}
+	
+	public void ready() {
+		lapisCore.ready();
+	}
+	
+	public void notReady() {
+		lapisCore.notReady();
+	}
+	
+	public String getName() {
+		return this.lapisCore.getName();
+	}
 }

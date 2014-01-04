@@ -60,10 +60,14 @@ public class LapisConfiguration {
 		this.serializationMediaType = MediaType.APPLICATION_JSON;
 		this.networkTable = getNetworkTable();
 		this.isCoordinator = isCoordinator();
-		this.lapisNetworkClient = getLapisNetworkClient();
+		this.lapisNetworkClient = getLapisNetworkClientInternal();
 		this.lapisDataClient = getLapisDataClientInternal();
 		this.localDataTable = new LocalDataTable();
 		this.restletServer = getRestletServerInternal();
+	}
+	
+	public LapisNetworkClient getLapisNetworkClient() {
+		return this.lapisNetworkClient;
 	}
 	
 	public LapisDataClient getLapisDataClient() {
@@ -115,7 +119,7 @@ public class LapisConfiguration {
 		return Boolean.parseBoolean(this.properties.getProperty("isCoordinator"));
 	}
 	
-	private LapisNetworkClient getLapisNetworkClient() {
+	public LapisNetworkClient getLapisNetworkClientInternal() {
 		LapisNetworkClient netClient = new LapisNetworkClient();
 		netClient.setNetworkTable(this.networkTable);
 		netClient.setNetworkClientCommunicationImpl(getNetworkClientCommunicationImpl());

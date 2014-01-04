@@ -32,8 +32,42 @@ public class LapisFunctionalTest {
 	public void test() {
 			coordinatorLapis = new LapisApi(getCoordinatorProperties());
 			nonCoordinatorLapis = new LapisApi(getNonCoordinatorProperties());
+			testReady();
+			testNotReady();
 			testPublishGetAndSetVariables();
 			testDimensionMismatch();
+	}
+
+	private void testReady() {
+		coordinatorLapis.notReady();
+		waitWithExpectedFailure(nonCoordinatorLapis, coordinatorLapis.getName());
+		coordinatorLapis.ready();
+		nonCoordinatorLapis.waitForReadyNode("coord");
+		System.out.println("Tested ready() and waitForReadyNode().");
+	}
+	
+	private void testNotReady() {
+		nonCoordinatorLapis.ready();
+		coordinatorLapis.waitForReadyNode("non-coor");
+		nonCoordinatorLapis.notReady();
+		waitWithExpectedFailure(coordinatorLapis, nonCoordinatorLapis.getName());
+		nonCoordinatorLapis.ready();
+		coordinatorLapis.waitForReadyNode("non-coor");
+		System.out.println("Tested notReady().");
+	}
+	
+	private void waitWithExpectedFailure(LapisApi waiting, String nodeName) {
+		final long timeoutMillis = 100;
+		LapisCore.waitingForNodeRetryTime = 5;
+		long startTime = System.currentTimeMillis();
+		try {
+			waiting.waitForReadyNode(nodeName, timeoutMillis);
+			shouldNotHaveReachedThisPoint();
+		} catch (Exception e) {
+			rethrowShouldNotHaveReachedThisPoint(e);
+			//this was expected... check that timeoutMillis have passed
+			Validate.isTrue(System.currentTimeMillis() >= timeoutMillis + startTime);
+		}
 	}
 
 	private void testPublishGetAndSetVariables() {
@@ -191,6 +225,7 @@ public class LapisFunctionalTest {
 			coordinatorLapis.set(name + "@non-coor", daLen10);
 			shouldNotHaveReachedThisPoint();
 		} catch(Exception e) {
+			rethrowShouldNotHaveReachedThisPoint(e);
 			printStackTraceForVisibility(e);
 		}
 	}
@@ -204,12 +239,27 @@ public class LapisFunctionalTest {
 			nonCoordinatorLapis.set(name + "@coord", mismatch);
 			shouldNotHaveReachedThisPoint();
 		} catch(Exception e) {
+			rethrowShouldNotHaveReachedThisPoint(e);
 			printStackTraceForVisibility(e);
+		}
+	}
+	
+
+	private void rethrowShouldNotHaveReachedThisPoint(Exception e) {
+		if(e instanceof ShouldNotHaveReachedThisPointException) {
+			throw (ShouldNotHaveReachedThisPointException) e;
 		}
 	}
 
 	private void shouldNotHaveReachedThisPoint() {
-		throw new RuntimeException("Code execution reached a location which it should not have reached.");
+		throw new ShouldNotHaveReachedThisPointException();
+	}
+	
+	@SuppressWarnings("serial")
+	private class ShouldNotHaveReachedThisPointException extends RuntimeException {
+		public ShouldNotHaveReachedThisPointException() {
+			super("Code execution reached a location which it should not have reached.");
+		}
 	}
 	
 	private void printStackTraceForVisibility(Exception e) {
