@@ -63,7 +63,7 @@ public class LapisFilterChainRestletBase extends LapisRestletBase {
 	 * Chains the Restlets together. All must be Filter instances except the last.
 	 * The first Restlet is returned.
 	 */
-	private Restlet createRestletFilterChain(Restlet ... restlets) { //TODO TEST
+	private Restlet createRestletFilterChain(Restlet ... restlets) {
 		Validate.isTrue(restlets.length > 0, "Must provide at least one Restlet.");
 		Filter previousFilter = null;
 		Filter currentFilter =  null;

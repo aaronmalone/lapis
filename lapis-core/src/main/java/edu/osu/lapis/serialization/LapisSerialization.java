@@ -8,8 +8,6 @@ import edu.osu.lapis.network.LapisNode;
 
 public interface LapisSerialization {
 	
-	//TODO MAY WANT TO REFACTOR NAMES HERE
-	
 	//serialize
 	public byte[] serialize(SerializationObject serializationObject);
 	public byte[] serialize(VariableMetaData variableMetaData);

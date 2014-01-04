@@ -48,6 +48,7 @@ public class LapisVariable {
 	}
 	
 	public void setValue(Object value) {
+		assert this.lapisPermission != LapisPermission.READ_ONLY;
 		this.settable.set(value);
 	}
 

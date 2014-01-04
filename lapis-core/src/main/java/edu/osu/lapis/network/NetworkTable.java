@@ -8,16 +8,15 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
-//TODO ADD PROTECTION FOR LOCAL NODE
 public class NetworkTable {
 
 	private final Map<String, LapisNode> nodeMap = Collections.synchronizedMap(new HashMap<String, LapisNode>());
 	private LapisNode coordinator;
 	private LapisNode localNode;
 	
-	public void addNode(LapisNode newNode) { //TODO TEST
+	public void addNode(LapisNode newNode) {
 		Validate.isTrue(!localNode.equals(newNode), "Attempting to add new node %s that " 
-				+ "has same name as local (this) node %s.", newNode, localNode); //TODO REMOVE VALIDATION at some point
+				+ "has same name as local (this) node %s.", newNode, localNode);
 		String nodeName = newNode.getNodeName();
 		LapisNode existingNode = nodeMap.get(nodeName);
 		if(existingNode == null) {

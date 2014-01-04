@@ -21,7 +21,6 @@ import com.google.gson.stream.JsonWriter;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.network.LapisNode;
 
-//TODO REMOVE PRINT STATEMENTS
 public class JsonSerialization implements LapisSerialization {
 	
 	private static final String

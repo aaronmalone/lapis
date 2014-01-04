@@ -47,7 +47,7 @@ public class LapisRestletBase extends Restlet {
 		} else if(meth.equals(Method.DELETE)) {
 			delete(request, response);
 		} else {
-			throw new IllegalStateException("SHUT. DOWN. EVERYTHING!"); //TODO write better message
+			throw new IllegalStateException("Unable to handle request method: " + meth);
 		}
 	}
 

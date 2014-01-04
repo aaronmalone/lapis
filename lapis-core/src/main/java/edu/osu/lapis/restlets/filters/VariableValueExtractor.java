@@ -20,7 +20,6 @@ public class VariableValueExtractor extends RequestPayloadExtractor {
 	@Override
 	protected int beforeHandle(Request request, Response response, byte[] requestPayload) {
 		SerializationObject deserialized = lapisSerialization.deserializeModelData(requestPayload);
-		//TODO MAYBE DO SOME SANITY CHECK HERE ON THE DESERIALIZED VALUE
 		request.getAttributes().put(DESERIALIZED_VARIABLE_VALUE, deserialized);
 		return CONTINUE;
 	}

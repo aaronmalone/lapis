@@ -68,8 +68,6 @@ public class Notifier {
 				String path = "network/" + changedNode.getNodeName();
 				Runnable notificationRunnable = getNotificationRunnable(node, path, data, methodToUse); 
 				Thread thread = new Thread(notificationRunnable);
-				//TODO LOOK AT THREAD GROUPS
-				//TODO MAYBE SET UNCAUGHT EXCEPTION HANDLER?
 				thread.start();
 			}
 		}

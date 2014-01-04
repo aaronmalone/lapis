@@ -1,7 +1,6 @@
 package edu.osu.lapis.restlets;
 
 import java.io.ByteArrayInputStream;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.StopWatch;
@@ -77,16 +76,9 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 			response.setEntity(getResponseRepresentation(variableName, localVariable));
 		} catch (Exception e) {
 			logger.error(e, "Error while retrieving variable value.");
-			//TODO CAN PROBABLY IMPROVE THIS
-			Throwable cause = e.getCause();
-			if(cause instanceof TimeoutException) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, cause, cause.getMessage());
-				response.setEntity(cause.getMessage(), MediaType.TEXT_PLAIN);
-			} else {
-				String stackTrace = StackTraceUtil.getStrackTraceAsString(e);
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Unable to retrieve variable value.");
-				response.setEntity("Unable to retrieve variable value:\n" + stackTrace, MediaType.TEXT_PLAIN);				
-			}
+			String stackTrace = StackTraceUtil.getStrackTraceAsString(e);
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Unable to retrieve variable value.");
+			response.setEntity("Unable to retrieve variable value:\n" + stackTrace, MediaType.TEXT_PLAIN);				
 		}
 	}
 	
