@@ -20,21 +20,16 @@ nodeName = 'Node1';
 lap = LapisAPI(nodeName, coordinatorAddress);   %Node1 is the coordinator
 
 x = LAPISData('x', [1 2 3 4 5]);            %Starter counting vector
-lap.publish('x', x);
+lap.publish(x);
 
 finishFlag = LAPISData('finishFlag', [0]);  %Local finish flag
-lap.publish('finishFlag', finishFlag);
+lap.publish(finishFlag);
 
 simFinishFlag = LAPISData('simFinishFlag', [0]);    %overall simulation finished flag (node 1 acts as the master)
-lap.publish('simFinishFlag', simFinishFlag);
+lap.publish(simFinishFlag);
 
 node2FinishFlag = LAPISData('node2FinishFlag', [0]);    %node2finish finished flag
-lap.publish('node2FinishFlag', node2FinishFlag);
-
-
-node2status = LAPISData('node2status', [0]);    %simulation finished flag
-lap.publish('node2status', node2status);
-
+lap.publish(node2FinishFlag);
 
 
 %%
@@ -44,7 +39,7 @@ while 1
     
      x.data = x.data + 1;    %increment the array by 1
      disp(x.data);
-     pause(2);       %pause for 1 second
+     pause(0.25);
 
     if x.data(1) > 10
 
@@ -60,7 +55,7 @@ disp('waiting for Node 2 to finish');
 %Wait for Node 2 to set the simulation finish flag
 while node2FinishFlag.data ~= 1
     disp('Waiting for Node 2 to set node2FinishFlag (a published variable in this node)...')
-    pause(0.5);
+    pause(1.5);
 end
 
 disp('Getting node2copy...')
@@ -71,7 +66,8 @@ disp(node2Copy)
 disp('Simulation Finished!');
 simFinishFlag.data = 1;
 
-
+lap.redact(finishFlag);
+lap.redact(node2FinishFlag);
 
 
 %Make sure you shut down LAPIS before clearing it!

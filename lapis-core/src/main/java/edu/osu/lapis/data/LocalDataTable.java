@@ -16,7 +16,7 @@ public class LocalDataTable {
 			Collections.synchronizedMap(new HashMap<String, LapisVariable>());
 	
 	public void put(String localName, LapisVariable variable) {
-		logger.debug("Adding variable %s to local data table.",localName);
+		logger.debug("Adding variable '%s' to local data table.",localName);
 		localDataMap.put(localName, variable);
 	}
 	
@@ -29,7 +29,7 @@ public class LocalDataTable {
 	}
 
 	public void remove(String localName) {
-		logger.debug("Removing variable %s from local data table.",localName);
+		logger.debug("Removing variable '%s' from local data table.",localName);
 		localDataMap.remove(localName);
 	}
 }

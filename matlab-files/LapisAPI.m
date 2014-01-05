@@ -59,7 +59,7 @@ classdef LapisAPI < handle
         end
         
         
-        function obj = publish(obj, name, data)
+        function obj = publish(obj, data)
             %Publishes a variable.  Args(variableName, LapisDataObject).
             
             if ~isa(data, 'LAPISData')
@@ -68,17 +68,22 @@ classdef LapisAPI < handle
 
             data.setLapisReference(obj);
             
-            obj.dataTable(name) = data;
-            obj.lapisJava.publish(java.lang.String(name), data.data);
+            obj.dataTable(data.name) = data;
+            obj.lapisJava.publish(java.lang.String(data.name), data.data);
+        end
+        
+        function obj = redact(obj, data)
+            % un-publish a varible
+            obj.lapisJava.redact(data.name)
         end
                 
         function obj = setCachedValue(obj, varName, data)    
-%             Setter to put a value into the Java datatable
+%             Setter to put a value into the LAPIS cache
             obj.lapisJava.setCachedValue(varName, data);
         end
         
         function result = retrieveCachedValue(obj, varName)
-%             Getter method to get a value from the Java datatable
+%             Getter method to get a value from the LAPIS cache
            result = obj.lapisJava.retrieveCachedValue(varName); 
         end
         

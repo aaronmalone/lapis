@@ -149,4 +149,8 @@ public class MatlabLapis {
 	public void shutdown() {
 		lapisCoreApi.shutdown();
 	}
+	
+	public void redact(String variableName) {
+		lapisCoreApi.redact(variableName);
+	}
 }

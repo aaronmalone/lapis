@@ -15,19 +15,7 @@ nodeName = 'Node2';
 lap = LapisAPI(nodeName, coordinatorAddress, 'http://127.0.0.1:8888');
 
 x = LAPISData('node2copy', [1 2 3 4 5]);            %Starter counting vector
-lap.publish('node2copy', x);
-
-finishFlag = LAPISData('finishFlag', [0]);  %Local finish flag
-lap.publish('finishFlag', finishFlag);
-
-simFinishFlag = LAPISData('simFinishFlag', [0]);    %simulation finished flag
-lap.publish('simFinishFlag', simFinishFlag);
-
-ready = LAPISData('ready', [1]);    %simulation finished flag
-lap.publish('ready', ready);
-
-node2finish = LAPISData('node1finish', [0]);    %simulation finished flag
-lap.publish('node1finish', node2finish);
+lap.publish(x);
 
 %%
 % Wait for Node1 to finish counting
@@ -46,12 +34,11 @@ while 1
     
     x.data = x.data - 1;    %decrement the array by 1
     disp(x.data);
-    pause(1);       %pause for 1 second
+    pause(0.25);
     
     if x.data(1) < 0
         
         lap.set('Node1', 'node2FinishFlag', 1);
-        finishFlag.data = 1;
         
         break;
     end
@@ -67,7 +54,7 @@ while 1
         break;
     end
     disp('Waiting for Node 1 to set simFinishFlag (a published variable on Node 1)...')
-    pause(0.5)
+    pause(1)
 end
 
 
