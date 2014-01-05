@@ -36,6 +36,18 @@ To facilitate coordination among multiple nodes in a LAPIS network, LAPIS allows
 
 As mentioned previously, LAPIS exposes the values of published variables through a REST interface. The values of published variables can be retrieved. The values can also be set if the variables have not been published as "read-only" within LAPIS. In addition to getting and setting variable values, LAPIS also exposes variable meta-data and network information through its REST interface. Further detail on the REST interface will be provided in a separate section.
 
+
+### Creating LAPIS networks
+
+LAPIS allows programmers to build networks of computationally steered applications. Each application within the network can access other applications' published variables.
+
+To create a LAPIS network, you must first create a LAPIS coordinator node. The coordinator node within a LAPIS network is the node that is responsible for maintaining a record of all of the nodes on the network. This record is stored within the LAPIS framework, so the client does not need to be concerned about it. After the coordinator node has been created, you can add multiple non-coordinator nodes to the network.
+
+There are three key details that client programmers must be aware of regarding coordinator and non-coordinator LAPIS nodes:
+1. Coordinator nodes and non-coordinator nodes are created using different constructors for the LAPIS API object (LapisAPI in MATLAB, LapisApi in Java). The details for LAPIS API object creation are described in the sections on using LAPIS in MATLAB and Java. 
+2. The coordinator node must be running before non-coordinator nodes can join the network. If a non-coordinator node starts up before the coordinator for its network is running, an exception will be thrown when the non-coordinator attempts to connect to the coordinator and subsequently fails.
+3. Each LAPIS network has only one coordinator, but a single application can participate in multiple LAPIS networks.
+
 ### Use in MATLAB
 
 LAPIS includes a MATLAB client for incorporating steering in MATLAB applications.
@@ -57,13 +69,13 @@ myAddress = 'http://127.0.0.1:7777'
 lapisApi = LapisAPI(myNodeName, myAddress)
 ```
 
-Note that the LapisAPI constructor above creates a _coordinator_ node. Details of coordinator and non-coordinator nodes will be discussed separately. However, if you intend to use LAPIS in a standalone application, and _not_ as part of a network of LAPIS nodes, you should use the constructor that creates a coordinator node.
+Note that the LapisAPI constructor above creates a coordinator node. If you intend to use LAPIS in a standalone application, and _not_ as part of a network of LAPIS nodes, you should use the constructor that creates a coordinator node.
 
 ##### Create a LAPISData object
 
 To publish MATLAB variables in LAPIS, you must use ```LAPISData``` wrapper objects. 
 
-<!-- The reasons for this will be discussed in implementation details section. -->
+<!-- TODO: discuss the reason for this in the implementation details section -->
 
 ```Matlab
 % instantiate a LAPISDAta object
@@ -138,7 +150,7 @@ Re-assigning a  ```LAPISData``` variable, as in the example above, causes two pr
 
 It may also be worth noting that the re-assignment in the example above does _not_ change the value of the published variable. The value in the example remains ```[1 2 3 4 5]```.
 
-##### Redact a oublished variable
+##### Redact a published variable
 
 To "un-publish" a published variable, use the ```redact``` method:
 
@@ -147,6 +159,8 @@ To "un-publish" a published variable, use the ```redact``` method:
 % lapisData is an instance of LAPISData that has already been published
 lapisApi.redact(lapisData)
 ```
+
+Note that most applications will not need to un-publish any variables, so use of the ```redact``` method should be rare.
 
 ##### Create a non-coordinator node
 
@@ -179,4 +193,68 @@ If a node has published a variable and it has _not_ been published as "read-only
 % set the value of var1, a variable published by node1
 valueToSet = magic(10)
 lapisApi.set('node1', 'var1', valueToSet)
+```
+
+### Use in Java
+
+LAPIS includes a Java client for incorporating steering in Java applications.
+
+##### Dependencies
+
+To use the LAPIS client in Java, you will need the lapis-java-client .jar file (as of the time of this writing, lapis-java-client-1.0-SNAPSHOT-jar-with-dependencies.jar).
+
+##### Instantiate a LapisApi object
+
+To start using LAPIS in your Java application, instantiate a ```edu.osu.lapis.LapisApi``` object:
+
+```Java
+// this creates a coordinator node
+String myNodeName = "Java-node";
+String myAddress = "http://localhost:7788";
+LapisApi lapisApi = new LapisApi(myNodeName, myAddress);
+```
+
+##### Publish variables
+
+As of this time, variables published through LAPIS's Java client must be one-, two-, or three-dimensional arrays of a Java primitives.
+
+```Java
+final int[] ints = new int[] {8, 6, 7, -5, 3, 0, 9};
+//lapisApi is an instance of edu.osu.lapis.LapisApi
+lapisApi.publish("publishedInts", ints);
+```
+
+In the example above, an array of integers is published with the name "publishedInts". Other LAPIS nodes on a network can access the present state of ```ints``` by using the published name of the variable.
+
+Note that the recommend practice is to publish ```final``` variables. Published variables should not be re-assigned. Re-assigning a published variable causes two problems. It prevents the application from changing the value of the published variable that is exposed through the REST interface, and it prevents any changes made through the REST interface (either manually or programmatically by other nodes in a LAPIS network) from being seen within the Java application.
+
+##### Redact variables
+
+Most applications will have no need to un-publish variables, but if you wish to remove a previously-published variable, you can use the ```redact``` method:
+
+```Java
+//lapisApi is an instance of edu.osu.lapis.LapisApi
+lapisApi.redact("nameOfPreviouslyPublishedVariable");
+```
+
+Note that the argument passed to the ```redact``` method is the _name_ of the published variable within LAPIS, not the published object itself.
+
+##### Get and set variables published by other nodes
+
+Applications within the same LAPIS network can get and set each other's published variables, as in the example below. Note that the application must refer to other nodes' published variables using the "full name" of the published variable, i.e. published name + ```@``` + node name. This may change in a future release.
+
+```Java
+// "doubles" is an array of doubles published by a node named "otherNode"
+String variableName = "doubles";
+String otherNodeName = "otherNode";
+String variableFullName = variableName + '@' + otherNodeName;
+
+// get the value of the published variable by referring to the "full name"
+double[] localDoubles = lapisApi.getArrayOfDouble(variableFullName);
+
+// make some change and set the value on the other node
+for(int i = 0; i < localDoubles.length; ++i) {
+    localDoubles[i] = Math.sqrt(localDoubles[i]);
+}
+lapisApi.set(variableFullName, localDoubles);
 ```
