@@ -4,6 +4,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
+import org.apache.commons.lang3.Validate;
+
 import com.google.common.util.concurrent.Callables;
 
 import edu.osu.lapis.data.LapisPermission;
@@ -52,6 +54,7 @@ public class LapisApi {
 		}
 	}
 	
+	//TODO ADD COMMENT
 	public LapisApi(String nodeName, String coordinatorAddress) {
 		this(nodeName, coordinatorAddress, coordinatorAddress);
 	}
@@ -64,6 +67,7 @@ public class LapisApi {
 	 * @param reference the object to publish
 	 */
 	public void publish(String variableName, Object reference) {
+		Validate.isTrue(reference.getClass().isArray(), "Published variables must be arrays.");
 		LapisVariable lapisVariable = createLapisVariable(variableName, reference);
 		lapisCore.publish(variableName, lapisVariable);
 	}
@@ -166,5 +170,9 @@ public class LapisApi {
 	
 	public String getName() {
 		return this.lapisCore.getName();
+	}
+	
+	public void redact(String variableName) {
+		this.lapisCore.redact(variableName);
 	}
 }

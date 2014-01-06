@@ -30,12 +30,12 @@ public class LapisFunctionalTest {
 	}
 	
 	public void test() {
-			coordinatorLapis = new LapisApi(getCoordinatorProperties());
-			nonCoordinatorLapis = new LapisApi(getNonCoordinatorProperties());
-			testReady();
-			testNotReady();
-			testPublishGetAndSetVariables();
-			testDimensionMismatch();
+		coordinatorLapis = new LapisApi(getCoordinatorProperties());
+		nonCoordinatorLapis = new LapisApi(getNonCoordinatorProperties());
+		testReady();
+		testNotReady();
+		testPublishGetAndSetVariables();
+		testDimensionMismatch();
 	}
 
 	private void testReady() {

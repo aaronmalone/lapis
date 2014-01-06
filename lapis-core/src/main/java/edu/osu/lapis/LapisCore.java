@@ -28,7 +28,7 @@ public class LapisCore {
 
 	private static final String READY_VARIABLE_NAME = "~READY~FLAG~";
 	private static final Object READY_VARIABLE_VALUE = new double[] { 1 };
-	@VisibleForTesting static long waitingForNodeRetryTime = 300;
+	@VisibleForTesting static long waitingForNodeRetryTime = 500;
 
 	private LocalDataTable localDataTable;
 	private LapisDataClient lapisDataClient;
