@@ -121,18 +121,42 @@ classdef LapisAPI < handle
         end
         
         function obj = ready(obj)
+        %ready
+        %  declares that this LAPIS node is now ready
+        %
+        %  The functions ready, notReady, waitForReadyNode, and
+        %  waitForReadyNodeWithTimeout facilitate coordination among
+        %  multiple nodes in a LAPIS network. It is not necessary for a
+        %  node to declare that it is ready by using the ready function
+        %  unless other nodes on the same network are or will be waiting
+        %  for the node to become ready using either the waitForReadyNode
+        %  or the waitForReadyNodeWithTimeout functions.
             obj.lapisJava.ready();
         end
         
         function obj = notReady(obj)
+        %notReady
+        %  declares that this LAPIS node is not ready
+        %  
+        %  The functions ready, notReady, waitForReadyNode, and
+        %  waitForReadyNodeWithTimeout facilitate coordination among
+        %  multiple nodes in a LAPIS network.
             obj.lapisJava.notReady();
         end
        
         function obj = waitForReadyNode(obj, nodeName)
+        %waitForReadyNode
+        %  waitForReadyNode(N) waits indefinitely for node N to become
+        %  'ready' and does not time out
             obj.lapisJava.waitForReadyNode(nodeName);
         end
         
         function obj = waitForReadyNodeWithTimeout(obj, nodeName, millisToWait)
+        %waitForReadyNodeWithTimeout
+        %  waitForReadyNodeWithTimeout(N, M) waits for node N to become
+        %  'ready' and times out with an exception after M milliseconds if
+        %  node N has not become ready
+            
             obj.lapisJava.waitForReadyNode(nodeName, millisToWait);
         end
         
