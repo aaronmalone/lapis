@@ -66,9 +66,9 @@ public class Notifier {
 		for(LapisNode node : networkTable.getNodesList()) {
 			if(!changedNode.equals(node)) {
 				String path = "network/" + changedNode.getNodeName();
-				Runnable notificationRunnable = getNotificationRunnable(node, path, data, methodToUse); 
-				Thread thread = new Thread(notificationRunnable);
-				thread.start();
+				Runnable notificationRunnable = getNotificationRunnable(node, path, data, methodToUse);
+				logger.trace("Starting thread to notify node %s with %s operation.", node, methodToUse);
+				new Thread(notificationRunnable).start();
 			}
 		}
 	}

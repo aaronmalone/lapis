@@ -8,13 +8,18 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
+import edu.osu.lapis.Logger;
+
 public class NetworkTable {
+	
+	private final Logger logger = Logger.getLogger(getClass());
 
 	private final Map<String, LapisNode> nodeMap = Collections.synchronizedMap(new HashMap<String, LapisNode>());
 	private LapisNode coordinator;
 	private LapisNode localNode;
 	
 	public void addNode(LapisNode newNode) {
+		logger.debug("Adding new node '%s' to network table.", newNode.getNodeName());
 		Validate.isTrue(!localNode.equals(newNode), "Attempting to add new node %s that " 
 				+ "has same name as local (this) node %s.", newNode, localNode);
 		String nodeName = newNode.getNodeName();
@@ -34,6 +39,7 @@ public class NetworkTable {
 	}
 	
 	public LapisNode getNode(String nodeName) {
+		logger.trace("Retrieving node '%s' from network table.", nodeName);
 		if(localNode.getNodeName().equals(nodeName))
 			return localNode;
 		else 
@@ -44,10 +50,12 @@ public class NetworkTable {
 	 * Returns all the nodes in the network except the local node (this node).
 	 */
 	public List<LapisNode> getNodesList() {
+		logger.trace("Retrieving all nodes.");
 		return new ArrayList<LapisNode>(nodeMap.values());
 	}
 	
 	public void updateNode(LapisNode lapisNode) {
+		logger.debug("Updating node in network table: %s", lapisNode);
 		if (nodeMap.containsKey(lapisNode.getNodeName())){
 			nodeMap.put(lapisNode.getNodeName(), lapisNode);
 		}else{	
@@ -66,6 +74,7 @@ public class NetworkTable {
 	}
 	
 	public LapisNode removeNode(String nodeName) {
+		logger.debug("Removing node '%s' from network table.", nodeName);
 		return nodeMap.remove(nodeName);
 	}
 	
