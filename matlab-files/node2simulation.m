@@ -18,6 +18,9 @@ x = LAPISData('node2copy', [1 2 3 4 5]);            %Starter counting vector
 lap.publish(x);
 
 %%
+
+lap.waitForReadyNodeWithTimeout('Node1', 10000);
+
 % Wait for Node1 to finish counting
 while 1
     disp('Waiting for node 1...');

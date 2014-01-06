@@ -31,6 +31,7 @@ lap.publish(simFinishFlag);
 node2FinishFlag = LAPISData('node2FinishFlag', [0]);    %node2finish finished flag
 lap.publish(node2FinishFlag);
 
+lap.ready();
 
 %%
     

@@ -153,4 +153,20 @@ public class MatlabLapis {
 	public void redact(String variableName) {
 		lapisCoreApi.redact(variableName);
 	}
+	
+	public void ready() {
+		lapisCoreApi.ready();
+	}
+	
+	public void notReady() {
+		lapisCoreApi.notReady();
+	}
+	
+	public void waitForReadyNode(String nodeName) {
+		lapisCoreApi.waitForReadyNode(nodeName);
+	}
+	
+	public void waitForReadyNode(String nodeName, double millisToWait) {
+		lapisCoreApi.waitForReadyNode(nodeName, (long)millisToWait);
+	}
 }

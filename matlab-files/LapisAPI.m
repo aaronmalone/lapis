@@ -120,6 +120,22 @@ classdef LapisAPI < handle
            obj.lapisJava.shutdown();
         end
         
+        function obj = ready(obj)
+            obj.lapisJava.ready();
+        end
+        
+        function obj = notReady(obj)
+            obj.lapisJava.notReady();
+        end
+       
+        function obj = waitForReadyNode(obj, nodeName)
+            obj.lapisJava.waitForReadyNode(nodeName);
+        end
+        
+        function obj = waitForReadyNodeWithTimeout(obj, nodeName, millisToWait)
+            obj.lapisJava.waitForReadyNode(nodeName, millisToWait);
+        end
+        
     end
 
 end
