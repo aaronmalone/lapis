@@ -259,9 +259,9 @@ for(int i = 0; i < localDoubles.length; ++i) {
 lapisApi.set(variableFullName, localDoubles);
 ```
 
-### Release 0.3 notes
+## Release 0.3 notes
 
-This release includes some changes and new features, discussed below.
+This release includes some changes and new features, discussed below. Note that examples provided are for the MATLAB client. For the Java client, please look at the source code, unit tests, and Javadoc for the the lapis-java-client project, and at the examples provided earlier in this document.
 
 ##### Modified publish function
 
