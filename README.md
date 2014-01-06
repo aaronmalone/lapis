@@ -258,3 +258,74 @@ for(int i = 0; i < localDoubles.length; ++i) {
 }
 lapisApi.set(variableFullName, localDoubles);
 ```
+
+### Release 0.3 notes
+
+This release includes some changes and new features, discussed below.
+
+##### Modified publish function
+
+The function for publishing variables has changed so that you no longer need to specify a name string when calling the ```publish``` function. Internally, LAPIS will use the ```.name``` field of the ```LAPISData``` passed to the function as the published named of the variable. 
+
+Here is an example:
+
+```Matlab
+finishFlag = LAPISData('finishFlag', [0]);
+lapisApi.publish(finishFlag);
+% the name of the published variable will be 'finishFlag'
+```
+
+For reference, this is how variables were published prior to this release:
+
+```Matlab
+% this is code for the previous approach -- do not do this anymore
+finishFlag = LAPISData('finishFlag', [0]);
+lapisApi.publish('finishFlag', finishFlag);
+```
+
+##### Mutli-server functionality
+
+It is now possible to build networks of LAPIS nodes across multiple servers. When constructing your ```LapisAPI``` object in MATLAB, you will have to specify the externally visible address of your LAPIS node--that is, an address visible to other servers on your network (but not necessarily to the wider internet). So, whereas you might have used ```'http://127.0.0.1:7777'``` as the address of your LAPIS node before, now you'll want to use the address by which other servers can access your node, such as ```'http://192.168.1.2:7777'```.
+
+The following examples demonstrate the use of addresses that will be visible to other servers on the network:
+
+```Matlab
+% constructor to create coordinator node
+myAddress = 'http://192.168.2.2:7777'; % note: myAddress is also the coordinator address in this example
+nodeName = 'Node1';
+lapisApi = LapisAPI(nodeName, myAddress);
+```
+
+```Matlab
+% constructor to create non-coordinator node
+myAddress = 'http://192.168.2.55:7777';
+coordinatorAddress = 'http://192.168.2.2:7777';
+nodeName = 'Node2';
+lapisApi = LapisAPI(nodeName, coordinatorAddress, myAddress);
+```
+
+##### Wait for nodes to declare themselves 'ready'
+
+To facilitate coordination among multiple nodes in a LAPIS network, LAPIS now allows applications to pause while waiting for other nodes to join a network, perform any initialization processing, and then declare themselves ready.
+
+To wait for another node to declare that it is ready, use the ```waitForReadyNode``` or ```waitForReadyNodeWithTimeout``` function, as in the example below:
+
+```Matlab
+% waits 10000 milliseconds--or 10 seconds--for 'Node1' to become 'ready'
+lapisApi.waitForReadyNodeWithTimeout('Node1', 10000);
+
+% waits indefinitely for 'Node2' to become 'ready'
+lapisApi.waitForReadyNode('Node2');
+```
+
+A node does not have to already be present on the LAPIS network for another node to begin waiting for it. The ```waitForReadyNodeWithTimeout``` function blocks until the specified node has become ready or the timeout is reached. If the timeout is reached, an exception will be thrown, so catch the exception if you wish to continue processing in the event of a timeout. The ```waitForReadyNode``` function blocks indefinitely. It will not return until the specified node has joined the network and declared itself to be ready. Use of ```waitForReadyNodeWithTimeout``` should be preferred over use of ```waitForReadyNode```.
+
+Nodes upon which other nodes are waiting will need to declare themselves ready using the ```ready``` function. This 'ready' state is visible to all other nodes on the same LAPIS network. Any node currently waiting on the node that becomes ready will continue processing (the ```waitForReadyNode``` or ```waitForReadyNodeWithTimeout``` function will return), and any node that subsequently attempts to wait on the 'ready' node will continue processing almost immediately.
+
+Nodes which must no longer appear as 'ready' to the rest of the network should call the ```notReady``` function. Note that calling the ```notReady``` function when ```ready``` has not been called will have no effect. Similarly, if a node is already in the 'ready' state, further calls to ```ready``` have no effect.
+
+Applications do not have to use the functionality that LAPIS provides for waiting on nodes and declaring nodes 'ready', but these features help to build networks of applications that work together.
+
+##### Configurable logging
+
+Logging can now be configured using the ```log4j.properties``` file that is included with the other MATLAB files for this release. In MATLAB, LAPIS locates this file in the current directory and uses it to configure logging whenever a ```LapisAPI``` object is instantiated. Instructions on the use of log4j can be found at http://logging.apache.org/log4j/1.2/manual.html, though most users will not have to make any changes to the log4j configuration.
