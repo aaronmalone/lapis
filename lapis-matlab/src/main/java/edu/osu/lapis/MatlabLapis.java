@@ -2,6 +2,7 @@ package edu.osu.lapis;
 
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -150,23 +151,50 @@ public class MatlabLapis {
 		lapisCoreApi.shutdown();
 	}
 	
+	/**
+	 * Un-publish a variable.
+	 * @param variableName the published name of the variable
+	 */
 	public void redact(String variableName) {
 		lapisCoreApi.redact(variableName);
 	}
 	
+	/**
+	 * Declare this node 'ready'. Applications do not need to declare themselves
+	 * ready in order to use LAPIS functionality, but they can use ready(), notReady(),
+	 * and waitForReadyNode() to facilitate coordination among multiple nodes on 
+	 * a LAPIS network.
+	 */
 	public void ready() {
 		lapisCoreApi.ready();
 	}
 	
+	/**
+	 * Declare this node 'not ready'.
+	 */
 	public void notReady() {
 		lapisCoreApi.notReady();
 	}
 	
+	/**
+	 * Wait for a node to declare that it is ready. This method blocks indefinitely
+	 * until the specified node has joined the network and declared that it is ready.
+	 * @param nodeName the name of the node
+	 */
 	public void waitForReadyNode(String nodeName) {
 		lapisCoreApi.waitForReadyNode(nodeName);
 	}
-	
-	public void waitForReadyNode(String nodeName, double millisToWait) {
+
+	/**
+	 * Wait for a node to declare that it is ready. This method blocks until the 
+	 * specified node has joined the network and declared itself ready, or until
+	 * the timeout is reached. If the timeout is reached before the node is ready,
+	 * an exception is thrown.
+	 * @param nodeName the name of the node to wait for
+	 * @param millisToWait the number of milliseconds to wait
+	 * @throws TimeoutException if the timeout is reached
+	 */
+	public void waitForReadyNode(String nodeName, double millisToWait) throws TimeoutException {
 		lapisCoreApi.waitForReadyNode(nodeName, (long)millisToWait);
 	}
 }

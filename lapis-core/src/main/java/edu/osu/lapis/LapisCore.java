@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Files;
@@ -92,7 +93,11 @@ public class LapisCore {
 	 * @param nodeName the name of the node to wait on
 	 */
 	public void waitForReadyNode(String nodeName) {
-		waitForReadyNode(nodeName, -1);
+		try {
+			waitForReadyNode(nodeName, -1);
+		} catch (TimeoutException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**
@@ -103,13 +108,14 @@ public class LapisCore {
 	 * ready flag.
 	 * @param nodeName the name of the node to wait on
 	 * @param timeout the number of milliseconds to wait for the node
+	 * @throws TimeoutException 
 	 */
-	public void waitForReadyNode(final String nodeName, final long timeout) {
+	public void waitForReadyNode(final String nodeName, final long timeout) throws TimeoutException {
 		logger.info("Will wait for node '%s' to be ready.", nodeName);
 		long untilTimeMillis = timeout < 0 ? Long.MAX_VALUE : System.currentTimeMillis() + timeout;
 		boolean nodeReady = checkIfNodeIsReadyUntil(nodeName, untilTimeMillis);
 		if(!nodeReady) {
-			throw new RuntimeException("Timed out while waiting for node '" 
+			throw new TimeoutException("Timed out while waiting for node '" 
 					+ nodeName + "' to become ready.");
 		}
 	}
@@ -140,8 +146,9 @@ public class LapisCore {
 	 * @return true if the node is on the LAPIS network
 	 */
 	private boolean nodeIsOnNetwork(String nodeName) {
+		//note: as currently implemented, this results in unnecessary HTTP calls
+		//  if the current node IS the network coordinator
 		List<LapisNode> nodes = lapisNetworkClient.getAllNetworkNodesForceRefresh(); 
-		//TODO FIGURE OUT WHAT HAPPENS IF THIS NODE IS THE COORDINATOR
 		for(LapisNode node : nodes) {
 			if(node.getNodeName().equals(nodeName)) {
 				logger.trace("Node '%s' is on the network.", nodeName);
@@ -168,28 +175,58 @@ public class LapisCore {
 		return false;
 	}
 
+	/**
+	 * Un-publish a variable. The variable will no longer be exposed through the
+	 * REST interface or available to other network nodes.
+	 * @param localVariableName the name of the variable
+	 */
 	public void redact(String localVariableName) {
 		logger.info("Redacting variable '%s'.", localVariableName);
 		localDataTable.remove(localVariableName);
 	}
 
+	/**
+	 * Publish a variable. This results in the variable being exposed through 
+	 * the REST interface and available to other LAPIS nodes on the same network.
+	 * @param localVariableName the name of the variable
+	 * @param lapisVariable the variable wrapper in a LapisVariable object
+	 */
 	public void publish(String localVariableName, LapisVariable lapisVariable) {
 		logger.info("Publishing variable '%s'.", localVariableName);
 		localDataTable.put(localVariableName, lapisVariable);
 	}
 
+	/**
+	 * Retrieve the value of a published variable on another LAPIS node.
+	 * @param variableFullName the "full name" of the variable
+	 * @param expectedClassType the expected type of the value
+	 * @return the remote variable value
+	 */
 	public <T> T getRemoteValue(String variableFullName, Class<T> expectedClassType) {
 		return lapisDataClient.getRemoteVariableValue(variableFullName, expectedClassType);
 	}
 
+	/**
+	 * Retrieve the value of a published variable on another LAPIS node.
+	 * @param variableFullName the "full name" of the variable
+	 * @return the remote variable value
+	 */
 	public Object getRemoteValue(String variableFullName) {
 		return lapisDataClient.getRemoteVariableValue(variableFullName, Object.class);
 	}
 
+	/**
+	 * Set the value of a variable published on another LAPIS node.
+	 * @param variableFullName the "full name" of the variable
+	 * @param value the value to set
+	 */
 	public void setRemoteValue(String variableFullName, Object value) {
 		lapisDataClient.setRemoteVariableValue(variableFullName, value);
 	}
 
+	/**
+	 * Shut down this LAPIS node.
+	 */
 	public synchronized void shutdown() {
 		RestletServer restletServer = this.lapisConfiguration.getRestletServer();
 		if (restletServer != null && !shutdown) {
@@ -239,6 +276,10 @@ public class LapisCore {
 		}
 	}
 
+	/**
+	 * Get the name of this LAPIS node
+	 * @return the name of this LAPIS node
+	 */
 	public String getName() {
 		return name;
 	}

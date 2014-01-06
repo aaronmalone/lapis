@@ -3,6 +3,7 @@ package edu.osu.lapis;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.Validate;
 
@@ -14,6 +15,13 @@ import edu.osu.lapis.data.LapisVariable;
 
 /**
  * LAPIS API exposed to Java clients.
+ * 
+ * Note that when this object is used to get and set values of variables 
+ * published by other nodes, the "full name" of the variable should be used in 
+ * the get or set method. The full name is the name of the published variable on
+ * the other node and the name of the other node, joined together with a '@' 
+ * character. For example, if a LAPIS node named "NodeX" published a variable 
+ * with the name "var1", the full name of that variable would be "var1@NodeX".
  */
 public class LapisApi {
 	
@@ -152,26 +160,56 @@ public class LapisApi {
 		lapisCore.setRemoteValue(variableFullName, value);
 	}
 
+	/**
+	 * Wait for a node to declare that it is ready. This method blocks indefinitely
+	 * until the specified node has joined the network and declared that it is ready.
+	 * @param nodeName the name of the node
+	 */
 	public void waitForReadyNode(String nodeName) {
 		lapisCore.waitForReadyNode(nodeName);
 	}
 	
-	public void waitForReadyNode(String nodeName, long timeout) {
-		lapisCore.waitForReadyNode(nodeName, timeout);
+	/**
+	 * Wait for a node to declare that it is ready. This method blocks until the 
+	 * specified node has joined the network and declared itself ready, or until
+	 * the timeout is reached. If the timeout is reached before the node is ready,
+	 * an exception is thrown.
+	 * @param nodeName the name of the node to wait for
+	 * @param millisToWait the number of milliseconds to wait
+	 * @throws TimeoutException if the timeout is reached
+	 */
+	public void waitForReadyNode(String nodeName, long millisToWait) throws TimeoutException {
+		lapisCore.waitForReadyNode(nodeName, millisToWait);
 	}
 	
+	/**
+	 * Declare this node 'ready'. Applications do not need to declare themselves
+	 * ready in order to use LAPIS functionality, but they can use ready(), notReady(),
+	 * and waitForReadyNode() to facilitate coordination among multiple nodes on 
+	 * a LAPIS network.
+	 */
 	public void ready() {
 		lapisCore.ready();
 	}
 	
+	/**
+	 * Declare this node 'not ready'.
+	 */
 	public void notReady() {
 		lapisCore.notReady();
 	}
 	
+	/**
+	 * Get the name of this LAPIS node.
+	 */
 	public String getName() {
 		return this.lapisCore.getName();
 	}
 	
+	/**
+	 * Un-publish a variable.
+	 * @param variableName the name of the published variable
+	 */
 	public void redact(String variableName) {
 		this.lapisCore.redact(variableName);
 	}
