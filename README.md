@@ -160,7 +160,7 @@ To "un-publish" a published variable, use the ```redact``` method:
 lapisApi.redact(lapisData)
 ```
 
-Note that most applications will not need to un-publish any variables, so use of the ```redact``` method should be rare.
+It is rare that applications will need to un-publish variables, so use of the ```redact``` method does not need to be used in all applications.
 
 ##### Create a non-coordinator node
 
@@ -241,7 +241,7 @@ Note that the argument passed to the ```redact``` method is the _name_ of the pu
 
 ##### Get and set variables published by other nodes
 
-Applications within the same LAPIS network can get and set each other's published variables, as in the example below. Note that the application must refer to other nodes' published variables using the "full name" of the published variable, i.e. published name + ```@``` + node name. This may change in a future release.
+Applications within the same LAPIS network can get and set each other's published variables, as in the example below. Note that the application must refer to other nodes' published variables using the "full name" of the published variable, i.e. published name + ```@``` + node name. Note: This _WILL_ change in a future release.
 
 ```Java
 // "doubles" is an array of doubles published by a node named "otherNode"
@@ -283,7 +283,7 @@ finishFlag = LAPISData('finishFlag', [0]);
 lapisApi.publish('finishFlag', finishFlag);
 ```
 
-##### Mutli-server functionality
+##### Multi-server functionality
 
 It is now possible to build networks of LAPIS nodes across multiple servers. When constructing your ```LapisAPI``` object in MATLAB, you will have to specify the externally visible address of your LAPIS node--that is, an address visible to other servers on your network (but not necessarily to the wider internet). So, whereas you might have used ```'http://127.0.0.1:7777'``` as the address of your LAPIS node before, now you'll want to use the address by which other servers can access your node, such as ```'http://192.168.1.2:7777'```.
 
@@ -325,6 +325,24 @@ Nodes upon which other nodes are waiting will need to declare themselves ready u
 Nodes which must no longer appear as 'ready' to the rest of the network should call the ```notReady``` function. Note that calling the ```notReady``` function when ```ready``` has not been called will have no effect. Similarly, if a node is already in the 'ready' state, further calls to ```ready``` have no effect.
 
 Applications do not have to use the functionality that LAPIS provides for waiting on nodes and declaring nodes 'ready', but these features help to build networks of applications that work together.
+
+##### Clearing a LAPIS network in MATLAB
+
+Before clearing your LAPIS network variable in MATLAB by using the ```clear``` command, you must use the ```shutdown``` method in order to force MATLAB to clean up the network.  If this is not done, the instantiated LAPIS network reference will continue to exist and will not allow another network to be created on the same port.
+
+To shutdown a LAPIS network, simply type
+
+```Matlab
+%shuts down the network
+lapisApi.shutdown()
+
+%continue with other clearing functionality, such as 'clear' ...
+clear all;
+close all;
+clc;
+
+```
+
 
 ##### Configurable logging
 
