@@ -344,6 +344,86 @@ clc;
 ```
 
 
+##### Debugging a LAPIS network using the REST interface
+The LAPIS network is exposed through a RESTful API making it easily accessible for testing and verification.
+
+For ```GET``` HTTP operations (which are the only operations shown below in the examples) it should be noted that you only need a web browser on a computer that has access to the same IP network to which your LAPIS network resides. 
+
+For more sophisticated HTTP operations (such as ```PUT```, ```POST```, and ```DELETE````, many REST clients exist (desktop, web, and browser based).  The REST client that will be used as an example here can be downloaded as a [Google Chrome extension](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo?hl=en-US).  Note that you will need to run Google Chrome in order to download and use.  Please view the help of the extension for information on how to use it.
+
+To view your network coordinator, either open up Advanced REST Client in Google Chrome or any web browser.  For the next examples, we will assume that the LAPIS network coordinator you are debugging is located at ```'http://localhost:7777'```, and that there are two nodes on the network located at ```'http://localhost:7777'``` and ```'http://localhost:8888'```.
+
+To test whether or not your coordinator is running, enter ```http://localhost:7777/coordinator``` in the URL bar and perform a ```GET``` operation (for a browser, just execute the URL address).  If the coordinator is running, the server will respond with a ```200``` HTTP code and the following JSON
+
+```JSON
+[
+  {
+    "nodeName": "Node2",
+    "url": "http://localhost:8888"
+  },
+  {
+    "nodeName": "Node1",
+    "url": "http://localhost:7777"
+  }
+]
+```
+
+To test for the existence of a node on a network, enter ```http://localhost:8888/network``` in the URL bar and perform a ```GET``` operation.  A JSON list will be returned such as:
+
+```JSON
+{
+nodeName: "Node2"
+url: "http://localhost:8888"
+}
+```
+
+Let's assume that the node at ```http://localhost:7777``` has published a variable ```x``` that holds a 5 element vector and we need to check it's value on the LAPIS network.  To do this, enter ```http://localhost:7777/model/x``` in the URL test field and perform a ```GET``` operation.  If the variable exists, you should get the response:
+
+```JSON
+{
+  "name": "x",
+  "originalType": "[D",
+  "data": [
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0
+  ]
+}
+```
+
+To view all published variables of the node at ```'http://localhost:8888'```, simply enter ```http://localhost:8888/metadata``` in the URL bar.  If the node exists, it will return a JSON string containing information about all the published variables:
+
+```JSON
+[
+  {
+    "name": "node1finish",
+    "lapisPermission": "READ_WRITE"
+  },
+  {
+    "name": "finishFlag",
+    "lapisPermission": "READ_WRITE"
+  },
+  {
+    "name": "simFinishFlag",
+    "lapisPermission": "READ_WRITE"
+  },
+  {
+    "name": "node2copy",
+    "lapisPermission": "READ_WRITE",
+    "type": "one dimensional array of double"
+  },
+  {
+    "name": "ready",
+    "lapisPermission": "READ_WRITE"
+  }
+]
+```
+
+We have only shown ```GET``` operations here, as other HTTP operations are more involved and do not normally need to be used in the REST client debugging.  If more sophisticated HTTP operations are required, please consult the Java Docs and Wiki for the full REST resource dictionary. 
+
+
 ##### Configurable logging
 
 Logging can now be configured using the ```log4j.properties``` file that is included with the other MATLAB files for this release. In MATLAB, LAPIS locates this file in the current directory and uses it to configure logging whenever a ```LapisAPI``` object is instantiated. Instructions on the use of log4j can be found at http://logging.apache.org/log4j/1.2/manual.html, though most users will not have to make any changes to the log4j configuration.
