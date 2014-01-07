@@ -349,7 +349,7 @@ The LAPIS network is exposed through a RESTful API making it easily accessible f
 
 For ```GET``` HTTP operations (which are the only operations shown below in the examples) it should be noted that you only need a web browser on a computer that has access to the same IP network to which your LAPIS network resides. 
 
-For more sophisticated HTTP operations (such as ```PUT```, ```POST```, and ```DELETE````, many REST clients exist (desktop, web, and browser based).  The REST client that will be used as an example here can be downloaded as a [Google Chrome extension](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo?hl=en-US).  Note that you will need to run Google Chrome in order to download and use.  Please view the help of the extension for information on how to use it.
+For more sophisticated HTTP operations (such as ```PUT```, ```POST```, and ```DELETE```, many REST clients exist (desktop, web, and browser based).  The REST client that will be used as an example here can be downloaded as a [Google Chrome extension](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo?hl=en-US).  Note that you will need to run Google Chrome in order to download and use.  Please view the help of the extension for information on how to use it.
 
 To view your network coordinator, either open up Advanced REST Client in Google Chrome or any web browser.  For the next examples, we will assume that the LAPIS network coordinator you are debugging is located at ```'http://localhost:7777'```, and that there are two nodes on the network located at ```'http://localhost:7777'``` and ```'http://localhost:8888'```.
 
