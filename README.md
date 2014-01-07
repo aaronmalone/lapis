@@ -2,7 +2,7 @@
 
 ### About
 
-LAPIS is a framework for incorporating computational steering in Java and MATLAB applications. It allows applications to expose variables through a REST interface so that the values of those variables can be retrieved and set at runtime by users or external processes. It also allows programmers to build networks of computationally-steered applications, each of which can be steered programmatically or manually through the REST interface exposed by each network node.
+LAPIS is a framework for incorporating computational steering in Java and MATLAB applications. It allows applications to expose variables through a REST interface so that the values of those variables can be retrieved and set at runtime by users or external processes. It also allows programmers to build networks of computationally-steered applications, each of which can be steered programmatically or manually through the REST interface exposed by each network node.  LAPIS is designed to make it simple for engineers and scientists who do not have significant experience in computer programming to easily deploy a communication network for High Performance Computing applications.
 
 ### LAPIS features overview
 
@@ -22,9 +22,9 @@ Variables which have been published can be un-published through LAPIS's redact m
 
 -->
 
-##### Create LAPIS networks
+##### Creating LAPIS networks
 
-LAPIS allows programmers to build networks of computationally-steered applications. This makes it simple to implement applications which programmatically steer each other. Nodes within a LAPIS network can get and set each other's published variables. LAPIS handles the details of inter-process communication, so that client code remains simple.
+LAPIS allows programmers to easily build networks of computationally-steered applications without the need for sophisticated software packages or network communication libraries. This makes it simple to implement applications which programmatically steer each other. Nodes within a LAPIS network can get and set each other's published variables. LAPIS handles the details of inter-process communication, so that client code remains simple.
 
 <!-- 
 ##### Wait for ready network node
@@ -34,19 +34,19 @@ To facilitate coordination among multiple nodes in a LAPIS network, LAPIS allows
 
 ##### REST interface
 
-As mentioned previously, LAPIS exposes the values of published variables through a REST interface. The values of published variables can be retrieved. The values can also be set if the variables have not been published as "read-only" within LAPIS. In addition to getting and setting variable values, LAPIS also exposes variable meta-data and network information through its REST interface. Further detail on the REST interface will be provided in a separate section.
+As mentioned previously, LAPIS exposes the values of published variables through a REST interface for easy debugging, control, and monitoring. The values of published variables can be retrieved. The values can also be set if the variables have not been published as "read-only" within LAPIS. In addition to getting and setting variable values, LAPIS also exposes variable meta-data and network information through its REST interface. Further detail on the REST interface will be provided in a separate section.
 
 
 ### Creating LAPIS networks
 
-LAPIS allows programmers to build networks of computationally steered applications. Each application within the network can access other applications' published variables.
+LAPIS allows programmers to build networks of computationally steered applications. Each application (also known as a _simulation_, or _model_) within the network can access other applications' published variables.
 
-To create a LAPIS network, you must first create a LAPIS coordinator node. The coordinator node within a LAPIS network is the node that is responsible for maintaining a record of all of the nodes on the network. This record is stored within the LAPIS framework, so the client does not need to be concerned about it. After the coordinator node has been created, you can add multiple non-coordinator nodes to the network.
+To create a LAPIS network, you must first create a LAPIS coordinator node. The coordinator node within a LAPIS network is the node that is responsible for maintaining a record of all of the nodes on the network. This record is stored within the LAPIS framework, so the client does not need to be concerned about it. After the coordinator node has been created, you can add multiple non-coordinator nodes to the network.  An important note is that the coordinator node is only responsible for keeping network information.  No application specific data is transmitted or received by the coordinator at any time during a communication.
 
 There are three key details that client programmers must be aware of regarding coordinator and non-coordinator LAPIS nodes:
 1. Coordinator nodes and non-coordinator nodes are created using different constructors for the LAPIS API object (LapisAPI in MATLAB, LapisApi in Java). The details for LAPIS API object creation are described in the sections on using LAPIS in MATLAB and Java. 
-2. The coordinator node must be running before non-coordinator nodes can join the network. If a non-coordinator node starts up before the coordinator for its network is running, an exception will be thrown when the non-coordinator attempts to connect to the coordinator and subsequently fails.
-3. Each LAPIS network has only one coordinator, but a single application can participate in multiple LAPIS networks.
+2. The coordinator node _must_ be running before non-coordinator nodes can join the network. If a non-coordinator node starts up before the coordinator for its network is running, an exception will be thrown when the non-coordinator attempts to connect to the coordinator and subsequently fails.
+3. Each LAPIS network has only one coordinator, but a single application can participate in multiple LAPIS networks - such as by instantiating multiple LAPIS API Objects that connect to different LAPIS networks.
 
 ### Use in MATLAB
 
@@ -71,9 +71,23 @@ lapisApi = LapisAPI(myNodeName, myAddress)
 
 Note that the LapisAPI constructor above creates a coordinator node. If you intend to use LAPIS in a standalone application, and _not_ as part of a network of LAPIS nodes, you should use the constructor that creates a coordinator node.
 
+##### Create a non-coordinator node
+
+The first example of instantiating the ```LapisAPI``` object showed you how to set-up a coordinator node. To set up a non-coordinator node, use the constructor that takes three arguments:
+
+```Matlab
+myNodeName = 'non-coordinator-node'
+coordinatorAddress = 'http://127.0.0.1:7777'
+myAddress = 'http://127.0.0.1:8888'
+lapisApi = LapisAPI(myNodeName, coordinatorAddress, myAddress)
+```
+
+Note that a non-coordinator node will immediately attempt to connect to the network coordinator at the specified coordinator address. An exception will be thrown if it is unable to connect.
+
+
 ##### Create a LAPISData object
 
-To publish MATLAB variables in LAPIS, you must use ```LAPISData``` wrapper objects. 
+To publish MATLAB variables in LAPIS, you must use ```LAPISData``` wrapper objects. Using standard MATLAB datatypes are not directly supported by LAPIS due to MATLAB's variable reference methodology.  
 
 <!-- TODO: discuss the reason for this in the implementation details section -->
 
@@ -85,6 +99,7 @@ anArray = LAPISData('anArray', [1 2 3 4 5])
 ```LAPISData``` objects have two fields. The first, ```.name```, is the name that LAPIS will use for the variable if it is published by the application. The value of the variable can be retrieved, by name, in the REST interface, and other nodes on a LAPIS network can get and set the variable using the published name and the name of the node on which the variable was published. In the code example above, the ```.name``` field of the instantiated ```LAPISData``` object is set to 'anArray'.
 
 The second field of the ```LAPISData``` object is the ```.data``` field. This holds a reference to the current value of the variable. In the example code, the ```.data``` field is initially assigned an array with five elements.
+
 
 ##### Publish a variable
 
@@ -98,7 +113,9 @@ lapisApi.publish(anArray)
 
 The variable is now published, and can be retrieved and set through the REST interface and by other nodes on the network.
 
-##### Use a published variable
+Currently, the MATLAB implementation of LAPIS supports scalars, and 1D, 2D, and 3D vectors.  Other datatypes, such as cell arrays, structs, and objects are not currently supported.  
+
+##### Using a published variable
 
 In your MATLAB code, use the ```.data``` field of the published ```LAPISData``` object to reference the value of the variable. The value returned by ```.data``` includes any changes that may have been made by the variable being set manually through LAPIS's REST interface or programmatically from another LAPIS node. When you set the value of ```.data``` from within your application, the new value is available through the REST interface and to other network nodes.
 
@@ -137,7 +154,7 @@ anArray.data = anArray.data + 1
 % anArray.data is now [2 3 4 5 6]
 ```
 
-Note that you should not re-assign the variable that refers to your published ```LAPISData``` object.
+Note that you should not re-assign the variable that refers to your published ```LAPISData``` object if the intention is to still use the variable on a LAPIS network.
 
 ```Matlab
 % do not do this -- re-assigning a LAPISData variable
@@ -146,9 +163,18 @@ anArray = [5 6 7 8]
 
 ```
 
-Re-assigning a  ```LAPISData``` variable, as in the example above, causes two problems. It prevents the application from changing the value of the published variable that is exposed through the REST interface (and, consequently, to other LAPIS nodes on the same network), and it prevents any changes made through the REST interface (or by other network nodes) from being seen in the MATLAB application. This happens because the reference to the published variable is lost.
+Re-assigning a  ```LAPISData``` variable, as in the example above, causes the LAPISData object to be overwritten, resulting in the loss of reference to the LAPISData object.  This will render the modification of the variable by the application programmer futile.  In order to allow the LAPIS API to keep the reference to the LAPISData object and subsequently allow the network to maintain a current record of the LAPIS variable data, the reassignment of data should occur by reference the ```.data``` property of the LAPISData object.
 
-It may also be worth noting that the re-assignment in the example above does _not_ change the value of the published variable. The value in the example remains ```[1 2 3 4 5]```.
+```Matlab
+% do not do this -- re-assigning a LAPISData variable
+anArray = LAPISData('anArray', [1 2 3 4 5])
+anArray.data = [5 6 7 8]
+
+```
+
+<!--two problems. It prevents the application from changing the value of the published variable that is exposed through the REST interface (and, consequently, to other LAPIS nodes on the same network), and it prevents any changes made through the REST interface (or by other network nodes) from being seen in the MATLAB application. This happens because the reference to the published variable is lost.-->
+
+
 
 ##### Redact a published variable
 
@@ -162,18 +188,6 @@ lapisApi.redact(lapisData)
 
 It is rare that applications will need to un-publish variables, so use of the ```redact``` method does not need to be used in all applications.
 
-##### Create a non-coordinator node
-
-The first example of instantiating the ```LapisAPI``` object showed you how to set-up a coordinator node. To set up a non-coordinator node, use the constructor that takes three arguments:
-
-```Matlab
-myNodeName = 'non-coordinator-node'
-coordinatorAddress = 'http://127.0.0.1:7777'
-myAddress = 'http://127.0.0.1:8888'
-lapisApi = LapisAPI(myNodeName, coordinatorAddress, myAddress)
-```
-
-Note that a non-coordinator node will immediately attempt to connect to the network coordinator at the specified coordinator address. An exception will be thrown if it is unable to connect.
 
 ##### Get values of variables published by other nodes
 
@@ -285,7 +299,7 @@ lapisApi.publish('finishFlag', finishFlag);
 
 ##### Multi-server functionality
 
-It is now possible to build networks of LAPIS nodes across multiple servers. When constructing your ```LapisAPI``` object in MATLAB, you will have to specify the externally visible address of your LAPIS node--that is, an address visible to other servers on your network (but not necessarily to the wider internet). So, whereas you might have used ```'http://127.0.0.1:7777'``` as the address of your LAPIS node before, now you'll want to use the address by which other servers can access your node, such as ```'http://192.168.1.2:7777'```.
+It is now possible to build networks of LAPIS nodes across independent nodes on an IP network. When constructing your ```LapisAPI``` object in MATLAB, you will have to specify the externally visible address of your LAPIS node--that is, an address visible to other servers on your network (but not necessarily to the wider internet). So, whereas you might have used ```'http://127.0.0.1:7777'``` as the address of your LAPIS node before, now you'll want to use the address by which other servers can access your node, such as ```'http://192.168.1.2:7777'```.  For more information, please refer to literature regarding IP networking.
 
 The following examples demonstrate the use of addresses that will be visible to other servers on the network:
 
@@ -303,6 +317,8 @@ coordinatorAddress = 'http://192.168.2.2:7777';
 nodeName = 'Node2';
 lapisApi = LapisAPI(nodeName, coordinatorAddress, myAddress);
 ```
+
+Note that the ```http://192.168.xxx.xxx``` address is a typical address assigned by a DHCP server running on a standard home-networking router such as a Linksys (Cisco), or Belkin.  Your subnet can be verified by checking the IP address of a computer that is connected to the same network on which your LAPIS network is intended to be configured.
 
 ##### Wait for nodes to declare themselves 'ready'
 
@@ -344,7 +360,10 @@ clc;
 ```
 
 
-##### Debugging a LAPIS network using the REST interface
+#### Debugging a LAPIS network 
+Since LAPIS is designed to be easily accessible to the inexperienced programmer, accessing a LAPIS network using standard tools - such as a web browser - is included as part of the implementation. 
+
+##### Using the REST interface
 The LAPIS network is exposed through a RESTful API making it easily accessible for testing and verification.
 
 For ```GET``` HTTP operations (which are the only operations shown below in the examples) it should be noted that you only need a web browser on a computer that has access to the same IP network to which your LAPIS network resides. 
