@@ -1,8 +1,5 @@
 package edu.osu.lapis.data;
 
-import static edu.osu.lapis.data.LapisPermission.READ_ONLY;
-import static edu.osu.lapis.data.LapisPermission.READ_WRITE;
-
 import java.util.concurrent.Callable;
 
 public class LapisVariable {
@@ -10,21 +7,21 @@ public class LapisVariable {
 	private final String name;
 	private final Callable<Object> callable;
 	private final Settable settable;
-	private final LapisPermission lapisPermission;
+	private final boolean readOnly;
 	
 	public LapisVariable(String name, Callable<Object> callable) {
-		this(name, READ_ONLY, callable, null);
+		this(name, false, callable, null);
 	}
 	
 	public LapisVariable(
 			String name,
-			LapisPermission lapisPermission,
+			boolean readOnly,
 			Callable<Object> callable, 
 			Settable settable) {
 		this.name = name;
-		this.lapisPermission = lapisPermission;
+		this.readOnly = readOnly;
 		this.callable = callable;
-		this.settable = lapisPermission == READ_WRITE ? settable : null;
+		this.settable = readOnly ? null : settable;
 	}
 
 	public Callable<Object> getCallable() {
@@ -48,11 +45,11 @@ public class LapisVariable {
 	}
 	
 	public void setValue(Object value) {
-		assert this.lapisPermission != LapisPermission.READ_ONLY;
+		assert !readOnly;
 		this.settable.set(value);
 	}
 
-	public LapisPermission getLapisPermission() {
-		return lapisPermission;
+	public boolean isReadOnly() {
+		return readOnly;
 	}
 }

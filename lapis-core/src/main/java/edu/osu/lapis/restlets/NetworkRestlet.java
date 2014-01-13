@@ -7,7 +7,7 @@ import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.representation.Representation;
+import org.restlet.representation.ByteArrayRepresentation;
 import org.restlet.representation.StringRepresentation;
 
 import com.google.common.base.Joiner;
@@ -20,7 +20,6 @@ import edu.osu.lapis.restlets.filters.ModelNameAttrValidator;
 import edu.osu.lapis.restlets.filters.ModelPresentValidator;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.util.Attributes;
-import edu.osu.lapis.util.LapisRestletUtils;
 
 /**
  * Restlet to handle calls to network/* API for LAPIS nodes. The principal 
@@ -91,8 +90,7 @@ public class NetworkRestlet extends LapisRestletBase {
 			logger.info("Received request for this node's information.");
 			LapisNode me = networkTable.getLocalNode();
 			byte[] serialized = lapisSerialization.serialize(me);
-			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
-			response.setEntity(entity);
+			response.setEntity(new ByteArrayRepresentation(serialized, responseMediaType));
 		} else if(modelName.equals("ALL_NODES")) {
 			//undocumented feature used for debugging purposes
 			logger.info("Received request for info on all nodes in network table.");

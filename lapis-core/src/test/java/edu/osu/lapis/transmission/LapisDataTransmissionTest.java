@@ -39,7 +39,7 @@ public class LapisDataTransmissionTest {
 		lapisDataTransmission.setLapisNetworkClient(getLapisNetworkClient());
 		lapisDataTransmission.setVariableMetaDataPath("metadata");
 		lapisDataTransmission.setVariableValuePath("model");
-		lapisDataTransmission.setLapisTransmission(new LapisTransmission());
+		lapisDataTransmission.setLapisTransmission(new LapisTransmissionRestletClientImpl());
 	}
 	
 	@Before
@@ -56,7 +56,7 @@ public class LapisDataTransmissionTest {
 	}
 	
 	private LapisNetworkClient getLapisNetworkClient() {
-		return new LapisNetworkClient() {
+		return new LapisNetworkClient(null, null) {
 			@Override public LapisNode getLapisNode(String nodeName) {
 				return new LapisNode(nodeName, RandomStringUtils.randomAlphanumeric(16));
 			}

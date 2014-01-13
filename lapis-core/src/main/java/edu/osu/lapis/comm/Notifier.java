@@ -26,9 +26,17 @@ public class Notifier {
 	
 	private final Logger logger = Logger.getLogger(getClass());
 	
-	private NetworkTable networkTable;
-	private LapisSerialization lapisSerialization;
-	private LapisTransmission lapisTransmission;
+	private final NetworkTable networkTable;
+	private final LapisSerialization lapisSerialization;
+	private final LapisTransmission lapisTransmission;
+	
+	public Notifier(NetworkTable networkTable, 
+			LapisSerialization lapisSerialization, 
+			LapisTransmission lapisTransmission) {
+		this.networkTable = networkTable;
+		this.lapisSerialization = lapisSerialization;
+		this.lapisTransmission = lapisTransmission;
+	}
 	
 	/**
 	 * Notifies all network nodes of a change in some node's information.
@@ -90,17 +98,5 @@ public class Notifier {
 				}
 			}
 		};
-	}
-
-	public void setNetworkTable(NetworkTable networkTable) {
-		this.networkTable = networkTable;
-	}
-
-	public void setLapisSerialization(LapisSerialization lapisSerialization) {
-		this.lapisSerialization = lapisSerialization;
-	}
-
-	public void setLapisTransmission(LapisTransmission lapisTransmission) {
-		this.lapisTransmission = lapisTransmission;
 	}
 }

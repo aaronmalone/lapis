@@ -9,7 +9,6 @@ import org.apache.commons.lang3.Validate;
 
 import com.google.common.util.concurrent.Callables;
 
-import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisSettable;
 import edu.osu.lapis.data.LapisVariable;
 
@@ -81,7 +80,7 @@ public class LapisApi {
 	}
 
 	private LapisVariable createLapisVariable(String name, Object reference) {
-		return new LapisVariable(name, LapisPermission.READ_WRITE,
+		return new LapisVariable(name, false,
 				Callables.returning(reference), new LapisSettable(reference));
 	}
 	

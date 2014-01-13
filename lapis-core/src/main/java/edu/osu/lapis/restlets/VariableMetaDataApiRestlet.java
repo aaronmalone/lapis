@@ -6,7 +6,7 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.representation.Representation;
+import org.restlet.representation.ByteArrayRepresentation;
 
 import com.google.common.collect.Lists;
 
@@ -16,7 +16,6 @@ import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.util.Attributes;
-import edu.osu.lapis.util.LapisRestletUtils;
 
 public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	
@@ -41,8 +40,7 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 		LapisVariable localVariable = localDataTable.get(variableName);
 		if(localVariable != null) {
 			byte[] serialized = lapisSerialization.serialize(getVariableMetaData(localVariable));
-			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
-			response.setEntity(entity);
+			response.setEntity(new ByteArrayRepresentation(serialized, responseMediaType));
 		} else {
 			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 			response.setEntity(String.format("The variable \"%s\" has not been published by this node.", variableName), MediaType.TEXT_PLAIN);
@@ -56,17 +54,12 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 			metaList.add(getVariableMetaData(local));
 		}
 		byte[] serialized = lapisSerialization.serialize(metaList);
-		Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
-		response.setEntity(entity);
+		response.setEntity(new ByteArrayRepresentation(serialized, responseMediaType));
 		response.setStatus(Status.SUCCESS_OK);
 	}
 	
-	private VariableMetaData getVariableMetaData(LapisVariable lapisVar) {
-		VariableMetaData meta = new VariableMetaData();
-		meta.setName(lapisVar.getName());
-		meta.setLapisPermission(lapisVar.getLapisPermission());
-		meta.setType(lapisVar.getValue().getClass());
-		return meta;
+	private VariableMetaData getVariableMetaData(LapisVariable var) {
+		return new VariableMetaData(var.getName(), var.getClass(), var.isReadOnly());
 	}
 	
 	public void setLocalDataTable(LocalDataTable localDataTable) {

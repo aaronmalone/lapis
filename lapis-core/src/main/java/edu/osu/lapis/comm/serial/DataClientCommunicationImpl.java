@@ -15,8 +15,14 @@ import edu.osu.lapis.transmission.LapisDataTransmission;
  */
 public class DataClientCommunicationImpl {
 
-	private LapisSerialization lapisSerialization;
-	private LapisDataTransmission lapisDataTransmission;
+	private final LapisSerialization lapisSerialization;
+	private final LapisDataTransmission lapisDataTransmission;
+	
+	public DataClientCommunicationImpl(LapisSerialization lapisSerialization, 
+			LapisDataTransmission lapisDataTransmission) {
+		this.lapisSerialization = lapisSerialization;
+		this.lapisDataTransmission = lapisDataTransmission;
+	}
 	
 	public List<VariableMetaData> getVariableMetaDataForNode(String nodeName) {
 		byte[] data = lapisDataTransmission.getVariableMetaDataForNode(nodeName);
@@ -44,13 +50,5 @@ public class DataClientCommunicationImpl {
 		SerializationObject obj = new SerializationObject(fullName.getLocalName(), value);
 		byte[] serialized = lapisSerialization.serialize(obj);
 		lapisDataTransmission.setVariableValue(fullName, serialized);
-	}
-
-	public void setLapisSerialization(LapisSerialization lapisSerialization) {
-		this.lapisSerialization = lapisSerialization;
-	}
-
-	public void setLapisDataTransmission(LapisDataTransmission lapisDataTransmission) {
-		this.lapisDataTransmission = lapisDataTransmission;
 	}
 }

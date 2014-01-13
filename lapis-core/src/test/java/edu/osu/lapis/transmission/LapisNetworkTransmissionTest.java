@@ -19,7 +19,7 @@ public class LapisNetworkTransmissionTest {
 	public LapisNetworkTransmissionTest() {
 		lapisNetworkTransmission = new LapisNetworkTransmission();
 		lapisNetworkTransmission.setCoordinatorBaseUrl("http://coordinatorBaseUrl/coordinator/");
-		lapisNetworkTransmission.setLapisTransmission(new LapisTransmission());
+		lapisNetworkTransmission.setLapisTransmission(new LapisTransmissionRestletClientImpl());
 	}
 	
 	@Before

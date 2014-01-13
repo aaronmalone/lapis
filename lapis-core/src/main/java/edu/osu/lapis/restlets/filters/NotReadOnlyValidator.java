@@ -1,7 +1,5 @@
 package edu.osu.lapis.restlets.filters;
 
-import static edu.osu.lapis.data.LapisPermission.READ_WRITE;
-
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.MediaType;
@@ -26,7 +24,7 @@ public class NotReadOnlyValidator extends Filter {
 		assert variableName != null;
 		LapisVariable var = localDataTable.get(variableName);
 		assert var != null;
-		if(var.getLapisPermission() == READ_WRITE) {
+		if(!var.isReadOnly()) {
 			return CONTINUE;
 		} else {
 			String msg = "The published variable '" + variableName + "' is not writable from other nodes.";

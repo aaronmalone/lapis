@@ -7,7 +7,7 @@ import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.representation.Representation;
+import org.restlet.representation.ByteArrayRepresentation;
 
 import edu.osu.lapis.Logger;
 import edu.osu.lapis.comm.Notifier;
@@ -18,7 +18,6 @@ import edu.osu.lapis.restlets.filters.ModelNameAttrValidator;
 import edu.osu.lapis.restlets.filters.ModelPresentValidator;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.util.Attributes;
-import edu.osu.lapis.util.LapisRestletUtils;
 
 public class CoordinatorRestlet extends LapisRestletBase {
 	
@@ -93,8 +92,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 		nodes.add(networkTable.getLocalNode());
 		LapisNode[] nodeArray = nodes.toArray(new LapisNode[0]);
 		byte[] serialized = lapisSerialization.serialize(nodeArray);
-		Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
-		response.setEntity(entity);
+		response.setEntity(new ByteArrayRepresentation(serialized, responseMediaType));
 	}
 	
 	private void handleSingleNode(Request request, Response response) {
@@ -102,8 +100,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 		LapisNode node = networkTable.getNode(nodeName);
 		if(node != null) {
 			byte[] serialized = lapisSerialization.serialize(node);
-			Representation entity = LapisRestletUtils.createRepresentation(serialized, responseMediaType);
-			response.setEntity(entity);
+			response.setEntity(new ByteArrayRepresentation(serialized, responseMediaType));
 		} else {
 			String msg = "The specified LAPIS node, \"" + nodeName + "\", is not present in the coordinator's network table.";
 			logger.warn(msg);

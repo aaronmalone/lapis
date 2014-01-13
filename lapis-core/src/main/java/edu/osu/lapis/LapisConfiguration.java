@@ -30,6 +30,7 @@ import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.transmission.LapisDataTransmission;
 import edu.osu.lapis.transmission.LapisNetworkTransmission;
 import edu.osu.lapis.transmission.LapisTransmission;
+import edu.osu.lapis.transmission.LapisTransmissionApacheHttpClientImpl;
 import edu.osu.lapis.util.Attributes;
 
 /**
@@ -53,10 +54,12 @@ public class LapisConfiguration {
 	private final LapisDataClient lapisDataClient;
 	private final LocalDataTable localDataTable;
 	private final RestletServer restletServer;
+	private final LapisTransmission lapisTransmission;
 	
 	public LapisConfiguration(Properties properties) {		
 		this.properties = properties;
 		this.lapisSerialization = getLapisSerializationInternal();
+		this.lapisTransmission = new LapisTransmissionApacheHttpClientImpl();
 		this.serializationMediaType = MediaType.APPLICATION_JSON;
 		this.networkTable = getNetworkTable();
 		this.isCoordinator = isCoordinator();
@@ -120,24 +123,18 @@ public class LapisConfiguration {
 	}
 	
 	public LapisNetworkClient getLapisNetworkClientInternal() {
-		LapisNetworkClient netClient = new LapisNetworkClient();
-		netClient.setNetworkTable(this.networkTable);
-		netClient.setNetworkClientCommunicationImpl(getNetworkClientCommunicationImpl());
-		return netClient;
+		return new LapisNetworkClient(this.networkTable, getNetworkClientCommunicationImpl());
 	}
 	
 	private NetworkClientCommunicationImpl getNetworkClientCommunicationImpl() {
-		NetworkClientCommunicationImpl impl = new NetworkClientCommunicationImpl();
-		impl.setLapisNetworkTransmission(getLapisNetworkTransmission());
-		impl.setLapisSerialization(this.lapisSerialization);
-		return impl;
+		return new NetworkClientCommunicationImpl(getLapisNetworkTransmission(), this.lapisSerialization);
 	}
 	
 	private LapisNetworkTransmission getLapisNetworkTransmission() {
 		String coordinatorUrl = getCoordinatorUrl();
 		LapisNetworkTransmission netTrans = new LapisNetworkTransmission();
 		netTrans.setCoordinatorBaseUrl(coordinatorUrl);
-		netTrans.setLapisTransmission(new LapisTransmission());
+		netTrans.setLapisTransmission(getLapisTransmission());
 		return netTrans;
 	}
 	
@@ -148,17 +145,11 @@ public class LapisConfiguration {
 	}
 
 	private LapisDataClient getLapisDataClientInternal() {
-		LapisDataClient lapisDataClient = new LapisDataClient();
-		lapisDataClient.setGlobalDataTable(new GlobalDataTable());
-		lapisDataClient.setDataClientCommunicationImpl(getDataClientCommunicationImplInternal());
-		return lapisDataClient;
+		return new LapisDataClient(new GlobalDataTable(), getDataClientCommunicationImplInternal());
 	}
 	
 	private DataClientCommunicationImpl getDataClientCommunicationImplInternal() {
-		DataClientCommunicationImpl impl = new DataClientCommunicationImpl();
-		impl.setLapisSerialization(this.lapisSerialization);
-		impl.setLapisDataTransmission(getLapisDataTransmissionInternal());
-		return impl;
+		return new DataClientCommunicationImpl(this.lapisSerialization, getLapisDataTransmissionInternal());
 	}
 
 	private LapisDataTransmission getLapisDataTransmissionInternal() {
@@ -166,8 +157,12 @@ public class LapisConfiguration {
 		lapisDataTransmission.setLapisNetworkClient(this.lapisNetworkClient);
 		lapisDataTransmission.setVariableMetaDataPath("metadata");
 		lapisDataTransmission.setVariableValuePath("model");
-		lapisDataTransmission.setLapisTransmission(new LapisTransmission());
+		lapisDataTransmission.setLapisTransmission(getLapisTransmission());
 		return lapisDataTransmission;
+	}
+	
+	private LapisTransmission getLapisTransmission() {
+		return this.lapisTransmission;
 	}
 
 	private RestletServer getRestletServerInternal() {
@@ -254,11 +249,7 @@ public class LapisConfiguration {
 	}
 
 	private Notifier getNotifier() {
-		Notifier notifier = new Notifier();
-		notifier.setLapisSerialization(this.lapisSerialization);
-		notifier.setNetworkTable(this.networkTable);
-		notifier.setLapisTransmission(new LapisTransmission());
-		return notifier;
+		return new Notifier(this.networkTable, this.lapisSerialization, getLapisTransmission());
 	}
 	
 	//TODO MOVE THIS LOGIC ELSEWHERE

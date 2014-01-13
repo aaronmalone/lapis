@@ -14,7 +14,6 @@ import com.google.common.util.concurrent.Callables;
 
 import edu.osu.lapis.comm.client.LapisDataClient;
 import edu.osu.lapis.comm.client.LapisNetworkClient;
-import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableMetaData;
@@ -31,10 +30,10 @@ public class LapisCore {
 	private static final Object READY_VARIABLE_VALUE = new double[] { 1 };
 	@VisibleForTesting static long waitingForNodeRetryTime = 500;
 
-	private LocalDataTable localDataTable;
-	private LapisDataClient lapisDataClient;
-	private LapisNetworkClient lapisNetworkClient;
-	private LapisConfiguration lapisConfiguration;
+	private final LocalDataTable localDataTable;
+	private final LapisDataClient lapisDataClient;
+	private final LapisNetworkClient lapisNetworkClient;
+	private final LapisConfiguration lapisConfiguration;
 	private String name;
 	private boolean shutdown;
 
@@ -69,7 +68,7 @@ public class LapisCore {
 	public void ready() {
 		if(localDataTable.get(READY_VARIABLE_NAME) == null) {
 			LapisVariable readyVariable = new LapisVariable(READY_VARIABLE_NAME, 
-					LapisPermission.READ_ONLY, Callables.returning(READY_VARIABLE_VALUE), null);
+					true, Callables.returning(READY_VARIABLE_VALUE), null);
 			this.publish(READY_VARIABLE_NAME, readyVariable);
 			logger.info("Node '%s' ready.", getName());
 		}
@@ -238,14 +237,6 @@ public class LapisCore {
 		}
 	}
 
-	public void setLocalDataTable(LocalDataTable localDataTable) {
-		this.localDataTable = localDataTable;
-	}
-
-	public void setLapisDataClient(LapisDataClient lapisDataClient) {
-		this.lapisDataClient = lapisDataClient;
-	}
-
 	/**
 	 * Start LAPIS and initialize with properties read from the properties file.
 	 * 
@@ -261,7 +252,7 @@ public class LapisCore {
 	}
 
 	private static Properties parseJsonPropertiesFile(String propertiesFileName) {
-		return JsonPropertiesParser.parseJsonProperties(propertiesFileName);
+		throw new UnsupportedOperationException("JSON properties file not currently supported.");
 	}
 
 	private static Properties parseRegularPropertiesFile(String propertiesFileName) {

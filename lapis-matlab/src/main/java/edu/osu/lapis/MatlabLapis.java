@@ -7,7 +7,6 @@ import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.Settable;
 
@@ -66,7 +65,7 @@ public class MatlabLapis {
 	}
 	
 	private LapisVariable createNewLapisVariable(String name) {
-		return new LapisVariable(name, LapisPermission.READ_WRITE, 
+		return new LapisVariable(name, false, 
 				createCallableForMatlabVariable(name), createSettableForMatlabVariable(name));
 	}
 	

@@ -28,8 +28,8 @@ public class NotifierTest {
 	private static final AtomicReference<Throwable> throwableRef = new AtomicReference<Throwable>();
 	
 	private final NetworkTable networkTable = new NetworkTable();
-	private final Notifier notifier = new Notifier();
 	private final LapisSerialization lapisSerialization = new JsonSerialization();
+	private final Notifier notifier = new Notifier(networkTable, lapisSerialization, new MockLapisTransmission());
 	
 	@Before
 	public void init() {
@@ -39,10 +39,6 @@ public class NotifierTest {
 				new LapisNode("one", "http://url.one.com"),
 				new LapisNode("two", "http://url.two.net"),
 				new LapisNode("three", "http://url.three.org")));
-		
-		notifier.setNetworkTable(networkTable);
-		notifier.setLapisTransmission(new MockLapisTransmission());
-		notifier.setLapisSerialization(lapisSerialization);
 		
 		clientCalls.clear();
 		throwableRef.set(null);
@@ -121,7 +117,7 @@ public class NotifierTest {
 			throw throwable;
 	}
 	
-	private static class MockLapisTransmission extends LapisTransmission {
+	private static class MockLapisTransmission implements LapisTransmission {
 
 		@Override public synchronized byte[] executeClientCallReturnBytes(ClientCall clientCall) {
 			return this.executeClientCall(clientCall).getPayload();

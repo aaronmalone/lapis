@@ -8,15 +8,19 @@ import com.google.common.annotations.VisibleForTesting;
 
 import edu.osu.lapis.comm.serial.DataClientCommunicationImpl;
 import edu.osu.lapis.data.GlobalDataTable;
-import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.data.VariableMetaData;
 
 public class LapisDataClient {
 	
-	private GlobalDataTable globalDataTable;
-	private DataClientCommunicationImpl dataClientCommunicationImpl;
-
+	private final GlobalDataTable globalDataTable;
+	private final DataClientCommunicationImpl dataClientCommunicationImpl;
+	
+	public LapisDataClient(GlobalDataTable globalDataTable, DataClientCommunicationImpl communicationImpl) {
+		this.globalDataTable = globalDataTable;
+		this.dataClientCommunicationImpl = communicationImpl;
+	}
+	
 	/**
 	 * Retrieve the value of the remote variable.
 	 * @param fullName the fully qualified (name@node) name of the published variable.
@@ -45,8 +49,8 @@ public class LapisDataClient {
 	public void setRemoteVariableValue(String fullName, Object value) {
 		VariableFullName variableFullName = new VariableFullName(fullName);
 		validateVariableExistence(variableFullName);
-		Validate.isTrue(globalDataTable.get(fullName).getLapisPermission() == LapisPermission.READ_WRITE, 
-				"The remote variable %s is read-only.", fullName);
+		VariableMetaData meta = globalDataTable.get(fullName); 
+		Validate.isTrue(!meta.isReadOnly(), "The remote variable %s is read-only.", fullName);
 		dataClientCommunicationImpl.setVariableValue(variableFullName, value);
 	}
 		
@@ -67,13 +71,5 @@ public class LapisDataClient {
 			metaData = getRemoteVariableMetaData(variableFullName.toString());
 			globalDataTable.put(variableFullName, metaData);
 		}
-	}
-
-	public void setGlobalDataTable(GlobalDataTable globalDataTable) {
-		this.globalDataTable = globalDataTable;
-	}
-
-	public void setDataClientCommunicationImpl(DataClientCommunicationImpl dataClientCommunicationImpl) {
-		this.dataClientCommunicationImpl = dataClientCommunicationImpl;
 	}
 }

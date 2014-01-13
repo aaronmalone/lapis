@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import edu.osu.lapis.comm.serial.DataClientCommunicationImpl;
 import edu.osu.lapis.data.GlobalDataTable;
-import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.data.VariableMetaData;
 
@@ -22,15 +21,13 @@ public class LapisDataClientTest {
 		GlobalDataTable globalDataTable = new GlobalDataTable();
 		final NameMetaDataPair pair = getRandomNameMetaDataPair();
 		globalDataTable.put(pair.name, pair.meta);
-		DataClientCommunicationImpl impl = new DataClientCommunicationImpl() {
+		DataClientCommunicationImpl impl = new DataClientCommunicationImpl(null, null) {
 			@Override public VariableMetaData getVariableMetaData(VariableFullName varName) {
 				underlyingClientCalled.set(true);
 				return pair.meta;
 			}
 		};
-		LapisDataClient lapisDataClient = new LapisDataClient();
-		lapisDataClient.setDataClientCommunicationImpl(impl);
-		lapisDataClient.setGlobalDataTable(globalDataTable);
+		LapisDataClient lapisDataClient = new LapisDataClient(globalDataTable, impl);
 		VariableFullName varName = new VariableFullName(pair.name);
 		lapisDataClient.validateVariableExistence(varName);
 		Assert.assertFalse(underlyingClientCalled.get());
@@ -43,10 +40,9 @@ public class LapisDataClientTest {
 	}
 	
 	private NameMetaDataPair getRandomNameMetaDataPair() {
-		VariableMetaData metaData = new VariableMetaData();
-		metaData.setLapisPermission(LapisPermission.READ_WRITE);
 		String name = RandomStringUtils.randomAlphanumeric(7)
 				+ '@' + RandomStringUtils.randomAlphanumeric(8);
+		VariableMetaData metaData = new VariableMetaData(name,new double[]{}.getClass(),false);
 		return new NameMetaDataPair(name, metaData);
 	}
 	

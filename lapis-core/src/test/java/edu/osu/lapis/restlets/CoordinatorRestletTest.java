@@ -14,12 +14,11 @@ import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
-import org.restlet.representation.Representation;
+import org.restlet.representation.ByteArrayRepresentation;
 
 import edu.osu.lapis.comm.Notifier;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
-import edu.osu.lapis.restlets.CoordinatorRestlet;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.util.Attributes;
@@ -65,7 +64,7 @@ public class CoordinatorRestletTest {
 		networkTable.setLocalNode(new LapisNode("localNode", "whatever://"));
 		lapisSerialization = new JsonSerialization();
 		MediaType responseMediaType = MediaType.APPLICATION_JSON;
-		Notifier notifier = new Notifier() {
+		Notifier notifier = new Notifier(null, null, null) {
 			@Override public void notifyNetworkOfUpdate(LapisNode updatedNode) {
 				update.set(true);
 			}
@@ -110,8 +109,7 @@ public class CoordinatorRestletTest {
 		
 		Request request = new Request(Method.POST, "resourceUri");
 		request.getAttributes().put(Attributes.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
-		Representation entity = LapisRestletUtils.createRepresentation(lapisSerialization.serialize(updatedNode));
-		request.setEntity(entity);
+		request.setEntity(new ByteArrayRepresentation(lapisSerialization.serialize(updatedNode)));
 		
 		coordinatorRestlet.handle(request, new Response(request));
 		Assert.assertEquals(updatedNode.getUrl(), networkTable.getNode(arbitraryNode.getNodeName()).getUrl());
@@ -123,8 +121,7 @@ public class CoordinatorRestletTest {
 		Assert.assertEquals(0, networkTable.getNodesList().size());
 		Request request = new Request(Method.PUT, "resourceUri");
 		request.getAttributes().put(Attributes.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
-		Representation entity = LapisRestletUtils.createRepresentation(lapisSerialization.serialize(arbitraryNode));
-		request.setEntity(entity);
+		request.setEntity(new ByteArrayRepresentation(lapisSerialization.serialize(arbitraryNode)));
 		Response response = new Response(request);
 		coordinatorRestlet.handle(request, response);
 		Assert.assertTrue(newNode.get());

@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 public class ClientResponse {
 	final private int statusCode;
-	private byte[] payload;
+	final private byte[] payload;
 	
 	public ClientResponse(int statusCode, byte[] payload) {
 		this.statusCode = statusCode;

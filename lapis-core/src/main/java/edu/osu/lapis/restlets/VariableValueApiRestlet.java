@@ -1,7 +1,5 @@
 package edu.osu.lapis.restlets;
 
-import java.io.ByteArrayInputStream;
-
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.StopWatch;
 import org.restlet.Request;
@@ -9,11 +7,10 @@ import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.representation.InputRepresentation;
+import org.restlet.representation.ByteArrayRepresentation;
 import org.restlet.representation.Representation;
 
 import edu.osu.lapis.Logger;
-import edu.osu.lapis.data.LapisPermission;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.restlets.filters.NotReadOnlyValidator;
@@ -63,7 +60,7 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 	}
 	
 	private void updateValue(LapisVariable localVariable, SerializationObject serializationObject) {
-		Validate.isTrue(localVariable.getLapisPermission() == LapisPermission.READ_WRITE, "Cannot update read-only variable");
+		Validate.isTrue(!localVariable.isReadOnly(), "Cannot update read-only variable");
 		localVariable.setValue(serializationObject.getData());
 	}
 
@@ -89,8 +86,7 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 		byte[] serialized = lapisSerialization.serialize(serializationObject);
 		stopWatch.stop();
 		logger.trace("Took %d millis to serialize %s.", stopWatch.getTime(), name);
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(serialized);
-		return new InputRepresentation(inputStream, responseMediaType, serialized.length); 
+		return new ByteArrayRepresentation(serialized, responseMediaType, serialized.length);
 	}
 	
 	private SerializationObject createSerializationObject(String name, LapisVariable localVariable) {

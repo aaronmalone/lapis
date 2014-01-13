@@ -15,8 +15,15 @@ import edu.osu.lapis.transmission.LapisNetworkTransmission;
  */
 public class NetworkClientCommunicationImpl {
 	
-	private LapisNetworkTransmission lapisNetworkTransmission;
-	private LapisSerialization lapisSerialization;
+	private final LapisNetworkTransmission lapisNetworkTransmission;
+	private final LapisSerialization lapisSerialization;
+	
+	public NetworkClientCommunicationImpl(
+			LapisNetworkTransmission lapisNetworkTransmission,
+			LapisSerialization lapisSerialization) {
+		this.lapisNetworkTransmission = lapisNetworkTransmission;
+		this.lapisSerialization = lapisSerialization;
+	}
 	
 	public List<LapisNode> getAllLapisNodesOnNetwork() {
 		byte[] data = lapisNetworkTransmission.getAllLapisNodesOnNetwork();
@@ -40,13 +47,5 @@ public class NetworkClientCommunicationImpl {
 	
 	public void deleteNodeFromNetwork(LapisNode lapisNode) {
 		lapisNetworkTransmission.deleteNodeFromNetwork(lapisNode.getNodeName());
-	}
-
-	public void setLapisNetworkTransmission(LapisNetworkTransmission lapisNetworkTransmission) {
-		this.lapisNetworkTransmission = lapisNetworkTransmission;
-	}
-
-	public void setLapisSerialization(LapisSerialization lapisSerialization) {
-		this.lapisSerialization = lapisSerialization;
 	}
 }

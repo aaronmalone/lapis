@@ -11,8 +11,13 @@ public class LapisNetworkClient {
 	
 	private final Logger logger = Logger.getLogger(getClass());
 	
-	private NetworkTable networkTable;
-	private NetworkClientCommunicationImpl networkClientCommunicationImpl;
+	private final NetworkTable networkTable;
+	private final NetworkClientCommunicationImpl networkClientCommunicationImpl;
+	
+	public LapisNetworkClient(NetworkTable networkTable, NetworkClientCommunicationImpl communicationImpl) {
+		this.networkTable = networkTable;
+		this.networkClientCommunicationImpl = communicationImpl;
+	}
 	
 	/**
 	 * Retrieves all nodes on the LAPIS network.
@@ -57,13 +62,5 @@ public class LapisNetworkClient {
 			networkTable.addNode(node);
 		}
 		return node;
-	}
-
-	public void setNetworkTable(NetworkTable networkTable) {
-		this.networkTable = networkTable;
-	}
-
-	public void setNetworkClientCommunicationImpl(NetworkClientCommunicationImpl networkClientCommunicationImpl) {
-		this.networkClientCommunicationImpl = networkClientCommunicationImpl;
 	}
 }
