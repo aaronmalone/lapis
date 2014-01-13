@@ -2,6 +2,15 @@
 
 %YOU MUST RUN THIS FILE BEFORE RUNNING node2simulation.m
 
+% NOTE:
+% the following line from $matlabroot/toolbox/local/classpath.txt MUST be commented out or LAPIS wll not work
+% $matlabroot/java/jarext/axis2/httpcore.jar
+
+% NOTE FOR LOGGING (optional):
+% the following two lines from $matlabroot/toolbox/local/classpath.txt must be commented out (or logging won't work...it will give a WARN)
+% #$matlabroot/java/jarext/jxbrowser/slf4j-api.jar
+% #$matlabroot/java/jarext/jxbrowser/slf4j-log4j12.jar
+
 clear all
 clear classes
 clear java

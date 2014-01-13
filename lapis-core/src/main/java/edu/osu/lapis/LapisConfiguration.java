@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.resource.ResourceException;
@@ -59,7 +60,8 @@ public class LapisConfiguration {
 	public LapisConfiguration(Properties properties) {		
 		this.properties = properties;
 		this.lapisSerialization = getLapisSerializationInternal();
-		this.lapisTransmission = new LapisTransmissionApacheHttpClientImpl();
+		this.lapisTransmission = new LapisTransmissionApacheHttpClientImpl(
+				new PoolingHttpClientConnectionManager());
 		this.serializationMediaType = MediaType.APPLICATION_JSON;
 		this.networkTable = getNetworkTable();
 		this.isCoordinator = isCoordinator();
@@ -90,7 +92,7 @@ public class LapisConfiguration {
 		json.setPrettyPrinting(true);
 		return json;
 	}
-	
+
 	private NetworkTable getNetworkTable() {
 		NetworkTable nt = new NetworkTable();
 		nt.setLocalNode(getLocalNode());

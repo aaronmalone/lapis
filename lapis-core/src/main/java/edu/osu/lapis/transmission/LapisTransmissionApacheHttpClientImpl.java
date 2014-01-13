@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -15,93 +16,94 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+
+import edu.osu.lapis.Logger;
+import edu.osu.lapis.exception.LapisClientException;
+import edu.osu.lapis.transmission.ClientCall.RestMethod;
 
 public class LapisTransmissionApacheHttpClientImpl extends LapisTransmissionBaseImpl {
 
-	private final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(); //TODO SET
+	private final Logger logger = Logger.getLogger(getClass());
+	
+	private final HttpClientConnectionManager connectionManager;
+	
+	public LapisTransmissionApacheHttpClientImpl(HttpClientConnectionManager connManager) {
+		this.connectionManager = connManager;
+	}
 	
 	@Override
 	public ClientResponse executeClientCall(final ClientCall clientCall) {
-//		System.out.println("Using apache http client"); //TODO REMOVE
 		StopWatch sw = new StopWatch();
 		sw.start();
-		URI uri;
-		try {
-			uri = new URI(clientCall.getUri());
-		} catch (URISyntaxException e1) {
-			throw new RuntimeException(e1);
+		CloseableHttpResponse httpResponse = null;
+		HttpUriRequest httpRequest = null;
+		try {	
+			httpRequest = getHttpUriRequest(clientCall);
+			httpResponse = getHttpClient().execute(httpRequest);
+			return getClientResponse(httpResponse);
+		} catch (URISyntaxException e) {
+			throw new LapisClientException("Error parsing call uri: " + clientCall.getUri(), e);
+		} catch (IOException e) {
+			throw new LapisClientException(e);
+		} finally {
+			closeHttpResponse(httpResponse);
+			releaseRequestResources(httpRequest);
+			sw.stop();
+			logger.trace("Took %d millis to execute %s.", sw.getTime(), clientCall);
 		}
-		final HttpUriRequest request;
-		switch(clientCall.getMethod()) {
+	}
+	
+	private HttpUriRequest getHttpUriRequest(ClientCall call) throws URISyntaxException {
+		URI uri = new URI(call.getUri());
+		switch(call.getMethod()) {
 		case GET:
-			request = new HttpGet(uri);
-			break;
+			return new HttpGet(uri);
 		case DELETE:
-			request = new HttpDelete(uri);
-			break;
+			return new HttpDelete(uri);
 		case PUT:
 		case POST: 
-			request = getHttpRequestWithEntity(clientCall);
-			break;
+			return getHttpRequestWithEntity(uri, call.getMethod(), call.getPayload());
 		default:
-			throw new IllegalArgumentException("Unable to handle client call with method " + clientCall.getMethod());
-		}
-		CloseableHttpResponse response = null;
-		try {
-			//TODO THROW EXCEPTION IN THE EVENT OF A 400 OR 500 STATUS CODE
-			
-			
-			
-			response = getHttpClient().execute(request);
-			HttpEntity entity = response.getEntity();
-			final byte[] payload = entity == null ? null : getEntityBytes(entity);
-			int statusCode = response.getStatusLine().getStatusCode();
-			return new ClientResponse(statusCode, payload);
-		} catch (Exception e) {
-			throw new RuntimeException(e); //TODO IMPROVE
-		} finally {
-			if(response != null) {
-				try {
-//					System.out.println("response class: " + response.getClass());
-					response.getEntity().getContent().close();
-					response.close();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			} else System.out.println("response was null");
-			if(request instanceof HttpEntityEnclosingRequestBase) {
-				((HttpEntityEnclosingRequestBase)request).releaseConnection();
-				((HttpEntityEnclosingRequestBase)request).abort();
-				((HttpEntityEnclosingRequestBase)request).completed();
-			} //else System.out.println("not HttpEntityEnclosingRequest");
-			sw.stop();
-			System.out.println("TOOK " + sw.getTime() + " MILLIS.");
+			throw new IllegalArgumentException("Unable to handle client call with method " + call.getMethod());
 		}
 	}
 
-	private CloseableHttpClient getHttpClient() {
-		return HttpClients.custom().setConnectionManager(connectionManager).build();
-	}
-
-	private HttpUriRequest getHttpRequestWithEntity(ClientCall clientCall) {
+	private HttpUriRequest getHttpRequestWithEntity(URI uri, RestMethod method, byte[] payload) {
 		final HttpEntityEnclosingRequestBase entityRequest;
-		switch(clientCall.getMethod()) {
+		switch(method) {
 		case PUT: 
-			entityRequest = new HttpPut(clientCall.getUri());
+			entityRequest = new HttpPut(uri);
 			break;
 		case POST:
-			entityRequest = new HttpPost(clientCall.getUri());
+			entityRequest = new HttpPost(uri);
 			break;
 		default:
 			throw new IllegalArgumentException(
-					"Cannot create entity request with method " + clientCall.getMethod());
+					"Cannot create entity request with method " +method);
 		}
-		entityRequest.setEntity(new ByteArrayEntity(clientCall.getPayload()));
+		entityRequest.setEntity(new ByteArrayEntity(payload));
 		return entityRequest;
+	}
+	
+	private CloseableHttpClient getHttpClient() {
+		return HttpClients.custom().setConnectionManager(connectionManager).build();
+	}
+	
+	private ClientResponse getClientResponse(HttpResponse httpResponse) throws IOException {
+		HttpEntity entity = httpResponse.getEntity();
+		final byte[] payload = entity == null ? null : getEntityBytes(entity);
+		int statusCode = httpResponse.getStatusLine().getStatusCode();
+		if(statusCode >= 200 && statusCode < 300) {
+			return new ClientResponse(statusCode, payload);
+		} else {
+			throw new LapisClientException("Encountered " + statusCode 
+					+ " error with the following response entity: "
+					+ new String(payload));
+		}
 	}
 
 	private byte[] getEntityBytes(HttpEntity entity) throws IOException {
@@ -117,6 +119,30 @@ public class LapisTransmissionApacheHttpClientImpl extends LapisTransmissionBase
 			return new ByteArrayOutputStream((int)length);
 		} else {
 			return new ByteArrayOutputStream();
+		}
+	}
+	
+	private void closeHttpResponse(CloseableHttpResponse resp) {
+		if(resp != null) {
+			try {
+				resp.close();
+			} catch (IOException e) {
+				//do nothing
+			}
+		} else {
+			logger.trace("Did not close response because it was null.");
+		}		
+	}
+	
+	private void releaseRequestResources(HttpUriRequest httpRequest) {
+		if(httpRequest instanceof HttpEntityEnclosingRequestBase) {
+			HttpEntityEnclosingRequestBase entityReq = (HttpEntityEnclosingRequestBase)httpRequest;
+			logger.trace("Releasing resources for request: %s.", entityReq);
+			entityReq.releaseConnection();
+			entityReq.abort();
+			entityReq.completed();
+		} else {
+			logger.trace("HttpUriRequest was not an HttpEntityEnclosingRequestBase: %s. No resources released.", httpRequest);
 		}
 	}
 }
