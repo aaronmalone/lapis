@@ -3,12 +3,14 @@ package edu.osu.lapis;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 public class MaxCommunicationsFunctionalTest {
 
 	//TODO FACTOR SOME OF THIS STUFF OUT TO A SEPARATE CLASS
-	private static final int COORDINATOR_PORT = 11122;
+	private static final int COORDINATOR_PORT = 11222;
 	private static final String COORDINATOR_URL = "http://localhost:" + COORDINATOR_PORT;
-	private static final int NON_COORDINATOR_PORT = 8899;
+	private static final int NON_COORDINATOR_PORT = 8998;
 	private static final String NON_COORDINATOR_URL = "http://localhost:" + NON_COORDINATOR_PORT;
 	
 	private static Properties getCoordinatorProperties() {
@@ -32,15 +34,20 @@ public class MaxCommunicationsFunctionalTest {
 	}
 	
 	public static void main(String[] args) {
+		StopWatch sw = new StopWatch();
+		sw.start();
 		LapisApi coordinator = new LapisApi(getCoordinatorProperties());
 		LapisApi nonCoordinator = new LapisApi(getNonCoordinatorProperties());
 		final double[] doub = new double[] { 0 };
 		coordinator.publish("doub", doub);
-		for(int i = 0; i < 100000; ++i) {
+		for(int i = 0; i < 30000; ++i) {
 			System.out.println("doub: " + Arrays.toString(doub));
 			double value = nonCoordinator.getArrayOfDouble("doub@coord")[0];
 			double[] newValue = new double[]{value+1};
 			nonCoordinator.set("doub@coord", newValue);
 		}
+		sw.stop();
+		System.out.println("Test took " + sw.getTime() + " millis.");
+		System.exit(0);
 	}
 }
