@@ -1,13 +1,10 @@
 package edu.osu.lapis.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.restlet.Message;
-import org.restlet.data.MediaType;
-import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 
 import com.google.common.io.ByteStreams;
@@ -28,26 +25,6 @@ public class LapisRestletUtils {
 		return StringUtils.removeEnd(s, "/");
 	}
 	
-	//TODO MOVE CREATE_REPRESENTATION METHODS TO ANOTHER UTILITY
-	public static InputRepresentation createRepresentation(byte[] serializedData) {
-		ByteArrayInputStream stream = new ByteArrayInputStream(serializedData);
-		return new InputRepresentation(stream);
-	}
-	
-	public static InputRepresentation createRepresentation(byte[] serializedData, MediaType mediaType) {
-		ByteArrayInputStream stream = new ByteArrayInputStream(serializedData);
-		return new InputRepresentation(stream, mediaType);
-	}
-	
-	public static InputStream getMessageEntityAsStream(Message message) {
-		Representation entity = message.getEntity();
-		try {
-			return entity.getStream();
-		} catch (IOException e) {
-			throw new RuntimeException("Error retrieving stream from message.", e);
-		}
-	}
-	
 	public static byte[] getMessageEntityAsBytes(Message message) {
 		InputStream stream = null;
 		try {
@@ -63,6 +40,16 @@ public class LapisRestletUtils {
 					throw new RuntimeException("Error closing stream.", e);
 				}
 			}
+		}
+	}
+
+	//private for now -- public later if we need it
+	private static InputStream getMessageEntityAsStream(Message message) {
+		Representation entity = message.getEntity();
+		try {
+			return entity.getStream();
+		} catch (IOException e) {
+			throw new RuntimeException("Error retrieving stream from message.", e);
 		}
 	}
 }
