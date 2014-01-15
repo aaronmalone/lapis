@@ -17,7 +17,7 @@
 		<dependency>
 			<groupId>edu.osu.lapis</groupId>
 			<artifactId>lapis-core</artifactId>
-			<version>${version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		
 		<!-- test dependencies -->

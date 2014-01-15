@@ -15,6 +15,12 @@
 		<slf4j.version>1.7.5</slf4j.version>
 	</properties>
 	
+	<modules>
+		<module>../lapis-core</module>
+		<module>../lapis-java-client</module>
+		<module>../lapis-matlab</module>
+	</modules>
+	
 	<build>
 		<plugins>
 			<plugin>
