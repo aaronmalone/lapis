@@ -9,10 +9,6 @@ public class LapisVariable {
 	private final Settable settable;
 	private final boolean readOnly;
 	
-	public LapisVariable(String name, Callable<Object> callable) {
-		this(name, false, callable, null);
-	}
-	
 	public LapisVariable(
 			String name,
 			boolean readOnly,

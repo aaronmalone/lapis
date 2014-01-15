@@ -191,7 +191,8 @@ public class LapisCore {
 	 * @param lapisVariable the variable wrapper in a LapisVariable object
 	 */
 	public void publish(String localVariableName, LapisVariable lapisVariable) {
-		logger.info("Publishing variable '%s'.", localVariableName);
+		String varType = lapisVariable.isReadOnly() ? "read-only" : "normal";
+		logger.info("Publishing %s variable '%s'.", varType, localVariableName);
 		localDataTable.put(localVariableName, lapisVariable);
 	}
 

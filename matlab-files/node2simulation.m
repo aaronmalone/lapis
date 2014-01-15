@@ -62,13 +62,20 @@ disp('Done with my counting!')
 while 1
     finish = lap.get('Node1', 'simFinishFlag');
     if finish
-        disp('Done!');
         break;
     end
     disp('Waiting for Node 1 to set simFinishFlag (a published variable on Node 1)...')
     pause(1)
 end
 
+try
+  lap.set('Node1', 'readOnlyVar', [9 9 9]);
+  warning('Read-only variable did NOT behave as expected!');
+catch e
+  disp('Read-only variable behaved as expected.');
+end
+
+disp('Done!');
 
 %Remember to shutdown LAPIS!  You have to manually for this example.
 % lap.shutdown();

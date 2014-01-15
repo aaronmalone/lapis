@@ -59,14 +59,19 @@ public class MatlabLapis {
 	 * @param initialValue the initial value of the variable
 	 */
 	public void publish(String publishedVariableName, Object initialValue) {
-		Validate.notNull(initialValue, "Initial value of published variable cannot be null.");
-		dataCache.setCachedValue(publishedVariableName, initialValue);
-		lapisCoreApi.publish(publishedVariableName, createNewLapisVariable(publishedVariableName));
+		publishInternal(publishedVariableName, initialValue, false);
 	}
 	
-	private LapisVariable createNewLapisVariable(String name) {
-		return new LapisVariable(name, false, 
+	public void publishReadOnly(String publishedVariableName, Object initialValue) {
+		publishInternal(publishedVariableName, initialValue, true);
+	}
+	
+	private void publishInternal(String name, Object initialValue, boolean readOnly) {
+		Validate.notNull(initialValue, "Initial value of published variable cannot be null.");
+		dataCache.setCachedValue(name, initialValue);
+		LapisVariable lapisVariable = new LapisVariable(name, readOnly, 
 				createCallableForMatlabVariable(name), createSettableForMatlabVariable(name));
+		lapisCoreApi.publish(name, lapisVariable);
 	}
 	
 	private Callable<Object> createCallableForMatlabVariable(final String name) {

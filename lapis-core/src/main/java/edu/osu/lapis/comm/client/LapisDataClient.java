@@ -2,14 +2,13 @@ package edu.osu.lapis.comm.client;
 
 import java.util.List;
 
-import org.apache.commons.lang3.Validate;
-
 import com.google.common.annotations.VisibleForTesting;
 
 import edu.osu.lapis.comm.serial.DataClientCommunicationImpl;
 import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.data.VariableMetaData;
+import edu.osu.lapis.exception.LapisClientException;
 
 public class LapisDataClient {
 	
@@ -50,10 +49,17 @@ public class LapisDataClient {
 		VariableFullName variableFullName = new VariableFullName(fullName);
 		validateVariableExistence(variableFullName);
 		VariableMetaData meta = globalDataTable.get(fullName); 
-		Validate.isTrue(!meta.isReadOnly(), "The remote variable %s is read-only.", fullName);
+		validateNotReadOnly(meta, fullName);
 		dataClientCommunicationImpl.setVariableValue(variableFullName, value);
 	}
 		
+	private void validateNotReadOnly(VariableMetaData meta, String fullName) {
+		if(meta.isReadOnly()) {
+			throw new LapisClientException("Attempting to set variable " 
+					+ fullName + ", which is read-only.");
+		}
+	}
+
 	/**
 	 * Checks that the variable meta-data is cached locally (in the GlobalDataTable)
 	 * and that the type of the cached meta-data agrees with the expected type. If

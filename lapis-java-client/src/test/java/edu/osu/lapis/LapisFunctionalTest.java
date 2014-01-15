@@ -7,6 +7,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.StopWatch;
 
+import edu.osu.lapis.exception.LapisClientException;
 import edu.osu.lapis.exception.LapisClientExceptionWithStatusCode;
 import edu.osu.lapis.util.LapisRandoms;
 
@@ -37,12 +38,36 @@ public class LapisFunctionalTest {
 		nonCoordinatorLapis = new LapisApi(getNonCoordinatorProperties());
 		StopWatch sw = new StopWatch();
 		sw.start();
+		testInternal();
+		sw.stop();
+		System.out.println("Actual post-initialization test took " + sw.getTime() + " millis.");
+	}
+	
+	private void testInternal() {
 		testReady();
 		testNotReady();
 		testDimensionMismatch();
+		testReadOnly();
 		testPublishGetAndSetVariables();
-		sw.stop();
-		System.out.println("Actual post-initialization test took " + sw.getTime() + " millis.");
+	}
+	
+	private void testReadOnly() {
+		double[] readOnlyDoubles = new double[]{1.0, 2.0, 3.0};
+		nonCoordinatorLapis.publishReadOnly("readOnlyDoubles", readOnlyDoubles);
+		//set from the same node
+		for(int i = 0; i < readOnlyDoubles.length; i++) {
+			readOnlyDoubles[i] = 2 * readOnlyDoubles[i];
+		}
+		Validate.isTrue(Arrays.equals(new double[]{2.0, 4.0, 6.0}, readOnlyDoubles));
+		
+		//test set from another node -- this should fail
+		try {
+			coordinatorLapis.set("non-coor", "readOnlyDoubles", new double[]{1.0, 4.0, 9.0});
+			shouldNotHaveReachedThisPoint();
+		} catch(LapisClientException e) {
+			//this is expected
+			Validate.isTrue(e.getMessage().contains("read-only"));
+		}
 	}
 
 	private void testReady() {

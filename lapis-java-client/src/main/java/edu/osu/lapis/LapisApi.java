@@ -69,19 +69,30 @@ public class LapisApi {
 	/**
 	 * Publish a LAPIS variable. This exposes the variable to the LAPIS 
 	 * network, allowing it to be retrieved or set by other nodes.
-	 * @param variableName the name of the variable (other nodes will 
-	 * access this variable using ${variableName}@${nodeName}
+	 * @param variableName the name of the variable
 	 * @param reference the object to publish
 	 */
 	public void publish(String variableName, Object reference) {
-		Validate.isTrue(reference.getClass().isArray(), "Published variables must be arrays.");
-		LapisVariable lapisVariable = createLapisVariable(variableName, reference);
-		lapisCore.publish(variableName, lapisVariable);
+		publishInternal(variableName, reference, false);
 	}
-
-	private LapisVariable createLapisVariable(String name, Object reference) {
-		return new LapisVariable(name, false,
+	
+	/**
+	 * Publish a LAPIS variable in read-only mode. This exposes the variable to 
+	 * the LAPIS network, but prevents other nodes from setting the variable 
+	 * value through LAPIS's API. The value can still be set within the current 
+	 * node.
+	 * @param variableName the name of the variable
+	 * @param reference reference the object to publish
+	 */
+	public void publishReadOnly(String variableName, Object reference) {
+		publishInternal(variableName, reference, true);
+	}
+	
+	private void publishInternal(String variableName, Object reference, boolean readOnly) {
+		Validate.isTrue(reference.getClass().isArray(), "Published variables must be arrays.");
+		LapisVariable lapisVariable = new LapisVariable(variableName, readOnly,
 				Callables.returning(reference), new LapisSettable(reference));
+		lapisCore.publish(variableName, lapisVariable);
 	}
 	
 	private String toFullName(String nodeName, String variableName) {

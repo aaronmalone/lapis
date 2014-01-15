@@ -60,16 +60,26 @@ classdef LapisAPI < handle
         
         
         function obj = publish(obj, data)
-            %Publishes a variable.  Args(variableName, LapisDataObject).
-            
+            obj.publishInternal(data, 0);
+        end
+        
+        function obj = publishReadOnly(obj, data)
+            obj.publishInternal(data, 1);
+        end
+        
+        function obj = publishInternal(obj, data, readOnly)
             if ~isa(data, 'LAPISData')
                 error('Published datatype must be type "LAPISData"');
             end
-
-            data.setLapisReference(obj);
             
+            data.setLapisReference(obj);
             obj.dataTable(data.name) = data;
-            obj.lapisJava.publish(java.lang.String(data.name), data.data);
+            
+            if(readOnly == 1)
+                obj.lapisJava.publishReadOnly(java.lang.String(data.name), data.data);
+            else
+                obj.lapisJava.publish(java.lang.String(data.name), data.data);
+            end
         end
         
         function obj = redact(obj, data)
