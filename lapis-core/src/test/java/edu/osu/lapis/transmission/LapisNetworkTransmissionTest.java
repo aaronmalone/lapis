@@ -1,25 +1,36 @@
 package edu.osu.lapis.transmission;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.restlet.Client;
 import org.restlet.Context;
-import org.restlet.Request;
-import org.restlet.Response;
-import org.restlet.data.Method;
-import org.restlet.data.Protocol;
 
 //TODO UNFINISHED
 public class LapisNetworkTransmissionTest {
+	
+	private final String
+		COORDINATOR_URL = "http://coordinatorBaseUrl",
+		DELETE_NODE_NAME = "deleteMe";
 
 	private LapisNetworkTransmission lapisNetworkTransmission;
 	
 	public LapisNetworkTransmissionTest() {
 		lapisNetworkTransmission = new LapisNetworkTransmission();
-		lapisNetworkTransmission.setCoordinatorBaseUrl("http://coordinatorBaseUrl/coordinator/");
-		lapisNetworkTransmission.setLapisTransmission(new LapisTransmissionRestletClientImpl());
+		lapisNetworkTransmission.setCoordinatorBaseUrl(COORDINATOR_URL);
+		lapisNetworkTransmission.setLapisTransmission(new LapisTransmissionBaseImpl() {
+			@Override public ClientResponse executeClientCall(ClientCall clientCall) {
+				switch (clientCall.getMethod()) {
+				case DELETE:
+					String coordinatorBase = COORDINATOR_URL+"/"+LapisNetworkTransmission.COORDINATOR+"/";
+					String nodeName = clientCall.getUri().substring(coordinatorBase.length());
+					Assert.assertEquals(DELETE_NODE_NAME, nodeName);
+					break;
+				default:
+					throw new IllegalArgumentException("Unexpected REST method: " + clientCall.getMethod());
+				}
+				return null;
+			}
+		});
 	}
 	
 	@Before
@@ -29,14 +40,7 @@ public class LapisNetworkTransmissionTest {
 	
 	@Test
 	public void testDeleteNodeFromNetwork() {
-		final String nodeName = RandomStringUtils.randomAlphanumeric(20);
-		Context.getCurrent().setClientDispatcher(new Client(Protocol.HTTP) {
-			@Override public void handle(Request request, Response response) {
-				Assert.assertEquals(Method.DELETE, request.getMethod());
-				Assert.assertTrue(request.getResourceRef().getPath().endsWith(nodeName));
-			}
-		});
-		lapisNetworkTransmission.deleteNodeFromNetwork(nodeName);
+		lapisNetworkTransmission.deleteNodeFromNetwork(DELETE_NODE_NAME);
 	}
 	
 	@Test

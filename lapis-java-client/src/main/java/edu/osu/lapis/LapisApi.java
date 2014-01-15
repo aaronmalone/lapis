@@ -84,69 +84,89 @@ public class LapisApi {
 				Callables.returning(reference), new LapisSettable(reference));
 	}
 	
-	//all the get methods
-	public double getDouble(String fullName) {
-		return lapisCore.getRemoteValue(fullName, Double.TYPE);
+	private String toFullName(String nodeName, String variableName) {
+		return variableName + '@' + nodeName;
 	}
 	
-	public int[] getArrayOfInt(String fullName) {
+	//all the get methods
+	public double getDouble(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
+		return lapisCore.getRemoteValue(fullName, Double.TYPE);
+	}
+
+	public int[] getArrayOfInt(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, int[].class);
 	}
 
-	public long[] getArrayOfLong(String fullName) {
+	public long[] getArrayOfLong(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, long[].class);
 	}
 
-	public double[] getArrayOfDouble(String fullName) {
+	public double[] getArrayOfDouble(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, double[].class);
 	}
 
-	public byte[] getArrayOfByte(String fullName) {
+	public byte[] getArrayOfByte(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, byte[].class);
 	}
 
-	public boolean[] getArrayOfBoolean(String fullName) {
+	public boolean[] getArrayOfBoolean(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, boolean[].class);
 	}
 
-	public int[][] getTwoDimensionalArrayOfInt(String fullName) {
+	public int[][] getTwoDimensionalArrayOfInt(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, int[][].class);
 	}
 
-	public long[][] getTwoDimensionalArrayOfLong(String fullName) {
+	public long[][] getTwoDimensionalArrayOfLong(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, long[][].class);
 	}
 
-	public double[][] getTwoDimensionalArrayOfDouble(String fullName) {
+	public double[][] getTwoDimensionalArrayOfDouble(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, double[][].class);
 	}
 
-	public byte[][] getTwoDimensionalArrayOfByte(String fullName) {
+	public byte[][] getTwoDimensionalArrayOfByte(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, byte[][].class);
 	}
 
-	public boolean[][] getTwoDimensionalArrayOfBoolean(String fullName) {
+	public boolean[][] getTwoDimensionalArrayOfBoolean(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, boolean[][].class);
 	}
 
-	public int[][][] getThreeDimensionalArrayOfInt(String fullName) {
+	public int[][][] getThreeDimensionalArrayOfInt(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, int[][][].class);
 	}
 
-	public long[][][] getThreeDimensionalArrayOfLong(String fullName) {
+	public long[][][] getThreeDimensionalArrayOfLong(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, long[][][].class);
 	}
 
-	public double[][][] getThreeDimensionalArrayOfDouble(String fullName) {
+	public double[][][] getThreeDimensionalArrayOfDouble(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, double[][][].class);
 	}
 
-	public byte[][][] getThreeDimensionalArrayOfByte(String variableFullName) {
-		return lapisCore.getRemoteValue(variableFullName, byte[][][].class);
+	public byte[][][] getThreeDimensionalArrayOfByte(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
+		return lapisCore.getRemoteValue(fullName, byte[][][].class);
 	}
 
-	public boolean[][][] getThreeDimensionalArrayOfBoolean(String variableFullName) {
-		return lapisCore.getRemoteValue(variableFullName, boolean[][][].class);
+	public boolean[][][] getThreeDimensionalArrayOfBoolean(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
+		return lapisCore.getRemoteValue(fullName, boolean[][][].class);
 	}
 	
 	/**
@@ -155,7 +175,8 @@ public class LapisApi {
 	 * @param variableFullName the full name of the variable ${variableName}@${nodeName}
 	 * @param value the new value
 	 */
-	public void set(String variableFullName, Object value) {
+	public void set(String nodeName, String variableName, Object value) {
+		String variableFullName = toFullName(nodeName, variableName);
 		lapisCore.setRemoteValue(variableFullName, value);
 	}
 

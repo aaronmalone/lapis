@@ -8,9 +8,10 @@ import edu.osu.lapis.util.LapisRestletUtils;
 
 public class LapisNetworkTransmission {
 	
+	static final String COORDINATOR = "coordinator";
+
 	private Logger logger = Logger.getLogger(getClass());
 	
-	private final String COORDINATOR = "coordinator";
 	private LapisTransmission lapisTransmission;
 	
 	private String coordinatorBaseUrl;

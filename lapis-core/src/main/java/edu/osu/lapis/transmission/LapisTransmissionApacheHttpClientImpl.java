@@ -23,6 +23,7 @@ import org.apache.http.impl.client.HttpClients;
 
 import edu.osu.lapis.Logger;
 import edu.osu.lapis.exception.LapisClientException;
+import edu.osu.lapis.exception.LapisClientExceptionWithStatusCode;
 import edu.osu.lapis.transmission.ClientCall.RestMethod;
 
 public class LapisTransmissionApacheHttpClientImpl extends LapisTransmissionBaseImpl {
@@ -100,9 +101,9 @@ public class LapisTransmissionApacheHttpClientImpl extends LapisTransmissionBase
 		if(statusCode >= 200 && statusCode < 300) {
 			return new ClientResponse(statusCode, payload);
 		} else {
-			throw new LapisClientException("Encountered " + statusCode 
+			throw new LapisClientExceptionWithStatusCode("Encountered " + statusCode 
 					+ " error with the following response entity: "
-					+ new String(payload));
+					+ new String(payload), statusCode);
 		}
 	}
 

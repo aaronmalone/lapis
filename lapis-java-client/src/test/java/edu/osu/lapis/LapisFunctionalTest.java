@@ -2,9 +2,12 @@ package edu.osu.lapis;
 
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.time.StopWatch;
 
+import edu.osu.lapis.exception.LapisClientExceptionWithStatusCode;
 import edu.osu.lapis.util.LapisRandoms;
 
 
@@ -32,10 +35,14 @@ public class LapisFunctionalTest {
 	public void test() {
 		coordinatorLapis = new LapisApi(getCoordinatorProperties());
 		nonCoordinatorLapis = new LapisApi(getNonCoordinatorProperties());
+		StopWatch sw = new StopWatch();
+		sw.start();
 		testReady();
 		testNotReady();
-		testPublishGetAndSetVariables();
 		testDimensionMismatch();
+		testPublishGetAndSetVariables();
+		sw.stop();
+		System.out.println("Actual post-initialization test took " + sw.getTime() + " millis.");
 	}
 
 	private void testReady() {
@@ -63,8 +70,7 @@ public class LapisFunctionalTest {
 		try {
 			waiting.waitForReadyNode(nodeName, timeoutMillis);
 			shouldNotHaveReachedThisPoint();
-		} catch (Exception e) {
-			rethrowShouldNotHaveReachedThisPoint(e);
+		} catch (TimeoutException e) {
 			//this was expected... check that timeoutMillis have passed
 			Validate.isTrue(System.currentTimeMillis() >= timeoutMillis + startTime);
 		}
@@ -98,11 +104,11 @@ public class LapisFunctionalTest {
 	private void testOneDimByteArray() {
 		byte[] bytes = LapisRandoms.getOneDimensionalArrayOfByte();
 		nonCoordinatorLapis.publish("bytes", bytes);
-		byte[] retrieved = coordinatorLapis.getArrayOfByte("bytes@non-coor");
+		byte[] retrieved = coordinatorLapis.getArrayOfByte("non-coor", "bytes");
 		Validate.isTrue(Arrays.equals(bytes, retrieved));
 		byte[] different = LapisRandoms.getRandomArrayOfSameDimensions(bytes);
 		Validate.isTrue(!Arrays.equals(different, bytes));
-		coordinatorLapis.set("bytes@non-coor", different);
+		coordinatorLapis.set("non-coor", "bytes", different);
 		Validate.isTrue(Arrays.equals(different, bytes));
 		System.out.println("Tested one dimensional byte array.");
 	}
@@ -110,11 +116,11 @@ public class LapisFunctionalTest {
 	private void testOneDimBooleanArray() {
 		boolean[] bools = new boolean[] {true, false, true, true, true, true, true, false, true, true};
 		nonCoordinatorLapis.publish("bools", bools);
-		boolean[] boolsRetrieved = coordinatorLapis.getArrayOfBoolean("bools@non-coor");
+		boolean[] boolsRetrieved = coordinatorLapis.getArrayOfBoolean("non-coor", "bools");
 		Validate.isTrue(Arrays.equals(bools, boolsRetrieved));
 		boolean[] different = LapisRandoms.getRandomArrayOfSameDimensions(bools);
 		Validate.isTrue(!Arrays.equals(different, bools));
-		coordinatorLapis.set("bools@non-coor", different);
+		coordinatorLapis.set("non-coor", "bools", different);
 		Validate.isTrue(Arrays.equals(different, bools));
 		System.out.println("Tested one dimensional boolean array.");
 	}
@@ -122,12 +128,12 @@ public class LapisFunctionalTest {
 	private void testOneDimIntegerArray() {
 		int[] ints = new int[] {8, 6, 7, -53, 0, 9};
 		coordinatorLapis.publish("ints", ints);
-		int[] retrieved = nonCoordinatorLapis.getArrayOfInt("ints@coord");
+		int[] retrieved = nonCoordinatorLapis.getArrayOfInt("coord", "ints");
 		Validate.isTrue(Arrays.equals(ints, retrieved));
 		int[] different = Arrays.copyOf(ints, ints.length);
 		Arrays.sort(different);
 		Validate.isTrue(!Arrays.equals(different, ints));
-		nonCoordinatorLapis.set("ints@coord", different);
+		nonCoordinatorLapis.set("coord", "ints", different);
 		Validate.isTrue(Arrays.equals(different, ints));
 		System.out.println("Tested one dimensional integer array.");
 	}
@@ -135,22 +141,22 @@ public class LapisFunctionalTest {
 	private void testOneDimLongArray() {
 		long[] longs = LapisRandoms.getOneDimensionalArrayOfLong();
 		coordinatorLapis.publish("longs", longs);
-		long[] retrieved = nonCoordinatorLapis.getArrayOfLong("longs@coord");
+		long[] retrieved = nonCoordinatorLapis.getArrayOfLong("coord", "longs");
 		Validate.isTrue(Arrays.equals(longs, retrieved));
 		long[] different = LapisRandoms.getRandomArrayOfSameDimensions(longs);
 		Validate.isTrue(!Arrays.equals(different, longs));
-		nonCoordinatorLapis.set("longs@coord", different);
+		nonCoordinatorLapis.set("coord", "longs", different);
 		Validate.isTrue(Arrays.equals(different, longs));
 	}
 
 	private void testOneDimDoubleArray() {
 		double[] doubles = LapisRandoms.getOneDimensionalArrayOfDouble();
 		nonCoordinatorLapis.publish("doubles", doubles);
-		double[] retrieved = coordinatorLapis.getArrayOfDouble("doubles@non-coor");
+		double[] retrieved = coordinatorLapis.getArrayOfDouble("non-coor", "doubles");
 		Validate.isTrue(Arrays.equals(doubles, retrieved));
 		double[] different = LapisRandoms.getRandomArrayOfSameDimensions(doubles);
 		Validate.isTrue(!Arrays.equals(different, doubles));
-		coordinatorLapis.set("doubles@non-coor", different);
+		coordinatorLapis.set("non-coor", "doubles", different);
 		Validate.isTrue(Arrays.equals(different, doubles));
 		System.out.println("Tested one dimensional double array.");
 	}
@@ -158,11 +164,11 @@ public class LapisFunctionalTest {
 	private void testTwoDimByteArray() {
 		byte[][] twoDimBytes = LapisRandoms.getRandomArrayOfSameDimensions(new byte[4][5]);
 		coordinatorLapis.publish("twoDimBytes", twoDimBytes);
-		byte[][] retrieved = nonCoordinatorLapis.getTwoDimensionalArrayOfByte("twoDimBytes@coord");
-		Validate.isTrue(Arrays.deepEquals(twoDimBytes, retrieved)); //TODO MAYBE LOOK INTO HOW THIS IS DONE
+		byte[][] retrieved = nonCoordinatorLapis.getTwoDimensionalArrayOfByte("coord", "twoDimBytes");
+		Validate.isTrue(Arrays.deepEquals(twoDimBytes, retrieved)); //look into how this is implemented
 		byte[][] different = LapisRandoms.getRandomArrayOfSameDimensions(twoDimBytes);
 		Validate.isTrue(!Arrays.deepEquals(different, twoDimBytes));
-		nonCoordinatorLapis.set("twoDimBytes@coord", different);
+		nonCoordinatorLapis.set("coord", "twoDimBytes", different);
 		Validate.isTrue(Arrays.deepEquals(different, twoDimBytes));
 		System.out.println("Tested two dimensional byte array.");
 	}
@@ -170,7 +176,7 @@ public class LapisFunctionalTest {
 	private void testTwoDimBooleanArray() {
 		boolean[][] twoDimBooleans = LapisRandoms.getRandomArrayOfSameDimensions(new boolean[16][32]);
 		nonCoordinatorLapis.publish("twoDimBooleans", twoDimBooleans);
-		boolean[][] retrieved = coordinatorLapis.getTwoDimensionalArrayOfBoolean("twoDimBooleans@non-coor");
+		boolean[][] retrieved = coordinatorLapis.getTwoDimensionalArrayOfBoolean("non-coor", "twoDimBooleans");
 		Validate.isTrue(Arrays.deepEquals(twoDimBooleans, retrieved));
 		System.out.println("Tested two dimensional boolean array.");
 	}
@@ -180,7 +186,7 @@ public class LapisFunctionalTest {
 		coordinatorLapis.publish("twoDimLongs", twoDimLongs);
 		long[][] different = LapisRandoms.getRandomArrayOfSameDimensions(twoDimLongs);
 		Validate.isTrue(!Arrays.deepEquals(different, twoDimLongs));
-		nonCoordinatorLapis.set("twoDimLongs@coord", different);
+		nonCoordinatorLapis.set("coord", "twoDimLongs", different);
 		Validate.isTrue(Arrays.deepEquals(different, twoDimLongs));
 		System.out.println("Tested two dimensional long array.");
 	}
@@ -188,11 +194,11 @@ public class LapisFunctionalTest {
 	private void testThreeDimIntegerArray() {
 		final int[][][] threeDimInts = LapisRandoms.getRandomArrayOfSameDimensions(new int[8][6][7]);
 		nonCoordinatorLapis.publish("threeDimInts", threeDimInts);
-		int[][][] retrieved = coordinatorLapis.getThreeDimensionalArrayOfInt("threeDimInts@non-coor");
+		int[][][] retrieved = coordinatorLapis.getThreeDimensionalArrayOfInt("non-coor", "threeDimInts");
 		Validate.isTrue(Arrays.deepEquals(threeDimInts, retrieved));
 		int[][][] different = LapisRandoms.getRandomArrayOfSameDimensions(threeDimInts);
 		Validate.isTrue(!Arrays.deepEquals(different, threeDimInts));
-		coordinatorLapis.set("threeDimInts@non-coor", different);
+		coordinatorLapis.set("non-coor", "threeDimInts", different);
 		Validate.isTrue(Arrays.deepEquals(different, threeDimInts));
 		System.out.println("Tested three dimensional integer array.");
 	}
@@ -202,11 +208,11 @@ public class LapisFunctionalTest {
 		coordinatorLapis.publish("threeDimDoubles", threeDimDoubles);
 		double[][][] retrieved = new double[4][8][16];
 		Validate.isTrue(!Arrays.deepEquals(threeDimDoubles, retrieved));
-		retrieved = nonCoordinatorLapis.getThreeDimensionalArrayOfDouble("threeDimDoubles@coord");
+		retrieved = nonCoordinatorLapis.getThreeDimensionalArrayOfDouble("coord", "threeDimDoubles");
 		Validate.isTrue(Arrays.deepEquals(threeDimDoubles, retrieved));
 		final double[][][] different = LapisRandoms.getRandomArrayOfSameDimensions(threeDimDoubles);
 		Validate.isTrue(!Arrays.deepEquals(different, threeDimDoubles));
-		nonCoordinatorLapis.set("threeDimDoubles@coord", different);
+		nonCoordinatorLapis.set("coord", "threeDimDoubles", different);
 		Validate.isTrue(Arrays.deepEquals(different, threeDimDoubles));
 		System.out.println("Test three dimensional double array.");
 	}
@@ -222,11 +228,10 @@ public class LapisFunctionalTest {
 		nonCoordinatorLapis.publish(name, da);
 		double[] daLen10 = LapisRandoms.getRandomArrayOfSameDimensions(new double[10]);
 		try {
-			coordinatorLapis.set(name + "@non-coor", daLen10);
+			coordinatorLapis.set("non-coor", name, daLen10);
 			shouldNotHaveReachedThisPoint();
-		} catch(Exception e) {
-			rethrowShouldNotHaveReachedThisPoint(e);
-			printStackTraceForVisibility(e);
+		} catch(LapisClientExceptionWithStatusCode e) {
+			//this is expected
 		}
 	}
 
@@ -236,21 +241,13 @@ public class LapisFunctionalTest {
 		coordinatorLapis.publish(name, la);
 		long[][][] mismatch = LapisRandoms.getRandomArrayOfSameDimensions(new long[8][7][6]);
 		try {
-			nonCoordinatorLapis.set(name + "@coord", mismatch);
+			nonCoordinatorLapis.set("coord", name, mismatch);
 			shouldNotHaveReachedThisPoint();
-		} catch(Exception e) {
-			rethrowShouldNotHaveReachedThisPoint(e);
-			printStackTraceForVisibility(e);
+		} catch(LapisClientExceptionWithStatusCode e) {
+			//this is expected
 		}
 	}
 	
-
-	private void rethrowShouldNotHaveReachedThisPoint(Exception e) {
-		if(e instanceof ShouldNotHaveReachedThisPointException) {
-			throw (ShouldNotHaveReachedThisPointException) e;
-		}
-	}
-
 	private void shouldNotHaveReachedThisPoint() {
 		throw new ShouldNotHaveReachedThisPointException();
 	}
@@ -260,11 +257,6 @@ public class LapisFunctionalTest {
 		public ShouldNotHaveReachedThisPointException() {
 			super("Code execution reached a location which it should not have reached.");
 		}
-	}
-	
-	private void printStackTraceForVisibility(Exception e) {
-		System.out.println("STACK TRACE PRINTED FOR VISIBILITY: ");
-		e.printStackTrace(System.out);
 	}
 	
 	private Properties getCoordinatorProperties() {

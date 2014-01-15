@@ -42,9 +42,9 @@ public class MaxCommunicationsFunctionalTest {
 		coordinator.publish("doub", doub);
 		for(int i = 0; i < 30000; ++i) {
 			System.out.println("doub: " + Arrays.toString(doub));
-			double value = nonCoordinator.getArrayOfDouble("doub@coord")[0];
+			double value = nonCoordinator.getArrayOfDouble("coord", "doub")[0];
 			double[] newValue = new double[]{value+1};
-			nonCoordinator.set("doub@coord", newValue);
+			nonCoordinator.set("coord", "doub", newValue);
 		}
 		sw.stop();
 		System.out.println("Test took " + sw.getTime() + " millis.");
