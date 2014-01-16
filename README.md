@@ -361,6 +361,35 @@ clc;
 
 ```
 
+## Release 0.4 notes
+
+##### Client communication change and possible classpath conflict
+
+The client-side communication code has been re-implemented using Apache HttpClient. This may require MATLAB users to make a configuration change in order to run LAPIS, depending on their current configuration. The following line from $matlabroot/toolbox/local/classpath.txt MUST be commented out (if it is present) or LAPIS will not work:
+
+$matlabroot/java/jarext/axis2/httpcore.jar
+
+To edit $matlabroot/toolbox/local/classpath.txt, do the following:
+
+1. Select a text editor, right-click, and select 'Run as Administrator'.
+2. In MATLAB, type the following to display the location of the classpath.txt file: ```[matlabroot '\toolbox\local\classpath.txt']```
+3. Open the classpath.txt file in your editor from the first step.
+4. Comment out the line that ends in 'httpcore.jar'
+5. Save the file and exit the text editor.
+6. Re-start MATLAB.
+
+##### Java client change 
+
+In the Java client in LAPIS 0.4, separate arguments are passed for the node name and variable name in get and set calls:
+
+```Java
+// get the "bytes" variable published by node "non-coor"
+byte[] retrieved = coordinatorLapis.getArrayOfByte("non-coor", "bytes");
+
+//set the value of variable "bools" published on node "non-coor"
+boolean[] different = // create array...
+coordinatorLapis.set("non-coor", "bools", different);
+```
 
 #### Debugging a LAPIS network 
 Since LAPIS is designed to be easily accessible to the inexperienced programmer, accessing a LAPIS network using standard tools - such as a web browser - is included as part of the implementation. 
