@@ -14,7 +14,7 @@
 clear all
 clear classes
 clear java
-javaaddpath([pwd '\lapis-matlab-0.4-SNAPSHOT-jar-with-dependencies.jar']);   %add the lapis jar file.  Future releases will include this in the LapisAPI class.
+javaaddpath([pwd '\lapis-matlab-0.4-jar-with-dependencies.jar']);   %add the lapis jar file.  Future releases will include this in the LapisAPI class.
 
 %% set up LAPIS
 coordinatorAddress = 'http://127.0.0.1:7777';
@@ -70,12 +70,13 @@ node2Copy = lap.get('Node2', 'node2copy');
 
 disp('Node2 copy: ');
 disp(node2Copy)
-disp('Simulation Finished!');
+
 simFinishFlag.data = 1;
 
 lap.redact(finishFlag);
 lap.redact(node2FinishFlag);
 
+disp('Simulation Finished!');
 
 %Make sure you shut down LAPIS before clearing it!
 % lap.shutdown();

@@ -14,7 +14,7 @@
 clear all
 clear classes
 clear java
-javaaddpath([pwd '\lapis-matlab-0.4-SNAPSHOT-jar-with-dependencies.jar']);  %add the lapis jar file.  Future releases will include this in the LapisAPI class.
+javaaddpath([pwd '\lapis-matlab-0.4-jar-with-dependencies.jar']);  %add the lapis jar file.  Future releases will include this in the LapisAPI class.
 
 
 %% set up LAPIS
