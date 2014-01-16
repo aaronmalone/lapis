@@ -14,8 +14,6 @@
 clear all
 clear classes
 clear java
-javaaddpath([pwd '\lapis-matlab-0.4-jar-with-dependencies.jar']);  %add the lapis jar file.  Future releases will include this in the LapisAPI class.
-
 
 %% set up LAPIS
 coordinatorAddress = 'http://127.0.0.1:7777';
