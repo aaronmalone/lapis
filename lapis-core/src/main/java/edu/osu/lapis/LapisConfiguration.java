@@ -254,22 +254,30 @@ public class LapisConfiguration {
 		return new Notifier(this.networkTable, this.lapisSerialization, getLapisTransmission());
 	}
 	
-	//TODO MOVE THIS LOGIC ELSEWHERE
+	//TODO MOVE THIS LOGIC ELSEWHERE, AND CLEAN IT UP
 	/**
 	 * Attempts to join the network if this node is not the coordinator.
 	 */
 	public void attemptToJoinNetwork() {
+		long startTimeMillis = System.currentTimeMillis();
 		if(!this.isCoordinator) {
-			try {				
-				this.lapisNetworkClient.addNodeToNetwork(networkTable.getLocalNode());
-			} catch(Exception e) {
-				String underlyingErrorMsg = e instanceof ResourceException ? e.toString() : e.getMessage();
-				String runtimeExcMsg = "Encountered exception while trying to connect to "
-						+ "connect to the LAPIS network coordinator and add this node"
-						+ " to the network. The coordinator address is '" 
-						+ getCoordinatorUrl() + "'. The error message of the " +
-						"underlying error is: " +underlyingErrorMsg;
-				throw new RuntimeException(runtimeExcMsg, e);
+			while(System.currentTimeMillis() < startTimeMillis + 60000) {
+				try {				
+					this.lapisNetworkClient.addNodeToNetwork(networkTable.getLocalNode());
+					break;
+				} catch(Exception e) {
+					if(System.currentTimeMillis() > startTimeMillis + 60000) {
+						String underlyingErrorMsg = e instanceof ResourceException ? e.toString() : e.getMessage();
+						String runtimeExcMsg = "Encountered exception while trying to connect to "
+								+ "connect to the LAPIS network coordinator and add this node"
+								+ " to the network. The coordinator address is '" 
+								+ getCoordinatorUrl() + "'. The error message of the " +
+								"underlying error is: " +underlyingErrorMsg;
+						throw new RuntimeException(runtimeExcMsg, e);
+					} else {
+						System.err.println("Unable to connect to coordinator. Retrying...");
+					}
+				}
 			}
 		}
 	}
