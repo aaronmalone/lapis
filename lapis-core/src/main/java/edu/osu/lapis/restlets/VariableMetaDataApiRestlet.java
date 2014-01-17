@@ -36,7 +36,7 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	}
 	
 	private void respondWithMetaDataForOneVariable(Response response, String variableName) {
-		logger.info("Call to retrieve variable meta-data for variable: %s", variableName);
+		logger.debug("Call to retrieve variable meta-data for variable: %s", variableName);
 		LapisVariable localVariable = localDataTable.get(variableName);
 		if(localVariable != null) {
 			byte[] serialized = lapisSerialization.serialize(getVariableMetaData(localVariable));
@@ -48,7 +48,7 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	}
 	
 	private void respondWithMetaDataForAllVariables(Response response) {
-		logger.info("Call to retrieve variable meta-data for all variables");
+		logger.debug("Call to retrieve variable meta-data for all variables");
 		List<VariableMetaData> metaList = Lists.newArrayList();
 		for(LapisVariable local : localDataTable.getAll()) {
 			metaList.add(getVariableMetaData(local));

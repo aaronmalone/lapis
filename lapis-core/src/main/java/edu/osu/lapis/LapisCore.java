@@ -1,15 +1,10 @@
 package edu.osu.lapis;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.io.Files;
 import com.google.common.util.concurrent.Callables;
 
 import edu.osu.lapis.comm.client.LapisDataClient;
@@ -36,13 +31,6 @@ public class LapisCore {
 	private final LapisConfiguration lapisConfiguration;
 	private String name;
 	private boolean shutdown;
-
-	/**
-	 * Start LAPIS and initialize with properties in properties file.
-	 */
-	public LapisCore(String propertiesFileName) {
-		this(getPropertiesFromFile(propertiesFileName));
-	}
 
 	/**
 	 * Start LAPIS and initialize with the given properties
@@ -235,36 +223,6 @@ public class LapisCore {
 			shutdown = true;
 		} else {
 			System.err.println("Restlet Server was null, or was already shut down.");
-		}
-	}
-
-	/**
-	 * Start LAPIS and initialize with properties read from the properties file.
-	 * 
-	 * @param propertiesFileName
-	 *            the name of the file from which properties will be read
-	 */
-	private static Properties getPropertiesFromFile(String propertiesFileName) {
-		if(propertiesFileName.toLowerCase().endsWith(".json")) {
-			return parseJsonPropertiesFile(propertiesFileName);
-		} else {
-			return parseRegularPropertiesFile(propertiesFileName);
-		}
-	}
-
-	private static Properties parseJsonPropertiesFile(String propertiesFileName) {
-		throw new UnsupportedOperationException("JSON properties file not currently supported.");
-	}
-
-	private static Properties parseRegularPropertiesFile(String propertiesFileName) {
-		Properties props = new Properties();
-		try {
-			Reader reader = Files.newReader(new File(propertiesFileName), Charset.defaultCharset());
-			props.load(reader);
-			reader.close();
-			return props;
-		} catch (IOException e) {
-			throw new RuntimeException("Error loading properties file: " + propertiesFileName, e);
 		}
 	}
 
