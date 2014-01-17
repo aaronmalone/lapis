@@ -14,8 +14,9 @@ import edu.osu.lapis.util.LapisRandoms;
 
 public class LapisFunctionalTest {
 	
-	private static final int COORDINATOR_PORT = 11122;
-	private static final String COORDINATOR_URL = "http://localhost:" + COORDINATOR_PORT;
+	private Logger logger = Logger.getLogger(getClass());
+	
+	private static final String COORDINATOR_URL = "http://localhost:11122";
 	private static final int NON_COORDINATOR_PORT = 8899;
 	private static final String NON_COORDINATOR_URL = "http://localhost:" + NON_COORDINATOR_PORT;
 	
@@ -34,13 +35,13 @@ public class LapisFunctionalTest {
 	}
 	
 	public void test() {
-		coordinatorLapis = new LapisApi(getCoordinatorProperties());
+		coordinatorLapis = new LapisApi("coord", COORDINATOR_URL);
 		nonCoordinatorLapis = new LapisApi(getNonCoordinatorProperties());
 		StopWatch sw = new StopWatch();
 		sw.start();
 		testInternal();
 		sw.stop();
-		System.out.println("Actual post-initialization test took " + sw.getTime() + " millis.");
+		logger.info("Actual post-initialization test took " + sw.getTime() + " millis.");
 	}
 	
 	private void testInternal() {
@@ -68,6 +69,7 @@ public class LapisFunctionalTest {
 			//this is expected
 			Validate.isTrue(e.getMessage().contains("read-only"));
 		}
+		logger.info("Tested read-only functionality.");
 	}
 
 	private void testReady() {
@@ -75,7 +77,7 @@ public class LapisFunctionalTest {
 		waitWithExpectedFailure(nonCoordinatorLapis, coordinatorLapis.getName());
 		coordinatorLapis.ready();
 		nonCoordinatorLapis.waitForReadyNode("coord");
-		System.out.println("Tested ready() and waitForReadyNode().");
+		logger.info("Tested ready() and waitForReadyNode().");
 	}
 	
 	private void testNotReady() {
@@ -85,11 +87,11 @@ public class LapisFunctionalTest {
 		waitWithExpectedFailure(coordinatorLapis, nonCoordinatorLapis.getName());
 		nonCoordinatorLapis.ready();
 		coordinatorLapis.waitForReadyNode("non-coor");
-		System.out.println("Tested notReady().");
+		logger.info("Tested notReady().");
 	}
 	
 	private void waitWithExpectedFailure(LapisApi waiting, String nodeName) {
-		final long timeoutMillis = 100;
+		final long timeoutMillis = 50;
 		LapisCore.waitingForNodeRetryTime = 5;
 		long startTime = System.currentTimeMillis();
 		try {
@@ -135,7 +137,7 @@ public class LapisFunctionalTest {
 		Validate.isTrue(!Arrays.equals(different, bytes));
 		coordinatorLapis.set("non-coor", "bytes", different);
 		Validate.isTrue(Arrays.equals(different, bytes));
-		System.out.println("Tested one dimensional byte array.");
+		logger.info("Tested one dimensional byte array.");
 	}
 	
 	private void testOneDimBooleanArray() {
@@ -147,7 +149,7 @@ public class LapisFunctionalTest {
 		Validate.isTrue(!Arrays.equals(different, bools));
 		coordinatorLapis.set("non-coor", "bools", different);
 		Validate.isTrue(Arrays.equals(different, bools));
-		System.out.println("Tested one dimensional boolean array.");
+		logger.info("Tested one dimensional boolean array.");
 	}
 	
 	private void testOneDimIntegerArray() {
@@ -160,7 +162,7 @@ public class LapisFunctionalTest {
 		Validate.isTrue(!Arrays.equals(different, ints));
 		nonCoordinatorLapis.set("coord", "ints", different);
 		Validate.isTrue(Arrays.equals(different, ints));
-		System.out.println("Tested one dimensional integer array.");
+		logger.info("Tested one dimensional integer array.");
 	}
 
 	private void testOneDimLongArray() {
@@ -183,7 +185,7 @@ public class LapisFunctionalTest {
 		Validate.isTrue(!Arrays.equals(different, doubles));
 		coordinatorLapis.set("non-coor", "doubles", different);
 		Validate.isTrue(Arrays.equals(different, doubles));
-		System.out.println("Tested one dimensional double array.");
+		logger.info("Tested one dimensional double array.");
 	}
 
 	private void testTwoDimByteArray() {
@@ -195,7 +197,7 @@ public class LapisFunctionalTest {
 		Validate.isTrue(!Arrays.deepEquals(different, twoDimBytes));
 		nonCoordinatorLapis.set("coord", "twoDimBytes", different);
 		Validate.isTrue(Arrays.deepEquals(different, twoDimBytes));
-		System.out.println("Tested two dimensional byte array.");
+		logger.info("Tested two dimensional byte array.");
 	}
 	
 	private void testTwoDimBooleanArray() {
@@ -203,7 +205,7 @@ public class LapisFunctionalTest {
 		nonCoordinatorLapis.publish("twoDimBooleans", twoDimBooleans);
 		boolean[][] retrieved = coordinatorLapis.getTwoDimensionalArrayOfBoolean("non-coor", "twoDimBooleans");
 		Validate.isTrue(Arrays.deepEquals(twoDimBooleans, retrieved));
-		System.out.println("Tested two dimensional boolean array.");
+		logger.info("Tested two dimensional boolean array.");
 	}
 	
 	private void testTwoDimLongArray() {
@@ -213,7 +215,7 @@ public class LapisFunctionalTest {
 		Validate.isTrue(!Arrays.deepEquals(different, twoDimLongs));
 		nonCoordinatorLapis.set("coord", "twoDimLongs", different);
 		Validate.isTrue(Arrays.deepEquals(different, twoDimLongs));
-		System.out.println("Tested two dimensional long array.");
+		logger.info("Tested two dimensional long array.");
 	}
 	
 	private void testThreeDimIntegerArray() {
@@ -225,7 +227,7 @@ public class LapisFunctionalTest {
 		Validate.isTrue(!Arrays.deepEquals(different, threeDimInts));
 		coordinatorLapis.set("non-coor", "threeDimInts", different);
 		Validate.isTrue(Arrays.deepEquals(different, threeDimInts));
-		System.out.println("Tested three dimensional integer array.");
+		logger.info("Tested three dimensional integer array.");
 	}
 
 	private void testThreeDimDoubleArray() {
@@ -239,7 +241,7 @@ public class LapisFunctionalTest {
 		Validate.isTrue(!Arrays.deepEquals(different, threeDimDoubles));
 		nonCoordinatorLapis.set("coord", "threeDimDoubles", different);
 		Validate.isTrue(Arrays.deepEquals(different, threeDimDoubles));
-		System.out.println("Test three dimensional double array.");
+		logger.info("Test three dimensional double array.");
 	}
 	
 	private void testDimensionMismatch() {
@@ -284,16 +286,7 @@ public class LapisFunctionalTest {
 		}
 	}
 	
-	private Properties getCoordinatorProperties() {
-		Properties p = new Properties();
-		p.setProperty("name", "coord");
-		p.setProperty("coordinator.url", COORDINATOR_URL);
-		p.setProperty("localNodeAddress", COORDINATOR_URL);
-		p.setProperty("port", Integer.toString(COORDINATOR_PORT));
-		p.setProperty("isCoordinator", Boolean.toString(true));
-		return p;
-	}
-
+	
 	private Properties getNonCoordinatorProperties() {
 		Properties p = new Properties();
 		p.setProperty("name", "non-coor");

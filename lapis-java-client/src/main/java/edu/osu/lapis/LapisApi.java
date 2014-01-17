@@ -27,13 +27,6 @@ public class LapisApi {
 	private final LapisCore lapisCore;
 
 	/**
-	 * Construct using properties in properties file.
-	 */
-	public LapisApi(String propertiesFileName) {
-		this.lapisCore = new LapisCore(propertiesFileName);
-	}
-
-	/**
 	 * Construct using properties.
 	 */
 	public LapisApi(Properties properties) {
@@ -55,6 +48,7 @@ public class LapisApi {
 			properties.setProperty("coordinator.url", coordinatorAddress);
 			properties.setProperty("port", Integer.toString(new URL(myAddress).getPort()));
 			properties.setProperty("isCoordinator", Boolean.toString(coordinatorAddress.equals(myAddress)));
+			properties.setProperty("localNodeAddress", myAddress);
 			this.lapisCore = new LapisCore(properties);
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
@@ -100,11 +94,6 @@ public class LapisApi {
 	}
 	
 	//all the get methods
-	public double getDouble(String nodeName, String variableName) {
-		String fullName = toFullName(nodeName, variableName);
-		return lapisCore.getRemoteValue(fullName, Double.TYPE);
-	}
-
 	public int[] getArrayOfInt(String nodeName, String variableName) {
 		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, int[].class);
