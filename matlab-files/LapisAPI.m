@@ -25,6 +25,8 @@ classdef LapisAPI < handle
         function obj = LapisAPI(varargin)
             %Constructor.  If model is coordinator, use: Args(modelName, coordinatorAddress).  If model is not coordinator, use Args(modelName, coordinatorAddress, modelAddress)
             
+            javaaddpath([pwd '\lapis-matlab-0.4.1-jar-with-dependencies.jar']);
+            
             obj.dataTable = containers.Map;
             
             % set up logging
@@ -33,7 +35,7 @@ classdef LapisAPI < handle
             org.apache.log4j.PropertyConfigurator.configure([pwd char(java.lang.System.getProperty('file.separator')) 'log4j.properties']);
             org.apache.log4j.helpers.LogLog.setInternalDebugging(0);
             
-            import edu.osu.lapis.MatlabLapis;
+            eval('import edu.osu.lapis.MatlabLapis;');
            
             if nargin == 2  %Model is the coordinator
                 obj.modelName = varargin{1};
