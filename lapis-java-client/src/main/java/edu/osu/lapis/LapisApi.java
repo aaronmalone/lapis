@@ -55,7 +55,13 @@ public class LapisApi {
 		}
 	}
 	
-	//TODO ADD COMMENT
+	/**
+	 * Constructs a LapisApi instance. The resulting LAPIS node will be a 
+	 * coordinator.
+	 * @param nodeName the name of this LAPIS node
+	 * @param coordinatorAddress the HTTP address on which to listen for 
+	 * connections from other LAPIS nodes
+	 */
 	public LapisApi(String nodeName, String coordinatorAddress) {
 		this(nodeName, coordinatorAddress, coordinatorAddress);
 	}

@@ -13,6 +13,11 @@ import java.util.concurrent.TimeoutException;
 import edu.osu.lapis.LapisApi;
 import edu.osu.lapis.util.Sleep;
 
+/**
+ * An example of a multi-node LAPIS network using the LAPIS Java client.<br>
+ * Start this after starting Node1Simulation.<br>
+ * This class is based on node2simulation.m in LAPIS's MATLAB files.
+ */
 public class Node2Simulation {
 	public static void main(String[] args) throws TimeoutException {
 		

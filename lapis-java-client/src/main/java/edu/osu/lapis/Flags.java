@@ -3,16 +3,17 @@ package edu.osu.lapis;
 import org.apache.commons.lang3.Validate;
 
 /**
- * Class that provides static helper methods to make use of the LAPIS Java API
- * less verbose when dealing with flags.
- * <br>
+ * Class that provides static helper methods to ease the use of length-one 
+ * arrays of type double as flags within LAPIS.<br>
  * Recommended usage is to import methods from this class statically into your
  * own class files.
  */
 public class Flags {
 			
-	//TODO COMMENT
+	/** The value of a 'true' flag. */
 	public static final double[] FLAG_VALUE_TRUE = getFlagTrue();
+	
+	/** The value of a flag that is 'false'. */
 	public static final double[] FLAG_VALUE_FALSE = getFlag();
 	
 	/**

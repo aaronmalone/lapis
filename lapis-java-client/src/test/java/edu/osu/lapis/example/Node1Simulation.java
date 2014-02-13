@@ -12,6 +12,11 @@ import java.util.Arrays;
 import edu.osu.lapis.LapisApi;
 import edu.osu.lapis.util.Sleep;
 
+/**
+ * An example of a multi-node LAPIS network using the LAPIS Java client.<br>
+ * Start this before starting Node2Simulation.<br>
+ * This class is based on node1simulation.m in LAPIS's MATLAB files.
+ */
 public class Node1Simulation {
 	public static void main(String[] args) {
 		
