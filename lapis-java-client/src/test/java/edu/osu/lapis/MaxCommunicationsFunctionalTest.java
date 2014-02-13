@@ -7,7 +7,6 @@ import org.apache.commons.lang3.time.StopWatch;
 
 public class MaxCommunicationsFunctionalTest {
 
-	//TODO FACTOR SOME OF THIS STUFF OUT TO A SEPARATE CLASS
 	private static final int COORDINATOR_PORT = 11222;
 	private static final String COORDINATOR_URL = "http://localhost:" + COORDINATOR_PORT;
 	private static final int NON_COORDINATOR_PORT = 8998;

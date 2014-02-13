@@ -25,7 +25,7 @@ classdef LapisAPI < handle
         function obj = LapisAPI(varargin)
             %Constructor.  If model is coordinator, use: Args(modelName, coordinatorAddress).  If model is not coordinator, use Args(modelName, coordinatorAddress, modelAddress)
             
-            javaaddpath([pwd '\lapis-matlab-0.4-jar-with-dependencies.jar']);   %add the lapis jar file.  Future releases will include this in the LapisAPI class.
+            javaaddpath([pwd '\lapis-matlab-0.4-jar-with-dependencies.jar']);
             
             obj.dataTable = containers.Map;
             

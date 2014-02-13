@@ -8,6 +8,8 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -18,10 +20,13 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+import edu.osu.lapis.Logger;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.network.LapisNode;
 
 public class JsonSerialization implements LapisSerialization {
+	
+	private static Logger logger = Logger.getLogger(JsonSerialization.class);
 	
 	private static final String
 		NAME = "name",
@@ -102,7 +107,15 @@ public class JsonSerialization implements LapisSerialization {
 	
 	@Override
 	public byte[] serialize(SerializationObject serializationObject) {
-		return getGson().toJson(serializationObject).getBytes();
+		StopWatch sw = new StopWatch();
+		sw.start();
+		try {
+			return getGson().toJson(serializationObject).getBytes();
+		} finally {
+			sw.stop();
+			logger.trace("Serialization of '%s' took %d milliseconds.", 
+					serializationObject.getName(), sw.getTime());
+		}
 	}
 	
 	@Override
