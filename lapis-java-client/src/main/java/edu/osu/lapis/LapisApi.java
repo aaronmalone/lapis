@@ -71,6 +71,30 @@ public class LapisApi {
 	}
 	
 	/**
+	 * Create and publish an array of type double with the given values.
+	 * @param variableName the name of the published variable
+	 * @param doubles the doubles to include in the array
+	 * @return the array of double values
+	 */
+	public double[] initializeAndPublishDoubleArray(String variableName, double ... doubles) {
+		publishInternal(variableName, doubles, false);
+		return doubles;
+	}
+	
+	/**
+	 * Create and publish an array of type double with the given values. This 
+	 * will be a read-only variable with respect to other nodes on the LAPIS
+	 * network.
+	 * @param variableName the name of the published variable
+	 * @param doubles the doubles to include in the array
+	 * @return the array of double values
+	 */
+	public double[] initializeAndPublishReadOnlyDoubleArray(String variableName, double ... doubles) {
+		publishInternal(variableName, doubles, true);
+		return doubles;
+	}
+	
+	/**
 	 * Publish a LAPIS variable in read-only mode. This exposes the variable to 
 	 * the LAPIS network, but prevents other nodes from setting the variable 
 	 * value through LAPIS's API. The value can still be set within the current 
@@ -82,6 +106,11 @@ public class LapisApi {
 		publishInternal(variableName, reference, true);
 	}
 	
+	/**
+	 * @param variableName
+	 * @param reference
+	 * @param readOnly
+	 */
 	private void publishInternal(String variableName, Object reference, boolean readOnly) {
 		Validate.isTrue(reference.getClass().isArray(), "Published variables must be arrays.");
 		LapisVariable lapisVariable = new LapisVariable(variableName, readOnly,
