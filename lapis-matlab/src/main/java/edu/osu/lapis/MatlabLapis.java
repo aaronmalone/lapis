@@ -1,5 +1,6 @@
 package edu.osu.lapis;
 
+import java.lang.reflect.Array;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
@@ -200,5 +201,18 @@ public class MatlabLapis {
 	 */
 	public void waitForReadyNode(String nodeName, double millisToWait) throws TimeoutException {
 		lapisCoreApi.waitForReadyNode(nodeName, (long)millisToWait);
+	}
+	
+	public static String getJavaTypeOfObject(Object obj) {
+		String typeOfObject = obj.getClass().toString();
+		System.out.println("type: " + typeOfObject);
+		if(obj.getClass().isArray()) {
+			System.out.println("  component type: " + obj.getClass().getComponentType());
+			int length = Array.getLength(obj);
+			for(int i = 0; i < length; ++i) {
+				System.out.println("  [" + i + "] = " + Array.get(obj, i));
+			}
+		}
+		return typeOfObject;
 	}
 }
