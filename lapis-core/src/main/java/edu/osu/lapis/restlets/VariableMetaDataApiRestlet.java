@@ -59,7 +59,12 @@ public class VariableMetaDataApiRestlet extends LapisRestletBase {
 	}
 	
 	private VariableMetaData getVariableMetaData(LapisVariable var) {
-		return new VariableMetaData(var.getName(), var.getClass(), var.isReadOnly());
+		try {
+			Class<?> dataClass = var.getCallable().call().getClass();
+			return new VariableMetaData(var.getName(), dataClass, var.isReadOnly());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public void setLocalDataTable(LocalDataTable localDataTable) {

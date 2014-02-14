@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.StopWatch;
 
@@ -42,12 +44,12 @@ public class LapisFunctionalTest {
 		nonCoordinatorLapis = new LapisApi(getNonCoordinatorProperties());
 		StopWatch sw = new StopWatch();
 		sw.start();
-		testInternal();
+		testImpl();
 		sw.stop();
 		logger.info("Actual post-initialization test took " + sw.getTime() + " millis.");
 	}
 	
-	private void testInternal() {
+	private void testImpl() {
 		testReady();
 		testNotReady();
 		testDimensionMismatch();
@@ -110,6 +112,7 @@ public class LapisFunctionalTest {
 		testOneDimArrays();
 		testTwoDimArrays();
 		testThreeDimArrays();
+		testStrings();
 	}
 	
 	private void testOneDimArrays() {
@@ -180,8 +183,8 @@ public class LapisFunctionalTest {
 	}
 
 	private void testOneDimDoubleArray() {
-		double[] doubles = LapisRandoms.getOneDimensionalArrayOfDouble();
-		nonCoordinatorLapis.publish("doubles", doubles);
+		double[] doubles = nonCoordinatorLapis.initializeAndPublishDoubleArray(
+				"doubles", LapisRandoms.getOneDimensionalArrayOfDouble());
 		double[] retrieved = coordinatorLapis.getArrayOfDouble(NON_COORDINATOR_NODE_NAME, "doubles");
 		Validate.isTrue(Arrays.equals(doubles, retrieved));
 		double[] different = LapisRandoms.getRandomArrayOfSameDimensions(doubles);
@@ -245,6 +248,13 @@ public class LapisFunctionalTest {
 		nonCoordinatorLapis.set(COORDINATOR_NODE_NAME, "threeDimDoubles", different);
 		Validate.isTrue(Arrays.deepEquals(different, threeDimDoubles));
 		logger.info("Test three dimensional double array.");
+	}
+	
+	private void testStrings() {
+		String pubString = RandomStringUtils.randomAlphanumeric(10);
+		coordinatorLapis.publishReadOnly("pubString", pubString);
+		String retrieved = nonCoordinatorLapis.getString(COORDINATOR_NODE_NAME, "pubString");
+		Validate.isTrue(StringUtils.equals(pubString, retrieved));
 	}
 	
 	private void testDimensionMismatch() {

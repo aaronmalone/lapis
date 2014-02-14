@@ -34,15 +34,19 @@ public class DataClientCommunicationImpl {
 		return lapisSerialization.deserializeMetaData(data);
 	}
 
-	public <T> T getVariableValue(VariableFullName fullName, Class<T> cls) {
+	@SuppressWarnings("unchecked")
+	public <T> T getVariableValue(VariableFullName fullName, Class<T> expectedClass) {
 		byte[] data = lapisDataTransmission.getVariableValue(fullName);
 		SerializationObject serializationObj = lapisSerialization.deserializeModelData(data);
 		Object dataObj = serializationObj.getData();
-		if(cls.isInstance(dataObj)) {
-			return cls.cast(dataObj);
+		if(expectedClass.isInstance(dataObj)) {
+			return expectedClass.cast(dataObj);
+		} else if(expectedClass.equals(double[].class) && dataObj instanceof Double) {
+			double value = ((Double) dataObj).doubleValue();
+			return (T) new double[]{value};
 		} else {
 			throw new RuntimeException("Couldn't cast dataObj " + dataObj + " of type " 
-					+ dataObj.getClass() + " to " + cls + ".");
+					+ dataObj.getClass() + " to " + expectedClass + ".");
 		}
 	}
 

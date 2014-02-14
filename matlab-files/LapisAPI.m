@@ -25,7 +25,7 @@ classdef LapisAPI < handle
         function obj = LapisAPI(varargin)
             %Constructor.  If model is coordinator, use: Args(modelName, coordinatorAddress).  If model is not coordinator, use Args(modelName, coordinatorAddress, modelAddress)
             
-            javaaddpath([pwd '\lapis-matlab-0.4-jar-with-dependencies.jar']);
+            javaaddpath([pwd '\lapis-matlab-0.4.1-jar-with-dependencies.jar']);
             
             obj.dataTable = containers.Map;
             
@@ -108,7 +108,10 @@ classdef LapisAPI < handle
            %Sets a variable on another LAPIS node.  Args(modelName, variablename, data)
            
            if ~isa(data, 'double')
-              error('Setting types other than doubles are not currently supported'); 
+              % somebody who knows MATLAB can clean this up
+              if ~isa(data, 'char')
+                 error('Setting types other than double and char are not currently supported'); 
+              end
            end
            
            fullName = [varName  '@'  modelName];

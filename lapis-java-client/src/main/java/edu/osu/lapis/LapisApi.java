@@ -118,10 +118,19 @@ public class LapisApi {
 	 * @param readOnly
 	 */
 	private void publishInternal(String variableName, Object reference, boolean readOnly) {
-		Validate.isTrue(reference.getClass().isArray(), "Published variables must be arrays.");
+		validateAllowablePublishedObject(reference, readOnly);
 		LapisVariable lapisVariable = new LapisVariable(variableName, readOnly,
 				Callables.returning(reference), new LapisSettable(reference));
 		lapisCore.publish(variableName, lapisVariable);
+	}
+	
+	private void validateAllowablePublishedObject(Object object, boolean readOnly) {
+		Class<?> cls = object.getClass();
+		if(cls.equals(String.class)) {
+			Validate.isTrue(readOnly, "String objects can only be published as read-only variables.");
+		} else {
+			Validate.isTrue(cls.isArray(), "Published variables must be arrays or read-only only Strings.");
+		}
 	}
 	
 	private String toFullName(String nodeName, String variableName) {
@@ -129,6 +138,11 @@ public class LapisApi {
 	}
 	
 	//all the get methods
+	public String getString(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
+		return lapisCore.getRemoteValue(fullName, String.class);
+	}
+	
 	public int[] getArrayOfInt(String nodeName, String variableName) {
 		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, int[].class);
