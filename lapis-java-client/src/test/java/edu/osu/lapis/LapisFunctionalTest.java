@@ -1,6 +1,8 @@
 package edu.osu.lapis;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
@@ -8,6 +10,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.StopWatch;
+
+import com.google.common.collect.Maps;
 
 import edu.osu.lapis.exception.LapisClientException;
 import edu.osu.lapis.exception.LapisClientExceptionWithStatusCode;
@@ -113,8 +117,9 @@ public class LapisFunctionalTest {
 		testTwoDimArrays();
 		testThreeDimArrays();
 		testStrings();
+		testMaps();
 	}
-	
+
 	private void testOneDimArrays() {
 		testOneDimByteArray();
 		testOneDimBooleanArray();
@@ -255,6 +260,29 @@ public class LapisFunctionalTest {
 		coordinatorLapis.publishReadOnly("pubString", pubString);
 		String retrieved = nonCoordinatorLapis.getString(COORDINATOR_NODE_NAME, "pubString");
 		Validate.isTrue(StringUtils.equals(pubString, retrieved));
+	}
+	
+	private void testMaps() {
+		Map<String, Object> map = Maps.newHashMap();
+		map.put("who", "me");
+		map.put("what", "LAPIS");
+		map.put("when", "now");
+		map.put("why", "because");
+		nonCoordinatorLapis.publish("map", map);
+		Map<String, Object> retrieved = coordinatorLapis.getMap(NON_COORDINATOR_NODE_NAME, "map");
+		for(Entry<String, Object> entry : retrieved.entrySet()) {
+			Validate.isTrue(map.get(entry.getKey()).equals(entry.getValue()));
+		}
+		retrieved.put("how", "with maps");
+		retrieved.put("when", "later");
+		retrieved.remove("who");
+		Validate.isTrue(!map.containsKey("how"));
+		Validate.isTrue(map.get("when").equals("now"));
+		Validate.isTrue(map.containsKey("who"));
+		coordinatorLapis.set(NON_COORDINATOR_NODE_NAME, "map", retrieved);
+		Validate.isTrue(map.get("how").equals("with maps"));
+		Validate.isTrue(map.get("when").equals("later"));
+		Validate.isTrue(!map.containsKey("who"));
 	}
 	
 	private void testDimensionMismatch() {

@@ -2,6 +2,7 @@ package edu.osu.lapis;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
@@ -9,8 +10,8 @@ import org.apache.commons.lang3.Validate;
 
 import com.google.common.util.concurrent.Callables;
 
-import edu.osu.lapis.data.LapisSettable;
 import edu.osu.lapis.data.LapisVariable;
+import edu.osu.lapis.data.Settable;
 
 /**
  * LAPIS API exposed to Java clients.
@@ -114,13 +115,14 @@ public class LapisApi {
 	
 	/**
 	 * @param variableName
-	 * @param reference
+	 * @param object
 	 * @param readOnly
 	 */
-	private void publishInternal(String variableName, Object reference, boolean readOnly) {
-		validateAllowablePublishedObject(reference, readOnly);
+	private void publishInternal(String variableName, Object object, boolean readOnly) {
+		validateAllowablePublishedObject(object, readOnly);
+		Settable settable = readOnly ? null : getSettableForObject(object);
 		LapisVariable lapisVariable = new LapisVariable(variableName, readOnly,
-				Callables.returning(reference), new LapisSettable(reference));
+				Callables.returning(object), settable);
 		lapisCore.publish(variableName, lapisVariable);
 	}
 	
@@ -128,8 +130,21 @@ public class LapisApi {
 		Class<?> cls = object.getClass();
 		if(cls.equals(String.class)) {
 			Validate.isTrue(readOnly, "String objects can only be published as read-only variables.");
+		} else if(object instanceof Map) {
+			//maps are allowed
 		} else {
 			Validate.isTrue(cls.isArray(), "Published variables must be arrays or read-only only Strings.");
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Settable getSettableForObject(Object object) {
+		if(object.getClass().isArray()) {
+			return new LapisArraySettable(object);
+		} else if(object instanceof Map){
+			return new LapisMapSettable((Map<String, Object>) object);
+		} else {
+			throw new IllegalArgumentException("Unable to create settable for " + object);
 		}
 	}
 	
@@ -141,6 +156,12 @@ public class LapisApi {
 	public String getString(String nodeName, String variableName) {
 		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, String.class);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> getMap(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
+		return lapisCore.getRemoteValue(fullName, Map.class);
 	}
 	
 	public int[] getArrayOfInt(String nodeName, String variableName) {
