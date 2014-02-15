@@ -1,12 +1,16 @@
 package edu.osu.lapis;
 
 import java.lang.reflect.Array;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+
+import com.google.common.collect.Maps;
 
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.Settable;
@@ -60,19 +64,42 @@ public class MatlabLapis {
 	 * @param initialValue the initial value of the variable
 	 */
 	public void publish(String publishedVariableName, Object initialValue) {
-		publishInternal(publishedVariableName, initialValue, false);
+		publishRegularData(publishedVariableName, initialValue, false);
 	}
 	
+	/**
+	 * Publish a variable. LAPIS will cache the value of the variable to serve 
+	 * get requests. Other nodes will not be able to set the variable.
+	 * @param publishedVariableName the name of the published variable
+	 * @param initialValue the initial value of the variable
+	 */
 	public void publishReadOnly(String publishedVariableName, Object initialValue) {
-		publishInternal(publishedVariableName, initialValue, true);
+		publishRegularData(publishedVariableName, initialValue, true);
 	}
 	
-	private void publishInternal(String name, Object initialValue, boolean readOnly) {
+	private void publishRegularData(String name, Object initialValue, boolean readOnly) {
 		Validate.notNull(initialValue, "Initial value of published variable cannot be null.");
-		dataCache.setCachedValue(name, initialValue);
+		this.setCachedValue(name, initialValue);
+		Settable settable = readOnly ? null : createSettableForMatlabVariable(name);
 		LapisVariable lapisVariable = new LapisVariable(name, readOnly, 
-				createCallableForMatlabVariable(name), createSettableForMatlabVariable(name));
+				createCallableForMatlabVariable(name), settable);
 		lapisCoreApi.publish(name, lapisVariable);
+	}
+	
+	public void publishNewMap(String mapName) {
+		publishNewMap(mapName, false);
+	}
+	
+	public void publishNewReadOnlyMap(String mapName) {
+		publishNewMap(mapName, true);
+	}
+	
+	private void publishNewMap(final String mapName, boolean readOnly) {
+		setCachedValue(mapName, Collections.synchronizedMap(Maps.newHashMap()));
+		Settable settable = readOnly ? null : createLapisMatlabMapSettable(mapName);
+		LapisVariable lapisVariable = new LapisVariable(mapName, readOnly, 
+				createCallableForMatlabVariable(mapName), settable);
+		lapisCoreApi.publish(mapName, lapisVariable);
 	}
 	
 	private Callable<Object> createCallableForMatlabVariable(final String name) {
@@ -90,6 +117,16 @@ public class MatlabLapis {
 			}
 		};
 	}
+	
+	private Settable createLapisMatlabMapSettable(final String mapName) {
+		return new Settable() {
+			@Override public void set(Object mapValue) {
+				Validate.isTrue(mapValue instanceof Map, "Tried to set a published Map " 
+						+ "object with a value of  %s", mapValue.getClass());
+				dataCache.setCachedValue(mapName, mapValue);
+			}
+		};
+	}
 
 	/**
 	 * Retrieve the value of a variable published on another LAPIS node in the network.
@@ -99,7 +136,7 @@ public class MatlabLapis {
 	public Object get(String variableFullName) {
 		return lapisCoreApi.getRemoteValue(variableFullName);
 	}
-	
+
 	/**
 	 * Sets the value of a variable that has been published by another LAPIS node in the network
 	 * @param variableFullName the full name of the variable: localName@nodeName
@@ -108,6 +145,23 @@ public class MatlabLapis {
 	public void set(String variableFullName, Object value) {
 		lapisCoreApi.setRemoteValue(variableFullName, value);
 	}
+	
+	public Object retrieveFromMap(String mapName, String key) {
+		return getMap(mapName).get(key);
+	}
+	
+	public void putInMap(String mapName, String key, Object value) {		
+		getMap(mapName).put(key, value);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> getMap(String mapName) {
+		Object cached = dataCache.getCachedValue(mapName);
+		Validate.isTrue(cached != null, "LAPIS data cache does not contain a map with this name: %s", mapName);
+		Validate.isTrue(cached instanceof Map, "Type of published data for %s was not Map but %s", cached.getClass());
+		return (Map<String, Object>) cached;
+	}
+	
 
 	/**
 	 * Retrieves the value of the published variable from LAPIS' cache.
