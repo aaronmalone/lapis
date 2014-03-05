@@ -1,7 +1,6 @@
 package edu.osu.lapis;
 
 import java.lang.reflect.Array;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -95,7 +94,7 @@ public class MatlabLapis {
 	}
 	
 	private void publishNewMap(final String mapName, boolean readOnly) {
-		setCachedValue(mapName, Collections.synchronizedMap(Maps.newHashMap()));
+		setCachedValue(mapName, Maps.newHashMap());
 		Settable settable = readOnly ? null : createLapisMatlabMapSettable(mapName);
 		LapisVariable lapisVariable = new LapisVariable(mapName, readOnly, 
 				createCallableForMatlabVariable(mapName), settable);
