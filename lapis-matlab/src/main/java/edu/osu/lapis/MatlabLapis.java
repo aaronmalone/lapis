@@ -3,6 +3,7 @@ package edu.osu.lapis;
 import java.lang.reflect.Array;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
@@ -147,6 +148,13 @@ public class MatlabLapis {
 	
 	public Object retrieveFromMap(String mapName, String key) {
 		return getMap(mapName).get(key);
+	}
+	
+	/**
+	 * Retrieve set of keys for a published map.
+	 */
+	public Set<String> getKeysForMap(String mapName) {
+		return getMap(mapName).keySet();
 	}
 	
 	public void putInMap(String mapName, String key, Object value) {		
