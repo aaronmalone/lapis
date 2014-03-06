@@ -10,8 +10,6 @@ classdef LapisAPI < handle
     
     
     properties
-        
-        dataTable;          %Datatable for local published variables
         lapisJava;          %Java LAPIS API
         modelName;          %Name of model
         coordinatorAddress; %Coordinator address
@@ -27,7 +25,6 @@ classdef LapisAPI < handle
             
             javaaddpath([pwd '\lapis-matlab-0.4.1-jar-with-dependencies.jar']);
             
-            obj.dataTable = containers.Map;
             
             % set up logging
             java.lang.System.setProperty('line.separator',char(10)); %prevents double-spacing of log output
@@ -36,7 +33,7 @@ classdef LapisAPI < handle
             org.apache.log4j.helpers.LogLog.setInternalDebugging(0);
             
             eval('import edu.osu.lapis.MatlabLapis');
-            
+           
             if nargin == 2  %Model is the coordinator
                 obj.modelName = varargin{1};
                 obj.coordinatorAddress = varargin{2};
@@ -74,23 +71,19 @@ classdef LapisAPI < handle
                 error('Published datatype must be type "LAPISData" or "LAPISMap"');
             end
             
-            %Set Lapis Reference
             data.setLapisReference(obj);
             
             if isa(data, 'LAPISData')
-                obj.dataTable(data.name) = data;
                 if(readOnly == 1)
-                    obj.lapisJava.publishReadOnly(java.lang.String(data.name), data.data);
+                    obj.lapisJava.publishReadOnly(data.name, data.data);
                 else
-                    obj.lapisJava.publish(java.lang.String(data.name), data.data);
+                    obj.lapisJava.publish(data.name, data.data);
                 end
             elseif isa(data, 'LAPISMap')
-                
-                obj.dataTable(data.name) = data;
                 if(readOnly == 1)
-                    obj.lapisJava.publishNewReadOnlyMap(java.lang.String(data.name));
+                    obj.lapisJava.publishNewReadOnlyMap(data.name);
                 else
-                    obj.lapisJava.publishNewMap(java.lang.String(data.name));
+                    obj.lapisJava.publishNewMap(data.name);
                 end
                 
             end

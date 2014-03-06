@@ -1,17 +1,15 @@
 classdef LapisAPI < handle
-%     LAPIS API object.  Responsible for connecting and maintaing a LAPIS
-%     network connection. Use this API to do SETs and GETs on a LAPIS
-%     network.  Depends on a LAPIS java JAR file.
-% EXAMPLE:   
-% coordinatorAddress = 'http://127.0.0.1:7777';
-% nodeName = 'Node1';
-% lap = LapisAPI(nodeName, coordinatorAddress); 
-
-
-
+    %     LAPIS API object.  Responsible for connecting and maintaing a LAPIS
+    %     network connection. Use this API to do SETs and GETs on a LAPIS
+    %     network.  Depends on a LAPIS java JAR file.
+    % EXAMPLE:
+    % coordinatorAddress = 'http://127.0.0.1:7777';
+    % nodeName = 'Node1';
+    % lap = LapisAPI(nodeName, coordinatorAddress);
+    
+    
+    
     properties
-        
-        dataTable;          %Datatable for local published variables
         lapisJava;          %Java LAPIS API
         modelName;          %Name of model
         coordinatorAddress; %Coordinator address
@@ -27,7 +25,6 @@ classdef LapisAPI < handle
             
             javaaddpath([pwd '\lapis-matlab-0.4.1-jar-with-dependencies.jar']);
             
-            obj.dataTable = containers.Map;
             
             % set up logging
             java.lang.System.setProperty('line.separator',char(10)); %prevents double-spacing of log output
@@ -70,18 +67,27 @@ classdef LapisAPI < handle
         end
         
         function obj = publishInternal(obj, data, readOnly)
-            if ~isa(data, 'LAPISData')
-                error('Published datatype must be type "LAPISData"');
+            if ~isa(data, 'LAPISData') && ~isa(data, 'LAPISMap')
+                error('Published datatype must be type "LAPISData" or "LAPISMap"');
             end
             
             data.setLapisReference(obj);
-            obj.dataTable(data.name) = data;
             
-            if(readOnly == 1)
-                obj.lapisJava.publishReadOnly(java.lang.String(data.name), data.data);
-            else
-                obj.lapisJava.publish(java.lang.String(data.name), data.data);
+            if isa(data, 'LAPISData')
+                if(readOnly == 1)
+                    obj.lapisJava.publishReadOnly(data.name, data.data);
+                else
+                    obj.lapisJava.publish(data.name, data.data);
+                end
+            elseif isa(data, 'LAPISMap')
+                if(readOnly == 1)
+                    obj.lapisJava.publishNewReadOnlyMap(data.name);
+                else
+                    obj.lapisJava.publishNewMap(data.name);
+                end
+                
             end
+            
         end
         
         function obj = redact(obj, data)
@@ -100,33 +106,72 @@ classdef LapisAPI < handle
         end
         
         function obj = delete(obj)
-           %Deletes the object.
+            %Deletes the object.
             obj.shutdown;
         end
         
         function obj = set(obj,modelName, varName, data)
-           %Sets a variable on another LAPIS node.  Args(modelName, variablename, data)
-           
-           if ~isa(data, 'double')
-              % somebody who knows MATLAB can clean this up
-              if ~isa(data, 'char')
-                 error('Setting types other than double and char are not currently supported'); 
-              end
-           end
-           
-           fullName = [varName  '@'  modelName];
-           obj.lapisJava.set(fullName, data);
-           
+            %Sets a variable on another LAPIS node.  Args(modelName, variablename, data)
+            
+            if ~isa(data, 'double')
+                % somebody who knows MATLAB can clean this up
+                if ~isa(data, 'char')
+                    if ~isa(data, 'struct')
+                        error('Setting types other than double, char, or struct are not currently supported');
+                    end
+                end
+            end
+            
+            fullName = [varName  '@'  modelName];
+            
+            
+            if isa(data, 'struct')               
+                map = java.util.HashMap();
+                fnames = fieldnames(data);
+                
+                for i = 1:length(fnames)
+                   map.put(fnames{i}, getfield(data, fnames{i}));
+                end
+                
+                obj.lapisJava.set(fullName, map);
+                
+            else
+                obj.lapisJava.set(fullName, data);
+            end
+            
+            
+            
+            
         end
         
         function result = get(obj, modelName, varName)
+            
             %Gets a variable on another LAPIS node.  Args(modelName, variablename, data)
             fullName = [varName  '@'  modelName];
-            try 
+            try
                 result = obj.lapisJava.get(java.lang.String(fullName));
-            catch e 
+            catch e
                 disp('There was an error getting the value.  Please try again.');
                 result = obj.lapisJava.get(java.lang.String(fullName));
+            end
+
+            if isa(result, 'java.util.HashMap')
+                mapResult = struct;
+                iter = result.keySet.iterator;
+
+                while iter.hasNext()
+                    key = iter.next;
+                    
+                    if isa(result.get(key),'java.util.ArrayList')
+                       mapResult = setfield(mapResult, key,  cell2mat(java.util.Vector(result.get(key)).toArray().cell));
+                    else 
+                       mapResult = setfield(mapResult, key,  result.get(key));
+                    end
+                    
+                    
+                end
+
+                result = mapResult;
             end
         end
         
