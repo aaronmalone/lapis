@@ -9,6 +9,11 @@ import java.io.Serializable;
  */
 public class SerializationObject implements Serializable{
 	
+	public static final String
+		NAME = "name",
+		DATA = "data",
+		ORIGINAL_TYPE = "originalType";
+	
 	private final String name;
 	private final Class<?> originalType;
 	private final Object data;

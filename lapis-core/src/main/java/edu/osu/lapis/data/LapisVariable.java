@@ -5,14 +5,14 @@ import java.util.concurrent.Callable;
 public class LapisVariable {
 	
 	private final String name;
-	private final Callable<Object> callable;
+	private final Callable<?> callable;
 	private final Settable settable;
 	private final boolean readOnly;
 	
 	public LapisVariable(
 			String name,
 			boolean readOnly,
-			Callable<Object> callable, 
+			Callable<?> callable, 
 			Settable settable) {
 		this.name = name;
 		this.readOnly = readOnly;
@@ -20,7 +20,7 @@ public class LapisVariable {
 		this.settable = readOnly ? null : settable;
 	}
 
-	public Callable<Object> getCallable() {
+	public Callable<?> getCallable() {
 		return callable;
 	}
 

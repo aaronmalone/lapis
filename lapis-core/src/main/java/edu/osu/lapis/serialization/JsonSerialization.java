@@ -28,11 +28,6 @@ public class JsonSerialization implements LapisSerialization {
 	
 	private static Logger logger = Logger.getLogger(JsonSerialization.class);
 	
-	private static final String
-		NAME = "name",
-		DATA = "data",
-		ORIGINAL_TYPE = "originalType";
-	
 	private static final TypeAdapterFactory classTypeAdapterFactory = new TypeAdapterFactory() {
 		
 		final TypeAdapter<Class<?>> typeAdapter = new TypeAdapter<Class<?>>() {
@@ -135,19 +130,19 @@ public class JsonSerialization implements LapisSerialization {
 
 	private SerializationObject deserializeModelData(Reader reader) {
 		JsonObject jsonObject = getGson().fromJson(reader, JsonObject.class);
-		String name = jsonObject.get(NAME).getAsString();
-		String originalTypeString = jsonObject.get(ORIGINAL_TYPE).getAsString();
+		String name = jsonObject.get(SerializationObject.NAME).getAsString();
+		String originalTypeString = jsonObject.get(SerializationObject.ORIGINAL_TYPE).getAsString();
 		Class<?> originalType = null;
 		try {
 			originalType = Class.forName(originalTypeString);
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException("Unable to get class for \"" + originalTypeString + "\"", e);
 		}
-		JsonElement jsonData = jsonObject.get(DATA);
+		JsonElement jsonData = jsonObject.get(SerializationObject.DATA);
 		Object data = getGson().fromJson(jsonData, originalType);
 		return new SerializationObject(name, originalType, data);
 	}
-	
+
 	@Override
 	public VariableMetaData deserializeMetaData(byte[] serialized) {
 		return deserializeMetaData(new ByteArrayInputStream(serialized));
