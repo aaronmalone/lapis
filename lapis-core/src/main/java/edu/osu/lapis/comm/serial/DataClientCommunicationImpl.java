@@ -50,7 +50,7 @@ public class DataClientCommunicationImpl {
 		}
 	}
 
-	public  <T> void setVariableValue(VariableFullName fullName, T value) {
+	public <T> void setVariableValue(VariableFullName fullName, T value) {
 		SerializationObject obj = new SerializationObject(fullName.getLocalName(), value);
 		byte[] serialized = lapisSerialization.serialize(obj);
 		lapisDataTransmission.setVariableValue(fullName, serialized);

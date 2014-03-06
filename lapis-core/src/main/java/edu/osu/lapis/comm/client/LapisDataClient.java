@@ -60,16 +60,6 @@ public class LapisDataClient {
 		}
 	}
 
-	/**
-	 * Checks that the variable meta-data is cached locally (in the GlobalDataTable)
-	 * and that the type of the cached meta-data agrees with the expected type. If
-	 * the variable meta-data is not present, or does not have the expected type,
-	 * retrieves the variable meta-data from the remote LAPIS node and attempts to 
-	 * validate the type of the retrieved meta-data. An exception is thrown if the 
-	 * remote variable does not exist or does not match the expected type.
-	 * @param variableFullName the VariableFullName object for the variable
-	 * @param expectedType the expected type
-	 */
 	@VisibleForTesting
 	void validateVariableExistence(VariableFullName variableFullName) {
 		VariableMetaData metaData = globalDataTable.get(variableFullName);

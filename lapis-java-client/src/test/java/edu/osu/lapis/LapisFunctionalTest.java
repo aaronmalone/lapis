@@ -3,7 +3,6 @@ package edu.osu.lapis;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -45,7 +44,7 @@ public class LapisFunctionalTest {
 	
 	public void test() {
 		coordinatorLapis = new LapisApi(COORDINATOR_NODE_NAME, COORDINATOR_URL);
-		nonCoordinatorLapis = new LapisApi(getNonCoordinatorProperties());
+		nonCoordinatorLapis = new LapisApi(NON_COORDINATOR_NODE_NAME, COORDINATOR_URL, NON_COORDINATOR_URL);
 		StopWatch sw = new StopWatch();
 		sw.start();
 		testImpl();
@@ -325,15 +324,5 @@ public class LapisFunctionalTest {
 		public ShouldNotHaveReachedThisPointException() {
 			super("Code execution reached a location which it should not have reached.");
 		}
-	}
-	
-	private Properties getNonCoordinatorProperties() {
-		Properties p = new Properties();
-		p.setProperty("name", NON_COORDINATOR_NODE_NAME);
-		p.setProperty("coordinator.url", COORDINATOR_URL);
-		p.setProperty("localNodeAddress", NON_COORDINATOR_URL);
-		p.setProperty("port", Integer.toString(NON_COORDINATOR_PORT));
-		p.setProperty("isCoordinator", Boolean.toString(false));
-		return p;
 	}
 }
