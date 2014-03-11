@@ -26,7 +26,7 @@ import edu.osu.lapis.network.LapisNode;
 
 public class JsonSerialization implements LapisSerialization {
 	
-	private static Logger logger = Logger.getLogger(JsonSerialization.class);
+	private static final Logger logger = Logger.getLogger(JsonSerialization.class);
 	
 	private static final TypeAdapterFactory classTypeAdapterFactory = new TypeAdapterFactory() {
 		
@@ -53,7 +53,6 @@ public class JsonSerialization implements LapisSerialization {
 	
 	private Gson gson;
 	private boolean prettyPrinting = false;
-	
 	
 	public JsonSerialization() {
 		setGson(newGson());
@@ -130,18 +129,37 @@ public class JsonSerialization implements LapisSerialization {
 
 	private SerializationObject deserializeModelData(Reader reader) {
 		JsonObject jsonObject = getGson().fromJson(reader, JsonObject.class);
-		String name = jsonObject.get(SerializationObject.NAME).getAsString();
-		String originalTypeString = jsonObject.get(SerializationObject.ORIGINAL_TYPE).getAsString();
-		Class<?> originalType = null;
-		try {
-			originalType = Class.forName(originalTypeString);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Unable to get class for \"" + originalTypeString + "\"", e);
-		}
-		JsonElement jsonData = jsonObject.get(SerializationObject.DATA);
-		Object data = getGson().fromJson(jsonData, originalType);
+		String name = getSerializationObjectName(jsonObject);
+		String originalTypeString = getSerializationObjectTypeString(jsonObject);
+		Class<?> originalType = getSerializationObjectType(originalTypeString);
+		Object data = getSerializationObjectData(jsonObject, originalType);
 		return new SerializationObject(name, originalType, data);
 	}
+	
+	private String getSerializationObjectName(JsonObject jsonObject) {
+		return jsonObject.get(SerializationObject.NAME).getAsString();
+	}
+	
+	private String getSerializationObjectTypeString(JsonObject jsonObject) {
+		return jsonObject.get(SerializationObject.ORIGINAL_TYPE).getAsString();
+	}
+	
+	private Class<?> getSerializationObjectType(String typeString) {
+		try {
+			return Class.forName(typeString);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("Unable to get class for \"" + typeString + "\"", e);
+		}
+	}
+	
+	private Object getSerializationObjectData(JsonObject jsonObject, Class<?> type) {
+		JsonElement jsonData = jsonObject.get(SerializationObject.DATA);
+		if("java.util.HashMap".equals(type.getName())) {
+			return JsonMapDeserializer.deserializeMap(jsonData.getAsJsonObject());
+		} else {
+			return getGson().fromJson(jsonData, type);
+		}
+	} 
 
 	@Override
 	public VariableMetaData deserializeMetaData(byte[] serialized) {
