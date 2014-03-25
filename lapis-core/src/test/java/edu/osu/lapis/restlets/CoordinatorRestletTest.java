@@ -98,25 +98,6 @@ public class CoordinatorRestletTest {
 	}
 	
 	@Test
-	public void testPost() {
-		networkTable.addNode(arbitraryNode);
-		String originalUrl = arbitraryNode.getUrl();
-		Assert.assertEquals(originalUrl, networkTable.getNode(arbitraryNode.getNodeName()).getUrl());
-		
-		LapisNode updatedNode = new LapisNode();
-		updatedNode.setNodeName(arbitraryNode.getNodeName());
-		updatedNode.setUrl(RandomStringUtils.randomAlphanumeric(64));
-		
-		Request request = new Request(Method.POST, "resourceUri");
-		request.getAttributes().put(Attributes.MODEL_NAME_ATTRIBUTE, arbitraryNode.getNodeName());
-		request.setEntity(new ByteArrayRepresentation(lapisSerialization.serialize(updatedNode)));
-		
-		coordinatorRestlet.handle(request, new Response(request));
-		Assert.assertEquals(updatedNode.getUrl(), networkTable.getNode(arbitraryNode.getNodeName()).getUrl());
-		Assert.assertTrue(update.get());
-	}
-	
-	@Test
 	public void testPut() {
 		Assert.assertEquals(0, networkTable.getNodesList().size());
 		Request request = new Request(Method.PUT, "resourceUri");

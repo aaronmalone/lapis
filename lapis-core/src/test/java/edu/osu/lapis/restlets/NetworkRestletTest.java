@@ -13,7 +13,10 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.representation.InputRepresentation;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 import edu.osu.lapis.network.LapisNode;
+import edu.osu.lapis.network.NetworkChangeHandler;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
@@ -35,6 +38,7 @@ public class NetworkRestletTest {
 		networkRestlet.setResponseMediaType(MediaType.APPLICATION_JSON);
 		networkRestlet.setLapisSerialization(lapisSerialization);
 		networkRestlet.setNetworkTable(networkTable);
+		networkRestlet.setNetworkChangeHandler(new NetworkChangeHandler(MoreExecutors.sameThreadExecutor()));
 		networkRestletWithFilters = networkRestlet.getNetworkRestletWithFilters();
 	}
 	
@@ -60,23 +64,6 @@ public class NetworkRestletTest {
 		byte[] bytes = LapisRestletUtils.getMessageEntityAsBytes(response);
 		LapisNode retrievedNode = lapisSerialization.deserializeLapisNode(bytes);
 		Assert.assertEquals(localNode, retrievedNode);		
-	}
-	
-	@Test
-	public void testPost() {
-		LapisNode originalNode = getLapisNodeWithRandomData();
-		String nodeName = originalNode.getNodeName();
-		String originalUrl = originalNode.getUrl();
-		networkTable.addNode(originalNode);
-		Assert.assertEquals(originalUrl, networkTable.getNode(nodeName).getUrl());
-		
-		LapisNode updatedNode = new LapisNode(nodeName, RandomStringUtils.randomAlphanumeric(64));
-		Request request = getRequestWithModelName(Method.POST, nodeName);
-		request.setEntity(getEntity(updatedNode));
-		Response response = handleRequestAndReturnResponse(request);
-		Assert.assertTrue(response.getStatus().isSuccess());
-		Assert.assertEquals(updatedNode, networkTable.getNode(nodeName));
-		
 	}
 	
 	@Test

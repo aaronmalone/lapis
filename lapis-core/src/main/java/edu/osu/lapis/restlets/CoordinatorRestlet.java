@@ -66,11 +66,6 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	}
 
 	@Override
-	public void post(Request request, Response response) {
-		throw new UnsupportedOperationException("Node update not currently supported.");
-	}
-
-	@Override
 	public void put(Request request, Response response) {
 		LapisNode newNode = Attributes.getAttribute(request, LAPIS_NODE_ATTRIBUTE, LapisNode.class);
 		logger.info("New node on network: " + newNode);

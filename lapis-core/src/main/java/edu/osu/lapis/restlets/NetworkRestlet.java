@@ -74,11 +74,6 @@ public class NetworkRestlet extends LapisRestletBase {
 	}
 
 	@Override
-	public void post(Request request, Response response) {
-		throw new UnsupportedOperationException("Node update not currently supported.");
-	}
-
-	@Override
 	public void put(Request request, Response response) {
 		LapisNode node = Attributes.getAttribute(request, DESERIALIZED_NODE_ATTR, LapisNode.class);
 		logger.info("Received request to add new node: %s", node);
