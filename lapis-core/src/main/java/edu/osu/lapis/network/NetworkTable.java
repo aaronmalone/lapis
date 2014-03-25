@@ -74,8 +74,12 @@ public class NetworkTable {
 	}
 	
 	public LapisNode removeNode(String nodeName) {
-		logger.debug("Removing node '%s' from network table.", nodeName);
-		return nodeMap.remove(nodeName);
+		if(nodeName.equals(localNode.getNodeName())) {
+			throw new IllegalArgumentException("Cannot remove local node.");
+		} else {			
+			logger.debug("Removing node '%s' from network table.", nodeName);
+			return nodeMap.remove(nodeName);
+		}
 	}
 	
 	public LapisNode removeNode(LapisNode lapisNode) {

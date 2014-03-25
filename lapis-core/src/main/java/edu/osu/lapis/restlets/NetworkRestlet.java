@@ -14,6 +14,7 @@ import com.google.common.base.Joiner;
 
 import edu.osu.lapis.Logger;
 import edu.osu.lapis.network.LapisNode;
+import edu.osu.lapis.network.NetworkChangeHandler;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.restlets.filters.LapisNodeExtractor;
 import edu.osu.lapis.restlets.filters.ModelNameAttrValidator;
@@ -37,6 +38,7 @@ public class NetworkRestlet extends LapisRestletBase {
 	private NetworkTable networkTable;
 	private LapisSerialization lapisSerialization;
 	private MediaType responseMediaType;
+	private NetworkChangeHandler networkChangeHandler;
 
 	public Restlet getNetworkRestletWithFilters() {
 		LapisFilterChainRestletBase filterChainRestlet = new LapisFilterChainRestletBase();
@@ -66,14 +68,14 @@ public class NetworkRestlet extends LapisRestletBase {
 	public void delete(Request request, Response response) {
 		String nodeName = Attributes.getModelName(request);
 		logger.info("Received request for delete of node: %s", nodeName);
+		LapisNode node = networkTable.getNode(nodeName);
 		networkTable.removeNode(nodeName);
+		networkChangeHandler.onNodeDelete(node);
 	}
 
 	@Override
 	public void post(Request request, Response response) {
-		LapisNode node = Attributes.getAttribute(request, DESERIALIZED_NODE_ATTR, LapisNode.class);
-		logger.info("Received request to update node: %s", node);
-		networkTable.updateNode(node);
+		throw new UnsupportedOperationException("Node update not currently supported.");
 	}
 
 	@Override
@@ -81,6 +83,7 @@ public class NetworkRestlet extends LapisRestletBase {
 		LapisNode node = Attributes.getAttribute(request, DESERIALIZED_NODE_ATTR, LapisNode.class);
 		logger.info("Received request to add new node: %s", node);
 		networkTable.addNode(node);
+		networkChangeHandler.onNodeAdd(node);
 	}
 
 	@Override
@@ -118,5 +121,9 @@ public class NetworkRestlet extends LapisRestletBase {
 
 	public void setResponseMediaType(MediaType responseMediaType) {
 		this.responseMediaType = responseMediaType;
+	}
+
+	public void setNetworkChangeHandler(NetworkChangeHandler networkChangeHandler) {
+		this.networkChangeHandler = networkChangeHandler;
 	}
 }

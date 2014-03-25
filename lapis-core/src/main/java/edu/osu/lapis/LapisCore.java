@@ -13,6 +13,8 @@ import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.network.LapisNode;
+import edu.osu.lapis.network.NetworkChangeCallback;
+import edu.osu.lapis.network.NetworkChangeHandler;
 //TODO MOVE RESTLET CODE AWAY FROM THE SURFACE
 import edu.osu.lapis.restlets.RestletServer;
 import edu.osu.lapis.util.Sleep;
@@ -29,6 +31,7 @@ public class LapisCore {
 	private final LapisDataClient lapisDataClient;
 	private final LapisNetworkClient lapisNetworkClient;
 	private final LapisConfiguration lapisConfiguration;
+	private final NetworkChangeHandler networkChangeHandler;
 	private String name;
 	private boolean shutdown;
 
@@ -44,6 +47,7 @@ public class LapisCore {
 		localDataTable = lapisConfiguration.getLocalDataTable();
 		lapisDataClient = lapisConfiguration.getLapisDataClient();
 		lapisNetworkClient = lapisConfiguration.getLapisNetworkClient();
+		networkChangeHandler = lapisConfiguration.getNetworkChangeHandler();
 		RestletServer restletServer = lapisConfiguration.getRestletServer();
 		restletServer.initialize();
 		lapisConfiguration.attemptToJoinNetwork();
@@ -210,6 +214,14 @@ public class LapisCore {
 	 */
 	public void setRemoteValue(String variableFullName, Object value) {
 		lapisDataClient.setRemoteVariableValue(variableFullName, value);
+	}
+	
+	/**
+	 * Register a callback to be executed when this node is notified of a change
+	 * in the LAPIS network.
+	 */
+	public void registerNetworkChangeCallback(NetworkChangeCallback callback) {
+		networkChangeHandler.addCallback(callback);
 	}
 
 	/**

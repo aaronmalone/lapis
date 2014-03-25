@@ -3,6 +3,7 @@ package edu.osu.lapis;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -18,6 +19,7 @@ import edu.osu.lapis.comm.serial.NetworkClientCommunicationImpl;
 import edu.osu.lapis.data.GlobalDataTable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.network.LapisNode;
+import edu.osu.lapis.network.NetworkChangeHandler;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.restlets.CoordinatorRestlet;
 import edu.osu.lapis.restlets.HeartbeatRestlet;
@@ -56,6 +58,7 @@ public class LapisConfiguration {
 	private final LocalDataTable localDataTable;
 	private final RestletServer restletServer;
 	private final LapisTransmission lapisTransmission;
+	private final NetworkChangeHandler networkChangeHandler;
 	
 	public LapisConfiguration(Properties properties) {		
 		this.properties = properties;
@@ -68,6 +71,7 @@ public class LapisConfiguration {
 		this.lapisNetworkClient = getLapisNetworkClientInternal();
 		this.lapisDataClient = getLapisDataClientInternal();
 		this.localDataTable = new LocalDataTable();
+		this.networkChangeHandler = createNetworkChangeHandler();
 		this.restletServer = getRestletServerInternal();
 	}
 	
@@ -85,6 +89,10 @@ public class LapisConfiguration {
 
 	public RestletServer getRestletServer() {
 		return this.restletServer;
+	}
+	
+	public NetworkChangeHandler getNetworkChangeHandler() {
+		return this.networkChangeHandler;
 	}
 
 	private LapisSerialization getLapisSerializationInternal() {
@@ -209,6 +217,7 @@ public class LapisConfiguration {
 		networkRestlet.setLapisSerialization(this.lapisSerialization);
 		networkRestlet.setNetworkTable(this.networkTable);
 		networkRestlet.setResponseMediaType(this.serializationMediaType);
+		networkRestlet.setNetworkChangeHandler(this.networkChangeHandler);
 		Restlet withFilters = networkRestlet.getNetworkRestletWithFilters();
 		if(this.isCoordinator) {
 			CoordinatorNetworkApiFilter coordinatorNetworkApiFilter = new CoordinatorNetworkApiFilter();
@@ -219,6 +228,10 @@ public class LapisConfiguration {
 		}
 	}
 	
+	private NetworkChangeHandler createNetworkChangeHandler() {
+		return new NetworkChangeHandler(Executors.newSingleThreadExecutor());
+	}
+
 	private VariableMetaDataApiRestlet getVariableMetaDataApiRestlet() {
 		VariableMetaDataApiRestlet variableMetaDataApiRestlet = new VariableMetaDataApiRestlet();
 		variableMetaDataApiRestlet.setLocalDataTable(this.localDataTable);
@@ -247,6 +260,7 @@ public class LapisConfiguration {
 		coordinatorRestlet.setNetworkTable(this.networkTable);
 		coordinatorRestlet.setResponseMediaType(this.serializationMediaType);
 		coordinatorRestlet.setNotifier(getNotifier());
+		coordinatorRestlet.setNetworkChangeHandler(this.networkChangeHandler);
 		return coordinatorRestlet.getCoordinatorRestletWithFilters();
 	}
 

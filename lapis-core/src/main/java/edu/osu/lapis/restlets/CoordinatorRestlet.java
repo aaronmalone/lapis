@@ -12,6 +12,7 @@ import org.restlet.representation.ByteArrayRepresentation;
 import edu.osu.lapis.Logger;
 import edu.osu.lapis.comm.Notifier;
 import edu.osu.lapis.network.LapisNode;
+import edu.osu.lapis.network.NetworkChangeHandler;
 import edu.osu.lapis.network.NetworkTable;
 import edu.osu.lapis.restlets.filters.LapisNodeExtractor;
 import edu.osu.lapis.restlets.filters.ModelNameAttrValidator;
@@ -30,6 +31,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 	private NetworkTable networkTable;
 	private MediaType responseMediaType;
 	private Notifier notifier;
+	private NetworkChangeHandler networkChangeHandler;
 	
 	public Restlet getCoordinatorRestletWithFilters() {
 		LapisFilterChainRestletBase filterChain = new LapisFilterChainRestletBase();
@@ -60,14 +62,12 @@ public class CoordinatorRestlet extends LapisRestletBase {
 		String modelName = Attributes.getModelName(request);
 		LapisNode removed = networkTable.removeNode(modelName);
 		notifier.notifyNetworkOfDelete(removed);
+		networkChangeHandler.onNodeDelete(removed);
 	}
 
 	@Override
 	public void post(Request request, Response response) {
-		LapisNode updatedNode = Attributes.getAttribute(request, LAPIS_NODE_ATTRIBUTE, LapisNode.class);
-		logger.info("Updated node on network: " + updatedNode);
-		networkTable.updateNode(updatedNode);
-		notifier.notifyNetworkOfUpdate(updatedNode);
+		throw new UnsupportedOperationException("Node update not currently supported.");
 	}
 
 	@Override
@@ -76,6 +76,7 @@ public class CoordinatorRestlet extends LapisRestletBase {
 		logger.info("New node on network: " + newNode);
 		networkTable.addNode(newNode);
 		notifier.notifyNetworkOfNewNode(newNode);
+		networkChangeHandler.onNodeAdd(newNode);
 	}
 
 	@Override
@@ -123,5 +124,9 @@ public class CoordinatorRestlet extends LapisRestletBase {
 
 	public void setNotifier(Notifier notifier) {
 		this.notifier = notifier;
+	}
+
+	public void setNetworkChangeHandler(NetworkChangeHandler networkChangeHandler) {
+		this.networkChangeHandler = networkChangeHandler;
 	}
 }
