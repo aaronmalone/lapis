@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import edu.osu.lapis.data.VariableMetaData;
@@ -112,9 +113,8 @@ public class JavaSerialization implements LapisSerialization {
 		return deserializeNetworkData(new ByteArrayInputStream(serialized));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<LapisNode> deserializeNetworkData(InputStream inputStream) {
-		return deserializeInputStream(inputStream, List.class);
+		return Arrays.asList(deserializeInputStream(inputStream, LapisNode[].class));
 	}
 }
