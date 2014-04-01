@@ -8,9 +8,9 @@ public class HeartbeatRestlet extends LapisRestletBase {
 
 	@Override
 	/**
-	 * Returns HTTP 200 OK.
+	 * Returns HTTP 204 SUCCESS_NO_CONTENT.
 	 */
 	public void get(Request request, Response response) {
-		response.setStatus(Status.SUCCESS_OK);
+		response.setStatus(Status.SUCCESS_NO_CONTENT);
 	}
 }

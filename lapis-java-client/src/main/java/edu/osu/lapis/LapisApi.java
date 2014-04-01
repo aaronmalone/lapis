@@ -313,4 +313,8 @@ public class LapisApi {
 	public void registerNetworkChangeCallback(NetworkChangeCallback networkChangeCallback) {
 		lapisCore.registerNetworkChangeCallback(networkChangeCallback);
 	}
+	
+	public boolean doHeartbeatCheckReturnNodeIsLive(String nodeName) {
+		return lapisCore.doHeartbeatCheckReturnLiveness(nodeName);
+	}
 }

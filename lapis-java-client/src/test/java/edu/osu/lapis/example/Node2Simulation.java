@@ -10,6 +10,8 @@ import static edu.osu.lapis.example.ExampleConstants.NODE_2_URL;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.Validate;
+
 import edu.osu.lapis.LapisApi;
 import edu.osu.lapis.util.Sleep;
 
@@ -24,6 +26,8 @@ public class Node2Simulation {
 		System.out.println("Node 2 starting...");
 		
 		LapisApi lapisApi = new LapisApi(NODE_2, NODE_1_URL, NODE_2_URL);
+		
+		Validate.isTrue(lapisApi.doHeartbeatCheckReturnNodeIsLive(NODE_1));
 		
 		//publish variable
 		double[] countArray = lapisApi.initializeAndPublishReadOnlyDoubleArray("countArray", new double[5]); 

@@ -34,8 +34,8 @@ public class NetworkTable {
 						+ " but already had an existing node with the same name: " 
 						+ existingNode);
 			}
+			nodeMap.put(nodeName, newNode);
 		}
-		nodeMap.put(newNode.getNodeName(), newNode);
 	}
 	
 	public LapisNode getNode(String nodeName) {
@@ -54,21 +54,15 @@ public class NetworkTable {
 		return new ArrayList<LapisNode>(nodeMap.values());
 	}
 	
-	public void updateNode(LapisNode lapisNode) {
-		logger.debug("Updating node in network table: %s", lapisNode);
-		if (nodeMap.containsKey(lapisNode.getNodeName())){
-			nodeMap.put(lapisNode.getNodeName(), lapisNode);
-		}else{	
-			throw new IllegalArgumentException("Network table cannot update node \"" 
-					+ lapisNode.getNodeName() + "\". The node is not present in the table.");
-		}
-	}
-	
 	public void updateAllNodes(List<LapisNode> lapisNodes) {
+		logger.trace("Updating all nodes.");
 		synchronized (nodeMap) {
 			nodeMap.clear();
 			for(LapisNode node : lapisNodes) {
-				nodeMap.put(node.getNodeName(), node);
+				if(!node.equals(localNode)) {
+					logger.trace("Adding node: %s", node);
+					nodeMap.put(node.getNodeName(), node);
+				}
 			}
 		}
 	}

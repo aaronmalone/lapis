@@ -9,6 +9,8 @@ import static edu.osu.lapis.example.ExampleConstants.NODE_2;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang3.Validate;
+
 import edu.osu.lapis.LapisApi;
 import edu.osu.lapis.util.Sleep;
 
@@ -23,6 +25,7 @@ public class Node1Simulation {
 		System.out.println("Node 1 starting...");
 		
 		LapisApi lapisApi = new LapisApi(NODE_1, NODE_1_URL);
+		Validate.isTrue(!lapisApi.doHeartbeatCheckReturnNodeIsLive(NODE_2));
 		
 		//publish variables
 		double[] countArray = lapisApi.initializeAndPublishReadOnlyDoubleArray("countArray", 1,2,3,4,5);
@@ -62,6 +65,8 @@ public class Node1Simulation {
 		
 		lapisApi.redact("finishFlag");
 		lapisApi.redact("node2HasFinishedCountingFlag");
+		
+		Validate.isTrue(lapisApi.doHeartbeatCheckReturnNodeIsLive(NODE_2));
 		
 		System.out.println("Simulation finished!");
 	}
