@@ -12,6 +12,7 @@ import org.restlet.data.MediaType;
 import org.restlet.resource.ResourceException;
 
 import edu.osu.lapis.comm.Notifier;
+import edu.osu.lapis.comm.client.HeartbeatClient;
 import edu.osu.lapis.comm.client.LapisDataClient;
 import edu.osu.lapis.comm.client.LapisNetworkClient;
 import edu.osu.lapis.comm.serial.DataClientCommunicationImpl;
@@ -59,6 +60,7 @@ public class LapisConfiguration {
 	private final RestletServer restletServer;
 	private final LapisTransmission lapisTransmission;
 	private final NetworkChangeHandler networkChangeHandler;
+	private final HeartbeatClient heartbeatClient;
 	
 	public LapisConfiguration(Properties properties) {		
 		this.properties = properties;
@@ -73,6 +75,7 @@ public class LapisConfiguration {
 		this.localDataTable = new LocalDataTable();
 		this.networkChangeHandler = createNetworkChangeHandler();
 		this.restletServer = getRestletServerInternal();
+		this.heartbeatClient = new HeartbeatClient(this.networkTable, this.lapisTransmission);
 	}
 	
 	public LapisNetworkClient getLapisNetworkClient() {
@@ -294,5 +297,9 @@ public class LapisConfiguration {
 				}
 			}
 		}
+	}
+
+	public HeartbeatClient getHeartbeatClient() {
+		return this.heartbeatClient;
 	}
 }

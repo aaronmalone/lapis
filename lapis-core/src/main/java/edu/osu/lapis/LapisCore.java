@@ -7,6 +7,7 @@ import java.util.concurrent.TimeoutException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.Callables;
 
+import edu.osu.lapis.comm.client.HeartbeatClient;
 import edu.osu.lapis.comm.client.LapisDataClient;
 import edu.osu.lapis.comm.client.LapisNetworkClient;
 import edu.osu.lapis.data.LapisVariable;
@@ -32,6 +33,7 @@ public class LapisCore {
 	private final LapisNetworkClient lapisNetworkClient;
 	private final LapisConfiguration lapisConfiguration;
 	private final NetworkChangeHandler networkChangeHandler;
+	private final HeartbeatClient heartbeatClient;
 	private String name;
 	private boolean shutdown;
 
@@ -48,6 +50,7 @@ public class LapisCore {
 		lapisDataClient = lapisConfiguration.getLapisDataClient();
 		lapisNetworkClient = lapisConfiguration.getLapisNetworkClient();
 		networkChangeHandler = lapisConfiguration.getNetworkChangeHandler();
+		heartbeatClient = lapisConfiguration.getHeartbeatClient();
 		RestletServer restletServer = lapisConfiguration.getRestletServer();
 		restletServer.initialize();
 		lapisConfiguration.attemptToJoinNetwork();
@@ -214,6 +217,10 @@ public class LapisCore {
 	 */
 	public void setRemoteValue(String variableFullName, Object value) {
 		lapisDataClient.setRemoteVariableValue(variableFullName, value);
+	}
+	
+	public boolean doHeartbeatCheckReturnLiveness(String nodeName) {
+		return nodeIsOnNetwork(nodeName) && heartbeatClient.doHeartbeatCheckReturnLiveness(nodeName);
 	}
 	
 	/**

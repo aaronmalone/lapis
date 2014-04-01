@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
+import edu.osu.lapis.network.NetworkChangeCallback;
 import org.apache.commons.lang3.Validate;
 
 import com.google.common.util.concurrent.Callables;
@@ -153,6 +154,11 @@ public class LapisApi {
 	}
 	
 	//all the get methods
+	public Object getObject(String nodeName, String variableName) {
+		String fullName = toFullName(nodeName, variableName);
+		return lapisCore.getRemoteValue(fullName);
+	}
+
 	public String getString(String nodeName, String variableName) {
 		String fullName = toFullName(nodeName, variableName);
 		return lapisCore.getRemoteValue(fullName, String.class);
@@ -242,7 +248,7 @@ public class LapisApi {
 	/**
 	 * Set the value of the remote variable. The type and dimensions of the 
 	 * new value must match that of the remote variable, or an exception will be thrown. 
-	 * @param variableFullName the full name of the variable ${variableName}@${nodeName}
+	 * @param variableName the full name of the variable ${variableName}@${nodeName}
 	 * @param value the new value
 	 */
 	public void set(String nodeName, String variableName, Object value) {
@@ -302,5 +308,9 @@ public class LapisApi {
 	 */
 	public void redact(String variableName) {
 		this.lapisCore.redact(variableName);
+	}
+
+	public void registerNetworkChangeCallback(NetworkChangeCallback networkChangeCallback) {
+		lapisCore.registerNetworkChangeCallback(networkChangeCallback);
 	}
 }
