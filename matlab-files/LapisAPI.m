@@ -23,7 +23,7 @@ classdef LapisAPI < handle
         function obj = LapisAPI(varargin)
             %Constructor.  If model is coordinator, use: Args(modelName, coordinatorAddress).  If model is not coordinator, use Args(modelName, coordinatorAddress, modelAddress)
             
-            javaaddpath([pwd '\lapis-matlab-0.4.1-jar-with-dependencies.jar']);
+            javaaddpath([pwd '\lapis-matlab-0.6-jar-with-dependencies.jar']);
             
             
             % set up logging
