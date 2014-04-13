@@ -72,7 +72,7 @@ public class Flags {
 	 */
 	public static boolean evaluateFlagValue(double[] flag) {
 		validateFlagLength1(flag);
-		return Math.abs(flag[0]) < 0.0001;
+		return !(Math.abs(flag[0]) < 0.0001);
 	}
 	
 	private static void validateFlagLength1(double[] flag) {

@@ -37,10 +37,6 @@ import edu.osu.lapis.transmission.LapisTransmission;
 import edu.osu.lapis.transmission.LapisTransmissionApacheHttpClientImpl;
 import edu.osu.lapis.util.Attributes;
 
-/**
- * Java-based Spring context for wiring LAPIS together.
- *
- */
 public class LapisConfiguration {
 	
 	static {
