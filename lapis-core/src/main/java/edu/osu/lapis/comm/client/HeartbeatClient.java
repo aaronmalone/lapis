@@ -2,8 +2,7 @@ package edu.osu.lapis.comm.client;
 
 import static edu.osu.lapis.transmission.ClientCall.RestMethod.GET;
 
-import org.apache.log4j.Logger;
-
+import edu.osu.lapis.Logger;
 import edu.osu.lapis.exception.LapisClientException;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkTable;
