@@ -1,18 +1,17 @@
 package edu.osu.lapis;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
+import com.google.common.base.Preconditions;
+import edu.osu.lapis.data.Settable;
 import org.apache.commons.lang3.Validate;
 
-import edu.osu.lapis.data.Settable;
+import java.util.Map;
 
 public class LapisMapSettable implements Settable {
 
 	private final Map<String, Object> map;
 	
 	public LapisMapSettable(Map<String, Object> map) {
-		Validate.isTrue(map instanceof Map, "Not an instance of Map");
+		Preconditions.checkArgument(map instanceof Map, "Not an instance of Map");
 		this.map = map;
 	}
 	
@@ -22,9 +21,7 @@ public class LapisMapSettable implements Settable {
 		Validate.isTrue(object instanceof Map, "Not an instance of Map");
 		synchronized (map) {
 			map.clear();
-			for(Entry<String, ?> entry : ((Map<String, ?>) object).entrySet()) {
-				map.put(entry.getKey(), entry.getValue());
-			}
+			map.putAll((Map<String, ?>) object);
 		}
 	}
 }

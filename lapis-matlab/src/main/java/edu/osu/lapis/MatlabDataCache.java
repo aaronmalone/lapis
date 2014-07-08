@@ -1,11 +1,11 @@
 package edu.osu.lapis;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Verify;
+import com.google.common.collect.Maps;
+
 import java.util.Collections;
 import java.util.Map;
-
-import org.apache.commons.lang3.Validate;
-
-import com.google.common.collect.Maps;
 
 public class MatlabDataCache {
 	private final Map<String, Object> dataCache;
@@ -16,13 +16,13 @@ public class MatlabDataCache {
 	}
 	
 	public void setCachedValue(String name, Object value) {
-		Validate.notNull(value, "Cached value must not be null. Attempted to cache null value for %s", name);
+		Preconditions.checkNotNull(value, "Cached value must not be null. Attempted to cache null value for %s", name);
 		dataCache.put(name, value);
 	}
 	
 	public Object getCachedValue(String name) {
 		Object value = dataCache.get(name) ;
-		Validate.notNull(value, "Cache does not contain any values with the key '%s'.", name);
+		Verify.verifyNotNull(value, "Cache does not contain any values with the key '%s'.", name);
 		return value;
 	}
 }
