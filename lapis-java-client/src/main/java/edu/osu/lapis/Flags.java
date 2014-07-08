@@ -9,13 +9,7 @@ import org.apache.commons.lang3.Validate;
  * own class files.
  */
 public class Flags {
-			
-	/** The value of a 'true' flag. */
-	public static final double[] FLAG_VALUE_TRUE = getFlagTrue();
-	
-	/** The value of a flag that is 'false'. */
-	public static final double[] FLAG_VALUE_FALSE = getFlag();
-	
+
 	/**
 	 * Returns a new double array, of length one, for use as a flag. The initial 
 	 * value of the flag is false (the only array element is set to zero).
@@ -43,16 +37,14 @@ public class Flags {
 	 * Sets a double array 'flag' to true.
 	 */
 	public static void setFlagTrue(double[] flag) {
-		validateFlagLength1(flag);
-		flag[0] = 1;
+		setFlag(flag, true);
 	}
 	
 	/**
 	 * Sets a double array 'flag' to false. 
 	 */
 	public static void setFlagFalse(double[] flag) {
-		validateFlagLength1(flag);
-		flag[0] = 0;
+		setFlag(flag, false);
 	}
 
 	/**
@@ -61,9 +53,9 @@ public class Flags {
 	public static void setFlag(double[] flag, boolean flagValue) {
 		validateFlagLength1(flag);
 		if(flagValue) {
-			setFlagTrue(flag);
+			flag[0] = 1;
 		} else {
-			setFlagFalse(flag);
+			flag[0] = 0;
 		}
 	}
 	

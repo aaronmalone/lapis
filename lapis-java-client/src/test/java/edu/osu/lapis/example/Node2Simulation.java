@@ -1,6 +1,5 @@
 package edu.osu.lapis.example;
 
-import static edu.osu.lapis.Flags.FLAG_VALUE_TRUE;
 import static edu.osu.lapis.Flags.evaluateFlagValue;
 import static edu.osu.lapis.example.ExampleConstants.NODE_1;
 import static edu.osu.lapis.example.ExampleConstants.NODE_1_URL;
@@ -10,6 +9,7 @@ import static edu.osu.lapis.example.ExampleConstants.NODE_2_URL;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
 
+import edu.osu.lapis.Flags;
 import org.apache.commons.lang3.Validate;
 
 import edu.osu.lapis.LapisApi;
@@ -53,7 +53,7 @@ public class Node2Simulation {
 			System.out.println("countArray"+ ": " + Arrays.toString(countArray));
 			Sleep.sleep(200);
 		}
-		lapisApi.set(NODE_1, "node2HasFinishedCountingFlag", FLAG_VALUE_TRUE);
+		lapisApi.set(NODE_1, "node2HasFinishedCountingFlag", Flags.getFlagTrue());
 		System.out.println("Done with my counting.");
 		
 		while(true) {

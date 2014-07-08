@@ -7,7 +7,9 @@ public class FlagsTest {
 
 	@Test
 	public void testConstantValues() {
-		Assert.assertTrue(Flags.evaluateFlagValue(Flags.FLAG_VALUE_TRUE));
-		Assert.assertFalse(Flags.evaluateFlagValue(Flags.FLAG_VALUE_FALSE));
+		Assert.assertTrue(Flags.evaluateFlagValue(Flags.getFlag(true)));
+		Assert.assertTrue(Flags.evaluateFlagValue(Flags.getFlagTrue()));
+		Assert.assertFalse(Flags.evaluateFlagValue(Flags.getFlag(false)));
+		Assert.assertFalse(Flags.evaluateFlagValue(Flags.getFlag()));
 	}
 }
