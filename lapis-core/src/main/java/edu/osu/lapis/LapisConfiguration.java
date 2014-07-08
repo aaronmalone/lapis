@@ -37,6 +37,8 @@ import edu.osu.lapis.transmission.LapisTransmission;
 import edu.osu.lapis.transmission.LapisTransmissionApacheHttpClientImpl;
 import edu.osu.lapis.util.Attributes;
 
+import static edu.osu.lapis.Constants.Properties.*;
+
 public class LapisConfiguration {
 	
 	static {
@@ -58,7 +60,7 @@ public class LapisConfiguration {
 	private final NetworkChangeHandler networkChangeHandler;
 	private final HeartbeatClient heartbeatClient;
 	
-	public LapisConfiguration(Properties properties) {		
+	public LapisConfiguration(Properties properties) {
 		this.properties = properties;
 		this.lapisSerialization = getLapisSerializationInternal();
 		this.lapisTransmission = new LapisTransmissionApacheHttpClientImpl(
@@ -107,14 +109,14 @@ public class LapisConfiguration {
 	}
 	
 	private LapisNode getLocalNode() {
-		String nodeName = this.properties.getProperty("name");
+		String nodeName = this.properties.getProperty(NAME);
 		Validate.notEmpty(nodeName, "'name' property must have non-empty value.");
 		LapisNode node = new LapisNode(nodeName, getLocalNodeAddress());
 		return node ;
 	}
 	
 	private String getLocalNodeAddress() {
-		String address = this.properties.getProperty("localNodeAddress");
+		String address = this.properties.getProperty(LOCAL_NODE_ADDRESS);
 		Validate.notEmpty(address, "Local node address must not be empty.");
 		return getWithHttp(address);
 	}
@@ -128,7 +130,7 @@ public class LapisConfiguration {
 	}
 	
 	private boolean isCoordinator() {
-		return Boolean.parseBoolean(this.properties.getProperty("isCoordinator"));
+		return Boolean.parseBoolean(this.properties.getProperty(IS_COORDINATOR));
 	}
 	
 	public LapisNetworkClient getLapisNetworkClientInternal() {
@@ -148,7 +150,7 @@ public class LapisConfiguration {
 	}
 	
 	private String getCoordinatorUrl() {
-		String coordinatorUrl = this.properties.getProperty("coordinator.url");
+		String coordinatorUrl = this.properties.getProperty(COORDINATOR_URL);
 		Validate.notEmpty(coordinatorUrl, "Coordinator URL must not be empty");		
 		return getWithHttp(coordinatorUrl);		
 	}

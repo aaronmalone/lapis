@@ -1,12 +1,7 @@
 package edu.osu.lapis;
 
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.TimeoutException;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.Callables;
-
 import edu.osu.lapis.comm.client.HeartbeatClient;
 import edu.osu.lapis.comm.client.LapisDataClient;
 import edu.osu.lapis.comm.client.LapisNetworkClient;
@@ -16,15 +11,22 @@ import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.network.NetworkChangeCallback;
 import edu.osu.lapis.network.NetworkChangeHandler;
-//TODO MOVE RESTLET CODE AWAY FROM THE SURFACE
 import edu.osu.lapis.restlets.RestletServer;
 import edu.osu.lapis.util.Sleep;
+
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.TimeoutException;
+
+import static edu.osu.lapis.Constants.Properties.NAME;
+import static edu.osu.lapis.Constants.READY_VARIABLE_NAME;
+
+//TODO MOVE RESTLET CODE AWAY FROM THE SURFACE
 
 public class LapisCore {
 	
 	private final Logger logger = Logger.getLogger(getClass());
 
-	private static final String READY_VARIABLE_NAME = "~READY~FLAG~";
 	private static final Object READY_VARIABLE_VALUE = new double[] { 1 };
 	@VisibleForTesting static long waitingForNodeRetryTime = 500;
 
@@ -34,7 +36,7 @@ public class LapisCore {
 	private final LapisConfiguration lapisConfiguration;
 	private final NetworkChangeHandler networkChangeHandler;
 	private final HeartbeatClient heartbeatClient;
-	private String name;
+	private final String name;
 	private boolean shutdown;
 
 	/**
@@ -44,7 +46,7 @@ public class LapisCore {
 	 *            the properties to use in initialization
 	 */
 	public LapisCore(Properties properties) {
-		this.name = properties.getProperty("name");
+		this.name = properties.getProperty(NAME);
 		this.lapisConfiguration = new LapisConfiguration(properties);
 		localDataTable = lapisConfiguration.getLocalDataTable();
 		lapisDataClient = lapisConfiguration.getLapisDataClient();
@@ -88,7 +90,7 @@ public class LapisCore {
 	 */
 	public void waitForReadyNode(String nodeName) {
 		try {
-			waitForReadyNode(nodeName, -1);
+			waitForReadyNode(nodeName, 24 * 60 * 60 * 1000 /* "indefinitely" was a lie */);
 		} catch (TimeoutException e) {
 			throw new RuntimeException(e);
 		}
@@ -101,12 +103,12 @@ public class LapisCore {
 	 * this will wait until the node has joined, and then poll the node's 
 	 * ready flag.
 	 * @param nodeName the name of the node to wait on
-	 * @param timeout the number of milliseconds to wait for the node
+	 * @param timeoutMillis the number of milliseconds to wait for the node
 	 * @throws TimeoutException 
 	 */
-	public void waitForReadyNode(final String nodeName, final long timeout) throws TimeoutException {
+	public void waitForReadyNode(final String nodeName, final long timeoutMillis) throws TimeoutException {
 		logger.info("Will wait for node '%s' to be ready.", nodeName);
-		long untilTimeMillis = timeout < 0 ? Long.MAX_VALUE : System.currentTimeMillis() + timeout;
+		long untilTimeMillis = System.currentTimeMillis() + timeoutMillis;
 		boolean nodeReady = checkIfNodeIsReadyUntil(nodeName, untilTimeMillis);
 		if(!nodeReady) {
 			throw new TimeoutException("Timed out while waiting for node '" 
@@ -142,7 +144,7 @@ public class LapisCore {
 	private boolean nodeIsOnNetwork(String nodeName) {
 		//note: as currently implemented, this results in unnecessary HTTP calls
 		//  if the current node IS the network coordinator
-		List<LapisNode> nodes = lapisNetworkClient.getAllNetworkNodesForceRefresh(); 
+		List<LapisNode> nodes = lapisNetworkClient.getAllNetworkNodesForceRefresh();
 		for(LapisNode node : nodes) {
 			if(node.getNodeName().equals(nodeName)) {
 				logger.trace("Node '%s' is on the network.", nodeName);

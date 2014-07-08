@@ -1,18 +1,18 @@
 package edu.osu.lapis;
 
+import com.google.common.util.concurrent.Callables;
+import edu.osu.lapis.data.LapisVariable;
+import edu.osu.lapis.data.Settable;
+import edu.osu.lapis.network.NetworkChangeCallback;
+import org.apache.commons.lang3.Validate;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 
-import edu.osu.lapis.network.NetworkChangeCallback;
-import org.apache.commons.lang3.Validate;
-
-import com.google.common.util.concurrent.Callables;
-
-import edu.osu.lapis.data.LapisVariable;
-import edu.osu.lapis.data.Settable;
+import static edu.osu.lapis.Constants.Properties.*;
 
 /**
  * LAPIS API exposed to Java clients.
@@ -44,17 +44,12 @@ public class LapisApi {
 	 * @param myAddress the address of the current node
 	 */
 	public LapisApi(String nodeName, String coordinatorAddress, String myAddress) {
-		try {
-			Properties properties = new Properties();
-			properties.setProperty("name", nodeName);
-			properties.setProperty("coordinator.url", coordinatorAddress);
-			properties.setProperty("port", Integer.toString(new URL(myAddress).getPort()));
-			properties.setProperty("isCoordinator", Boolean.toString(coordinatorAddress.equals(myAddress)));
-			properties.setProperty("localNodeAddress", myAddress);
-			this.lapisCore = new LapisCore(properties);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+		Properties properties = new Properties();
+		properties.setProperty(NAME, nodeName);
+		properties.setProperty(COORDINATOR_URL, coordinatorAddress);
+		properties.setProperty(IS_COORDINATOR, Boolean.toString(coordinatorAddress.equals(myAddress)));
+		properties.setProperty(LOCAL_NODE_ADDRESS, myAddress);
+		this.lapisCore = new LapisCore(properties);
 	}
 	
 	/**

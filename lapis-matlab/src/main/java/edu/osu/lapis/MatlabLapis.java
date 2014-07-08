@@ -15,6 +15,8 @@ import com.google.common.collect.Maps;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.Settable;
 
+import static edu.osu.lapis.Constants.Properties.*;
+
 public class MatlabLapis {
 
 	private final LapisCore lapisCoreApi;
@@ -50,10 +52,10 @@ public class MatlabLapis {
 	 */
 	public MatlabLapis(String name, String coordinatorAddress, String myAddress, String isCoordinator) {
 		Properties properties = new Properties();
-		properties.setProperty("name", name);
-		properties.setProperty("coordinator.url", coordinatorAddress);
-		properties.setProperty("isCoordinator", isCoordinator.toLowerCase());
-		properties.setProperty("localNodeAddress", myAddress);
+		properties.setProperty(NAME, name);
+		properties.setProperty(COORDINATOR_URL, coordinatorAddress);
+		properties.setProperty(IS_COORDINATOR, isCoordinator.toLowerCase());
+		properties.setProperty(LOCAL_NODE_ADDRESS, myAddress);
 		lapisCoreApi = new LapisCore(properties);
 	}
 	
