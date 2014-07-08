@@ -67,7 +67,7 @@ public class LapisTransmissionApacheHttpClientImpl extends LapisTransmissionBase
 			return new HttpDelete(uri);
 		case PUT:
 		case POST: 
-			return getHttpRequestWithEntity(uri, call.getMethod(), call.getPayload());
+			return getHttpRequestWithEntity(uri, call.getMethod(), call.getMessageBody());
 		default:
 			throw new IllegalArgumentException("Unable to handle client call with method " + call.getMethod());
 		}

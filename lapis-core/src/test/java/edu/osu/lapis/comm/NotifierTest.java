@@ -51,7 +51,7 @@ public class NotifierTest {
 		waitForClientCallsToReachSize(2, 50);
 		Assert.assertNull(throwableRef.get());
 		for(ClientCall call : clientCalls) {
-			LapisNode deserialized = lapisSerialization.deserializeLapisNode(call.getPayload());
+			LapisNode deserialized = lapisSerialization.deserializeLapisNode(call.getMessageBody());
 			Assert.assertEquals(updated.getNodeName(), deserialized.getNodeName());
 			Assert.assertEquals(updated.getUrl(), deserialized.getUrl());
 			Assert.assertEquals(POST, call.getMethod());
@@ -73,7 +73,7 @@ public class NotifierTest {
 		waitForClientCallsToReachSize(3, 100);
 		Assert.assertNull(throwableRef.get());
 		for(ClientCall call : clientCalls) {
-			LapisNode deserialized = lapisSerialization.deserializeLapisNode(call.getPayload());
+			LapisNode deserialized = lapisSerialization.deserializeLapisNode(call.getMessageBody());
 			Assert.assertEquals(newNode.getNodeName(), deserialized.getNodeName());
 			Assert.assertEquals(newNode.getUrl(), deserialized.getUrl());
 			Assert.assertEquals(PUT, call.getMethod());
@@ -90,7 +90,7 @@ public class NotifierTest {
 		Assert.assertNull(throwableRef.get());
 		for(ClientCall call : clientCalls) {
 			Assert.assertEquals(DELETE, call.getMethod());
-			Assert.assertNull(call.getPayload());
+			Assert.assertNull(call.getMessageBody());
 			Assert.assertEquals(deleted.getNodeName(), getNodeNameFromUrlPath(call.getUri()));
 			String originalNodeUrl = networkTable.getNode(deleted.getNodeName()).getUrl();
 			Assert.assertFalse(call.getUri().startsWith(originalNodeUrl));
@@ -120,7 +120,7 @@ public class NotifierTest {
 	private static class MockLapisTransmission implements LapisTransmission {
 
 		@Override public synchronized byte[] executeClientCallReturnBytes(ClientCall clientCall) {
-			return this.executeClientCall(clientCall).getPayload();
+			return this.executeClientCall(clientCall).getMessageBody();
 		}
 
 		@Override public synchronized ClientResponse executeClientCall(ClientCall clientCall) {

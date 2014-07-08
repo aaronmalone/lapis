@@ -7,20 +7,20 @@ public class ClientCall {
 	
 	final private RestMethod method;
 	final private String uri;
-	final private byte[] payload;
+	final private byte[] messageBody;
 	
 	public ClientCall(RestMethod method, String uri) {
 		this(method, uri, (byte[])null);
 	}
 	
-	public ClientCall(RestMethod method, String uri, byte[] payload) {
+	public ClientCall(RestMethod method, String uri, byte[] messageBody) {
 		this.method = method;
 		this.uri = uri;
-		this.payload = payload;
+		this.messageBody = messageBody;
 	}
 	
-	public ClientCall(RestMethod method, String uri, String payload) {
-		this(method,uri,payload.getBytes());
+	public ClientCall(RestMethod method, String uri, String messageBody) {
+		this(method,uri, messageBody.getBytes());
 	}
 
 	public RestMethod getMethod() {
@@ -31,8 +31,8 @@ public class ClientCall {
 		return uri;
 	}
 
-	public byte[] getPayload() {
-		return payload;
+	public byte[] getMessageBody() {
+		return messageBody;
 	}
 
 	@Override

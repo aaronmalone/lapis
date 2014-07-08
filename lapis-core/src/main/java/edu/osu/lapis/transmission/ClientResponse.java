@@ -1,26 +1,20 @@
 package edu.osu.lapis.transmission;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 public class ClientResponse {
 	final private int statusCode;
-	final private byte[] payload;
+	final private byte[] messageBody;
 	
-	public ClientResponse(int statusCode, byte[] payload) {
+	public ClientResponse(int statusCode, byte[] messageBody) {
 		this.statusCode = statusCode;
-		this.payload = payload;
+		this.messageBody = messageBody;
 	}
 
 	public int getStatusCode() {
 		return statusCode;
 	}
 
-	public byte[] getPayload() {
-		return payload;
+	public byte[] getMessageBody() {
+		return messageBody;
 	}
-	
-	public InputStream getStream() {
-		return new ByteArrayInputStream(payload);
-	}
+
 }
