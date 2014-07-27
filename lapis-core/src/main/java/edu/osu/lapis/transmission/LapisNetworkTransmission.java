@@ -1,53 +1,46 @@
 package edu.osu.lapis.transmission;
 
-import static edu.osu.lapis.transmission.ClientCall.RestMethod.DELETE;
-import static edu.osu.lapis.transmission.ClientCall.RestMethod.GET;
-import static edu.osu.lapis.transmission.ClientCall.RestMethod.PUT;
 import edu.osu.lapis.Logger;
-import edu.osu.lapis.util.LapisRestletUtils;
+import edu.osu.lapis.comm.client.Client;
+import edu.osu.lapis.comm.client.Method;
+import edu.osu.lapis.network.LapisNode;
+import edu.osu.lapis.serialization.LapisSerialization;
+
+import java.util.List;
 
 public class LapisNetworkTransmission {
-	
+
 	static final String COORDINATOR = "coordinator";
 
 	private Logger logger = Logger.getLogger(getClass());
-	
-	private LapisTransmission lapisTransmission;
-	
-	private String coordinatorBaseUrl;
+
+	private final Client client;
+	private final String coordinatorBaseUrl;
+	private final LapisSerialization lapisSerialization;
+
+	public LapisNetworkTransmission(Client client, LapisSerialization lapisSerialization, String coordinatorBaseUrl) {
+		this.client = client;
+		this.coordinatorBaseUrl = coordinatorBaseUrl;
+		this.lapisSerialization = lapisSerialization;
+	}
 
 	public void deleteNodeFromNetwork(String nodeName) {
-		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
-		lapisTransmission.executeClientCall(new ClientCall(DELETE, uri));
+		client.doCall(Method.DELETE, coordinatorBaseUrl, COORDINATOR, nodeName);
 	}
-	
+
 	public void addNodeToNetwork(String nodeName, byte[] nodeData) {
-		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
-		ClientCall clientCall = new ClientCall(PUT, uri, nodeData);
-		lapisTransmission.executeClientCall(clientCall);
+		client.doCall(Method.PUT, nodeData, coordinatorBaseUrl, COORDINATOR, nodeName);
 	}
-	
-	public byte[] getAllLapisNodesOnNetwork() {
+
+	public List<LapisNode> getAllLapisNodesOnNetwork() {
 		logger.debug("Retrieving information for all nodes.");
-		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR);
-		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
+		byte[] bytes = client.doCall(Method.GET, coordinatorBaseUrl, COORDINATOR);
+		return lapisSerialization.deserializeNetworkData(bytes);
 	}
-	
-	public byte[] getLapisNode(String nodeName) {
+
+	public LapisNode getLapisNode(String nodeName) {
 		logger.debug("Retrieving node information for node: '%s'", nodeName);
-		String uri = LapisRestletUtils.buildUri(coordinatorBaseUrl, COORDINATOR, nodeName);
-		return lapisTransmission.executeClientCallReturnBytes(new ClientCall(GET, uri));
-	}
-	
-	public String getCoordinatorBaseUrl() {
-		return coordinatorBaseUrl;
-	}
-
-	public void setCoordinatorBaseUrl(String coordinatorBaseUrl) {
-		this.coordinatorBaseUrl = coordinatorBaseUrl;
-	}
-
-	public void setLapisTransmission(LapisTransmission lapisTransmission) {
-		this.lapisTransmission = lapisTransmission;
+		byte[] bytes = client.doCall(Method.GET, coordinatorBaseUrl, COORDINATOR, nodeName);
+		return lapisSerialization.deserializeLapisNode(bytes);
 	}
 }

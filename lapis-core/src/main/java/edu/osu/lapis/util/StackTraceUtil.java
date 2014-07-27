@@ -11,5 +11,5 @@ public class StackTraceUtil {
 		throwable.printStackTrace(printStream);
 		String s = outputStream.toString();
 		return s.replace("\r\n", "\n").trim();
-	}	
+	}
 }

@@ -1,38 +1,43 @@
 package edu.osu.lapis.comm.client;
 
-import static edu.osu.lapis.transmission.ClientCall.RestMethod.GET;
-
 import edu.osu.lapis.Logger;
 import edu.osu.lapis.exception.LapisClientException;
+import edu.osu.lapis.network.LapisNetwork;
 import edu.osu.lapis.network.LapisNode;
-import edu.osu.lapis.network.NetworkTable;
-import edu.osu.lapis.transmission.ClientCall;
-import edu.osu.lapis.transmission.LapisTransmission;
-import edu.osu.lapis.util.LapisRestletUtils;
 
 public class HeartbeatClient {
-	
+
 	private Logger logger = Logger.getLogger(getClass());
-	
-	private final NetworkTable networkTable;
-	private final LapisTransmission lapisTransmission;
-	
-	public HeartbeatClient(NetworkTable networkTable, LapisTransmission lapisTransmission) {
-		this.networkTable = networkTable;
-		this.lapisTransmission = lapisTransmission;
+
+	private final LapisNetwork lapisNetwork;
+	private final Client client;
+
+	public HeartbeatClient(LapisNetwork lapisNetwork, Client client) {
+		this.lapisNetwork = lapisNetwork;
+		this.client = client;
 	}
 
-	public boolean doHeartbeatCheckReturnLiveness(String nodeName) {
-		LapisNode lapisNode = networkTable.getNode(nodeName);
-		String uri = LapisRestletUtils.buildUri(lapisNode.getUrl(), "heartbeat");
-		try {
-			lapisTransmission.executeClientCall(new ClientCall(GET, uri));
-			return true;
-		} catch (LapisClientException e) {
-			logger.warn("Node " + nodeName + " did not respond to heartbeat.", e);
+	/**
+	 * Checks whether the specified node is still up by accessing the node's
+	 * heartbeat resource. Returns true if the node is still up.
+	 * <p/>
+	 * If the node is not on the network, returns false.
+	 * <p/>
+	 * Note this does not guarantee that the node is in a good state, only that
+	 * the heartbeat resource is accessible.
+	 */
+	public boolean checkHeartbeat(String nodeName) {
+		LapisNode node = lapisNetwork.getNode(nodeName);
+		if (node != null) {
+			try {
+				client.doCall(Method.GET, node.getUrl(), "heartbeat");
+				return true;
+			} catch (LapisClientException e) {
+				logger.warn("Node " + nodeName + " did not respond to heartbeat.", e);
+				return false;
+			}
+		} else {
 			return false;
 		}
 	}
-	
-	
 }

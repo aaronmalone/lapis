@@ -1,20 +1,14 @@
 package edu.osu.lapis.comm.serial;
 
-import java.util.List;
-
-import edu.osu.lapis.network.LapisNode;
-import edu.osu.lapis.serialization.LapisSerialization;
-import edu.osu.lapis.transmission.LapisNetworkTransmission;
-
 /**
  * The "communication layer" object for the network data.
- * This layer handles serialization and deserialization, but does not deal with 
+ * This layer handles serialization and deserialization, but does not deal with
  * the underlying network protocols.
  * This layer also wraps exceptions with more useful messages.
- *
  */
+@Deprecated
 public class NetworkClientCommunicationImpl {
-	
+	/*
 	private final LapisNetworkTransmission lapisNetworkTransmission;
 	private final LapisSerialization lapisSerialization;
 	
@@ -47,5 +41,5 @@ public class NetworkClientCommunicationImpl {
 	
 	public void deleteNodeFromNetwork(LapisNode lapisNode) {
 		lapisNetworkTransmission.deleteNodeFromNetwork(lapisNode.getNodeName());
-	}
+	}*/
 }

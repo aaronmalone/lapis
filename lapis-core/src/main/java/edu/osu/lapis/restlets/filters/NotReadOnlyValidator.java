@@ -1,19 +1,18 @@
 package edu.osu.lapis.restlets.filters;
 
+import edu.osu.lapis.data.LapisVariable;
+import edu.osu.lapis.data.LocalDataTable;
+import edu.osu.lapis.util.Attributes;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.routing.Filter;
 
-import edu.osu.lapis.data.LapisVariable;
-import edu.osu.lapis.data.LocalDataTable;
-import edu.osu.lapis.util.Attributes;
-
 public class NotReadOnlyValidator extends Filter {
-	
+
 	final private LocalDataTable localDataTable;
-	
+
 	public NotReadOnlyValidator(LocalDataTable localDataTable) {
 		this.localDataTable = localDataTable;
 	}
@@ -24,7 +23,7 @@ public class NotReadOnlyValidator extends Filter {
 		assert variableName != null;
 		LapisVariable var = localDataTable.get(variableName);
 		assert var != null;
-		if(!var.isReadOnly()) {
+		if (!var.isReadOnly()) {
 			return CONTINUE;
 		} else {
 			String msg = "The published variable '" + variableName + "' is not writable from other nodes.";
@@ -34,5 +33,5 @@ public class NotReadOnlyValidator extends Filter {
 		}
 	}
 
-	
+
 }

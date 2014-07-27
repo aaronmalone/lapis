@@ -9,10 +9,10 @@ public class SaneSkipValidator extends Validator {
 	@Override
 	protected int beforeHandle(Request request, Response response) {
 		int returnValue = super.beforeHandle(request, response);
-		if(returnValue == CONTINUE && response.getStatus().isClientError()) {
+		if (returnValue == CONTINUE && response.getStatus().isClientError()) {
 			returnValue = SKIP;
 		}
 		return returnValue;
 	}
-	
+
 }

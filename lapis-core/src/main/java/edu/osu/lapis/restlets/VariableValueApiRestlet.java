@@ -1,15 +1,5 @@
 package edu.osu.lapis.restlets;
 
-import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.time.StopWatch;
-import org.restlet.Request;
-import org.restlet.Response;
-import org.restlet.Restlet;
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
-import org.restlet.representation.ByteArrayRepresentation;
-import org.restlet.representation.Representation;
-
 import edu.osu.lapis.Logger;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
@@ -21,44 +11,53 @@ import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.serialization.SerializationObject;
 import edu.osu.lapis.util.Attributes;
 import edu.osu.lapis.util.StackTraceUtil;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.time.StopWatch;
+import org.restlet.Request;
+import org.restlet.Response;
+import org.restlet.Restlet;
+import org.restlet.data.MediaType;
+import org.restlet.data.Status;
+import org.restlet.representation.ByteArrayRepresentation;
+import org.restlet.representation.Representation;
 
 public class VariableValueApiRestlet extends LapisRestletBase {
-	
+
 	private Logger logger = Logger.getLogger(getClass());
-	
+
 	private LocalDataTable localDataTable;
 	private LapisSerialization lapisSerialization;
 	private MediaType responseMediaType;
 
 	public Restlet getVariableValueRestletWithFilters() {
 		LapisFilterChainRestletBase filter = new LapisFilterChainRestletBase();
-		
+
 		filter.setPostFilters(
 				new VariableNameAttrValidator(),
 				new VariablePresentValidator(localDataTable),
 				new NotReadOnlyValidator(localDataTable),
 				new VariableValueExtractor(lapisSerialization));
 		filter.setPostTargetRestlet(this);
-	
+
 		filter.setGetFilters(
 				new VariableNameAttrValidator(),
 				new VariablePresentValidator(localDataTable));
 		filter.setGetTargetRestlet(this);
-		
+
 		return filter;
-		
+
 	}
-	
+
 	@Override
 	public void post(Request request, Response response) {
 		//note: not going to validate name WITHIN serialization object
-		SerializationObject serializationObject = Attributes.getAttribute(request, 
+		SerializationObject serializationObject = Attributes.getAttribute(request,
 				VariableValueExtractor.DESERIALIZED_VARIABLE_VALUE, SerializationObject.class);
 		String variableName = Attributes.getVariableName(request);
 		LapisVariable localVariable = localDataTable.get(variableName);
 		updateValue(localVariable, serializationObject);
 	}
-	
+
 	private void updateValue(LapisVariable localVariable, SerializationObject serializationObject) {
 		Validate.isTrue(!localVariable.isReadOnly(), "Cannot update read-only variable");
 		localVariable.setValue(serializationObject.getData());
@@ -75,10 +74,10 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 			logger.error(e, "Error while retrieving variable value.");
 			String stackTrace = StackTraceUtil.getStrackTraceAsString(e);
 			response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Unable to retrieve variable value.");
-			response.setEntity("Unable to retrieve variable value:\n" + stackTrace, MediaType.TEXT_PLAIN);				
+			response.setEntity("Unable to retrieve variable value:\n" + stackTrace, MediaType.TEXT_PLAIN);
 		}
 	}
-	
+
 	private Representation getResponseRepresentation(String name, LapisVariable localVariable) {
 		SerializationObject serializationObject = createSerializationObject(name, localVariable);
 		StopWatch stopWatch = new StopWatch();
@@ -88,13 +87,12 @@ public class VariableValueApiRestlet extends LapisRestletBase {
 		logger.trace("Took %d millis to serialize %s.", stopWatch.getTime(), name);
 		return new ByteArrayRepresentation(serialized, responseMediaType, serialized.length);
 	}
-	
+
 	private SerializationObject createSerializationObject(String name, LapisVariable localVariable) {
 		Object value = localVariable.getValue();
-		SerializationObject serializationObject = new SerializationObject(name, value);
-		return serializationObject;
+		return new SerializationObject(name, value);
 	}
-	
+
 	public void setLocalDataTable(LocalDataTable localDataTable) {
 		this.localDataTable = localDataTable;
 	}

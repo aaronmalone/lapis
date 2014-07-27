@@ -1,23 +1,22 @@
 package edu.osu.lapis.restlets.filters;
 
-import org.restlet.Request;
-import org.restlet.Response;
-
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.util.Attributes;
+import org.restlet.Request;
+import org.restlet.Response;
 
 public class LapisNodeExtractor extends RequestPayloadExtractor {
-	
-	public static final String DESERIALIZED_LAPIS_NODE_ATTR 
+
+	public static final String DESERIALIZED_LAPIS_NODE_ATTR
 			= "DESERIALIZED_LAPIS_NODE_ATTR";
 
 	private LapisSerialization lapisSerialization;
-	
+
 	public LapisNodeExtractor() {
 		// default
 	}
-	
+
 	public LapisNodeExtractor(LapisSerialization lapisSerialization) {
 		this.lapisSerialization = lapisSerialization;
 	}

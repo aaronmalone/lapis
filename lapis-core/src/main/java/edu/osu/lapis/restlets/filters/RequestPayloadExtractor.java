@@ -1,14 +1,13 @@
 package edu.osu.lapis.restlets.filters;
 
+import edu.osu.lapis.util.LapisRestletUtils;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.routing.Filter;
 
-import edu.osu.lapis.util.LapisRestletUtils;
-
 public class RequestPayloadExtractor extends Filter {
-	
-	public static final String EXTRACTED_REQUEST_PAYLOAD_ATTR 
+
+	public static final String EXTRACTED_REQUEST_PAYLOAD_ATTR
 			= "EXTRACTED_REQUEST_PAYLOAD_ATTR";
 
 	@Override

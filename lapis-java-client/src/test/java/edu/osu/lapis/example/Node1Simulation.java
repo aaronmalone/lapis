@@ -1,18 +1,15 @@
 package edu.osu.lapis.example;
 
-import static edu.osu.lapis.Flags.evaluateFlagValue;
-import static edu.osu.lapis.Flags.getFlag;
-import static edu.osu.lapis.Flags.setFlagTrue;
-import static edu.osu.lapis.example.ExampleConstants.NODE_1;
-import static edu.osu.lapis.example.ExampleConstants.NODE_1_URL;
-import static edu.osu.lapis.example.ExampleConstants.NODE_2;
+import edu.osu.lapis.LapisApi;
+import edu.osu.lapis.util.Sleep;
+import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang3.Validate;
-
-import edu.osu.lapis.LapisApi;
-import edu.osu.lapis.util.Sleep;
+import static edu.osu.lapis.Flags.evaluateFlagValue;
+import static edu.osu.lapis.Flags.getFlag;
+import static edu.osu.lapis.Flags.setFlagTrue;
+import static edu.osu.lapis.example.ExampleConstants.*;
 
 /**
  * An example of a multi-node LAPIS network using the LAPIS Java client.<br>

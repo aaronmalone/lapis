@@ -1,74 +1,64 @@
 package edu.osu.lapis.serialization;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.reflect.Type;
-import java.util.List;
-
-import org.apache.commons.lang3.time.StopWatch;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-
 import edu.osu.lapis.Logger;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.network.LapisNode;
+import org.apache.commons.lang3.time.StopWatch;
+
+import java.io.*;
+import java.lang.reflect.Type;
+import java.util.List;
 
 public class JsonSerialization implements LapisSerialization {
-	
+
 	private static final Logger logger = Logger.getLogger(JsonSerialization.class);
-	
+
 	private static final TypeAdapterFactory classTypeAdapterFactory = new TypeAdapterFactory() {
-		
+
 		final TypeAdapter<Class<?>> typeAdapter = new TypeAdapter<Class<?>>() {
 			@Override
 			public void write(JsonWriter out, Class<?> value) throws IOException {
 				out.value(value.getName());
 			}
+
 			@Override
 			public Class<?> read(JsonReader in) throws IOException {
 				return null;
 			}
 		};
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-			if(type.getRawType().equals(Class.class)) {
+			if (type.getRawType().equals(Class.class)) {
 				return (TypeAdapter<T>) typeAdapter;
 			} else
 				return null;
 		}
 	};
-	
+
 	private Gson gson;
 	private boolean prettyPrinting = false;
-	
+
 	public JsonSerialization() {
 		setGson(newGson());
 	}
-	
+
 	private Gson newGson() {
 		GsonBuilder builder = new GsonBuilder();
-		if(this.prettyPrinting) builder.setPrettyPrinting();
+		if (this.prettyPrinting) builder.setPrettyPrinting();
 		builder.registerTypeAdapterFactory(classTypeAdapterFactory);
 		return builder.create();
 	}
-	
+
 	private synchronized void setGson(Gson gson) {
 		this.gson = gson;
 	}
-	
+
 	private synchronized Gson getGson() {
 		return gson;
 	}
@@ -76,14 +66,14 @@ public class JsonSerialization implements LapisSerialization {
 	public synchronized boolean isPrettyPrinting() {
 		return prettyPrinting;
 	}
-	
+
 	public synchronized void setPrettyPrinting(boolean prettyPrinting) {
-		if(this.prettyPrinting != prettyPrinting) {
+		if (this.prettyPrinting != prettyPrinting) {
 			this.prettyPrinting = prettyPrinting;
 			this.setGson(newGson());
 		}
 	}
-	
+
 	@Override
 	public byte[] serialize(List<VariableMetaData> variableMetaDataList) {
 		return getGson().toJson(variableMetaDataList).getBytes();
@@ -93,12 +83,12 @@ public class JsonSerialization implements LapisSerialization {
 	public byte[] serialize(LapisNode lapisNode) {
 		return getGson().toJson(lapisNode).getBytes();
 	}
-	
+
 	@Override
 	public byte[] serialize(LapisNode[] lapisNodes) {
 		return getGson().toJson(lapisNodes).getBytes();
 	}
-	
+
 	@Override
 	public byte[] serialize(SerializationObject serializationObject) {
 		StopWatch sw = new StopWatch();
@@ -107,16 +97,16 @@ public class JsonSerialization implements LapisSerialization {
 			return getGson().toJson(serializationObject).getBytes();
 		} finally {
 			sw.stop();
-			logger.trace("Serialization of '%s' took %d milliseconds.", 
+			logger.trace("Serialization of '%s' took %d milliseconds.",
 					serializationObject.getName(), sw.getTime());
 		}
 	}
-	
+
 	@Override
 	public byte[] serialize(VariableMetaData variableMetaData) {
 		return getGson().toJson(variableMetaData).getBytes();
-	}	
-	
+	}
+
 	@Override
 	public SerializationObject deserializeModelData(byte[] serialized) {
 		return deserializeModelData(new ByteArrayInputStream(serialized));
@@ -135,15 +125,15 @@ public class JsonSerialization implements LapisSerialization {
 		Object data = getSerializationObjectData(jsonObject, originalType);
 		return new SerializationObject(name, originalType, data);
 	}
-	
+
 	private String getSerializationObjectName(JsonObject jsonObject) {
 		return jsonObject.get(SerializationObject.NAME).getAsString();
 	}
-	
+
 	private String getSerializationObjectTypeString(JsonObject jsonObject) {
 		return jsonObject.get(SerializationObject.ORIGINAL_TYPE).getAsString();
 	}
-	
+
 	private Class<?> getSerializationObjectType(String typeString) {
 		try {
 			return Class.forName(typeString);
@@ -151,26 +141,26 @@ public class JsonSerialization implements LapisSerialization {
 			throw new RuntimeException("Unable to get class for \"" + typeString + "\"", e);
 		}
 	}
-	
+
 	private Object getSerializationObjectData(JsonObject jsonObject, Class<?> type) {
 		JsonElement jsonData = jsonObject.get(SerializationObject.DATA);
-		if("java.util.HashMap".equals(type.getName())) {
+		if ("java.util.HashMap".equals(type.getName())) {
 			return JsonMapDeserializer.deserializeMap(jsonData.getAsJsonObject());
 		} else {
 			return getGson().fromJson(jsonData, type);
 		}
-	} 
+	}
 
 	@Override
 	public VariableMetaData deserializeMetaData(byte[] serialized) {
 		return deserializeMetaData(new ByteArrayInputStream(serialized));
 	}
-	
+
 	@Override
 	public VariableMetaData deserializeMetaData(InputStream inputStream) {
 		return deserializeMetaData(new InputStreamReader(inputStream));
 	}
-	
+
 	private VariableMetaData deserializeMetaData(Reader reader) {
 		return getGson().fromJson(reader, VariableMetaData.class);
 	}
@@ -179,12 +169,12 @@ public class JsonSerialization implements LapisSerialization {
 	public LapisNode deserializeLapisNode(byte[] serialized) {
 		return deserializeLapisNode(new ByteArrayInputStream(serialized));
 	}
-	
+
 	@Override
 	public LapisNode deserializeLapisNode(InputStream inputStream) {
 		return deserializeLapisNode(new InputStreamReader(inputStream));
 	}
-	
+
 	public LapisNode deserializeLapisNode(Reader reader) {
 		return getGson().fromJson(reader, LapisNode.class);
 	}
@@ -193,14 +183,15 @@ public class JsonSerialization implements LapisSerialization {
 	public List<LapisNode> deserializeNetworkData(byte[] serialized) {
 		return deserializeNetworkData(new ByteArrayInputStream(serialized));
 	}
-	
+
 	@Override
 	public List<LapisNode> deserializeNetworkData(InputStream inputStream) {
 		return deserializeNetworkData(new InputStreamReader(inputStream));
 	}
-	
+
 	private List<LapisNode> deserializeNetworkData(Reader reader) {
-		Type type = new TypeToken<List<LapisNode>>(){}.getType();
+		Type type = new TypeToken<List<LapisNode>>() {
+		}.getType();
 		return getGson().fromJson(reader, type);
 	}
 
@@ -208,14 +199,15 @@ public class JsonSerialization implements LapisSerialization {
 	public List<VariableMetaData> deserializeMetaDataList(byte[] serialized) {
 		return deserializeMetaDataList(new ByteArrayInputStream(serialized));
 	}
-	
+
 	@Override
 	public List<VariableMetaData> deserializeMetaDataList(InputStream inputStream) {
 		return deserializeMetaDataList(new InputStreamReader(inputStream));
 	}
-	
+
 	private List<VariableMetaData> deserializeMetaDataList(Reader reader) {
-		Type type = new TypeToken<List<VariableMetaData>>(){}.getType();
+		Type type = new TypeToken<List<VariableMetaData>>() {
+		}.getType();
 		return getGson().fromJson(reader, type);
 	}
 }

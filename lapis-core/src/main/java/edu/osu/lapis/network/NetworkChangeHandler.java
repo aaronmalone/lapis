@@ -1,57 +1,63 @@
 package edu.osu.lapis.network;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
-import com.google.common.collect.Lists;
-
 public class NetworkChangeHandler implements NetworkChangeCallback {
-	
-	private static enum ChangeType { ADD, DELETE }
-	
-	private final List<NetworkChangeCallback> callbacks = 
-			Collections.synchronizedList(new ArrayList<NetworkChangeCallback>());
-	
+
+	private final CopyOnWriteArrayList<NetworkChangeCallback> callbacks =
+			new CopyOnWriteArrayList<NetworkChangeCallback>();
+
 	private final Executor executor;
-	
+
 	public NetworkChangeHandler(Executor executor) {
 		this.executor = executor;
 	}
-	
+
 	public void addCallback(NetworkChangeCallback callback) {
 		callbacks.add(callback);
 	}
 
 	@Override
 	public void onNodeAdd(LapisNode lapisNode) {
-		dispatchToCallbacks(ChangeType.ADD, lapisNode);
+		CreateRunnableBiFunction function = new CreateRunnableBiFunction() {
+			@Override
+			public Runnable apply(final NetworkChangeCallback callback, final LapisNode node) {
+				return new Runnable() {
+					@Override
+					public void run() {
+						callback.onNodeAdd(node);
+					}
+				};
+			}
+		};
+		passToCallbacks(function, lapisNode);
 	}
 
 	@Override
 	public void onNodeDelete(LapisNode lapisNode) {
-		dispatchToCallbacks(ChangeType.DELETE, lapisNode);	
-	}
-	
-	private void dispatchToCallbacks(final ChangeType type, final LapisNode lapisNode) {
-		List<Runnable> runnables = Lists.newArrayList();
-		synchronized(callbacks) {
-			for(final NetworkChangeCallback callback : callbacks) {
-				runnables.add(new Runnable() {
-					@Override public void run() {
-						if(type == ChangeType.ADD) {
-							callback.onNodeAdd(lapisNode);
-						} else {
-							assert(type == ChangeType.DELETE);
-							callback.onNodeDelete(lapisNode);
-						}
+		CreateRunnableBiFunction function = new CreateRunnableBiFunction() {
+			@Override
+			public Runnable apply(final NetworkChangeCallback callback, final LapisNode node) {
+				return new Runnable() {
+					@Override
+					public void run() {
+						callback.onNodeDelete(node);
 					}
-				});
+				};
 			}
+		};
+		passToCallbacks(function, lapisNode);
+	}
+
+	private void passToCallbacks(CreateRunnableBiFunction createRunnableBiFunction, LapisNode lapisNode) {
+		for (NetworkChangeCallback callback : callbacks) {
+			Runnable runnable = createRunnableBiFunction.apply(callback, lapisNode);
+			executor.execute(runnable);
 		}
-		for(Runnable r : runnables) {
-			executor.execute(r);
-		}
+	}
+
+	private static interface CreateRunnableBiFunction {
+		Runnable apply(NetworkChangeCallback callback, LapisNode node);
 	}
 }

@@ -6,8 +6,6 @@ import edu.osu.lapis.data.Settable;
 import edu.osu.lapis.network.NetworkChangeCallback;
 import org.apache.commons.lang3.Validate;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
@@ -310,6 +308,6 @@ public class LapisApi {
 	}
 	
 	public boolean doHeartbeatCheckReturnNodeIsLive(String nodeName) {
-		return lapisCore.doHeartbeatCheckReturnLiveness(nodeName);
+		return lapisCore.nodePresentAndRespondsHeartbeatRequest(nodeName);
 	}
 }

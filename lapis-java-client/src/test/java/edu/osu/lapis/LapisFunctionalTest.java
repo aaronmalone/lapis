@@ -272,12 +272,14 @@ public class LapisFunctionalTest {
 		for(Entry<String, Object> entry : retrieved.entrySet()) {
 			Validate.isTrue(map.get(entry.getKey()).equals(entry.getValue()));
 		}
+		//retrieved map does not "write through" to original map
 		retrieved.put("how", "with maps");
 		retrieved.put("when", "later");
 		retrieved.remove("who");
 		Validate.isTrue(!map.containsKey("how"));
 		Validate.isTrue(map.get("when").equals("now"));
 		Validate.isTrue(map.containsKey("who"));
+
 		coordinatorLapis.set(NON_COORDINATOR_NODE_NAME, "map", retrieved);
 		Validate.isTrue(map.get("how").equals("with maps"));
 		Validate.isTrue(map.get("when").equals("later"));
