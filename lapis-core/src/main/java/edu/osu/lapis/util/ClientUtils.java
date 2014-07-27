@@ -8,7 +8,7 @@ import org.restlet.representation.Representation;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class LapisRestletUtils {
+public class ClientUtils {
 
 	public static String buildUri(String... parts) {
 		StringBuilder sb = new StringBuilder();

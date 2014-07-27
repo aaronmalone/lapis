@@ -1,6 +1,8 @@
-package edu.osu.lapis.comm.client;
+package edu.osu.lapis.services;
 
 import edu.osu.lapis.Logger;
+import edu.osu.lapis.client.Client;
+import edu.osu.lapis.client.ClientMethod;
 import edu.osu.lapis.exception.LapisClientException;
 import edu.osu.lapis.network.LapisNetwork;
 import edu.osu.lapis.network.LapisNode;
@@ -30,7 +32,7 @@ public class HeartbeatClient {
 		LapisNode node = lapisNetwork.getNode(nodeName);
 		if (node != null) {
 			try {
-				client.doCall(Method.GET, node.getUrl(), "heartbeat");
+				client.doCall(ClientMethod.GET, node.getUrl(), "heartbeat");
 				return true;
 			} catch (LapisClientException e) {
 				logger.warn("Node " + nodeName + " did not respond to heartbeat.", e);

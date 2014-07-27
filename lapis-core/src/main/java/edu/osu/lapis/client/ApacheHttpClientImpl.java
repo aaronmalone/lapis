@@ -1,4 +1,4 @@
-package edu.osu.lapis.comm.client;
+package edu.osu.lapis.client;
 
 import com.google.common.base.Preconditions;
 import edu.osu.lapis.Logger;
@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static edu.osu.lapis.comm.client.Method.POST;
-
 public class ApacheHttpClientImpl extends AbstractClient {
 
 	private final Logger logger = Logger.getLogger(getClass());
@@ -30,7 +28,7 @@ public class ApacheHttpClientImpl extends AbstractClient {
 	}
 
 	@Override
-	public byte[] doCall(Method method, byte[] messageBody, String uri) {
+	public byte[] doCall(ClientMethod method, byte[] messageBody, String uri) {
 		StopWatch sw = new StopWatch();
 		sw.start();
 		CloseableHttpResponse httpResponse = null;
@@ -41,10 +39,8 @@ public class ApacheHttpClientImpl extends AbstractClient {
 			int statusCode = httpResponse.getStatusLine().getStatusCode();
 			byte[] responseEntity = getResponseMessageBody(httpResponse);
 			if (statusCode >= 400) {
-				String message = "Encountered " + statusCode + " error.";
-				if (responseEntity != null) {
-					message += " Response entity: " + new String(responseEntity);
-				}
+				String message = "Encountered " + statusCode + " error."
+						+ ((responseEntity != null) ? " Response entity: " + new String(responseEntity) : "");
 				throw new LapisClientExceptionWithStatusCode(message, statusCode);
 			}
 			return responseEntity;
@@ -56,16 +52,16 @@ public class ApacheHttpClientImpl extends AbstractClient {
 			closeHttpResponse(httpResponse);
 			releaseRequestResources(httpRequest);
 			sw.stop();
-			logger.trace("Took %d millis to execute %s %s", sw.getTime(), method, uri);
+			logger.debug("Took %d millis to execute %s %s", sw.getTime(), method, uri);
 		}
 	}
 
 	@Override
-	public byte[] doCall(Method method, String uri) {
+	public byte[] doCall(ClientMethod method, String uri) {
 		return doCall(method, null, uri);
 	}
 
-	private HttpUriRequest getHttpUriRequest(Method method, byte[] messageBody, String uri) throws URISyntaxException {
+	private HttpUriRequest getHttpUriRequest(ClientMethod method, byte[] messageBody, String uri) throws URISyntaxException {
 		URI u = new URI(uri);
 		switch (method) {
 			case GET:
@@ -74,7 +70,7 @@ public class ApacheHttpClientImpl extends AbstractClient {
 				return new HttpDelete(u);
 			case POST:
 			case PUT:
-				HttpEntityEnclosingRequestBase entityRequest = method == POST ? new HttpPost(u) : new HttpPut(u);
+				HttpEntityEnclosingRequestBase entityRequest = method == ClientMethod.POST ? new HttpPost(u) : new HttpPut(u);
 				entityRequest.setEntity(new ByteArrayEntity(messageBody));
 				return entityRequest;
 			default:
@@ -123,7 +119,7 @@ public class ApacheHttpClientImpl extends AbstractClient {
 				//do nothing
 			}
 		} else {
-			logger.trace("Did not close response because it was null.");
+			logger.warn("Did not close response because it was null.");
 		}
 	}
 

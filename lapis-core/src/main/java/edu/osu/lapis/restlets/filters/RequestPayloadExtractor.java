@@ -1,6 +1,6 @@
 package edu.osu.lapis.restlets.filters;
 
-import edu.osu.lapis.util.LapisRestletUtils;
+import edu.osu.lapis.util.ClientUtils;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.routing.Filter;
@@ -12,7 +12,7 @@ public class RequestPayloadExtractor extends Filter {
 
 	@Override
 	protected final int beforeHandle(Request request, Response response) {
-		byte[] bytes = LapisRestletUtils.getMessageEntityAsBytes(request);
+		byte[] bytes = ClientUtils.getMessageEntityAsBytes(request);
 		request.getAttributes().put(EXTRACTED_REQUEST_PAYLOAD_ATTR, bytes);
 		return beforeHandle(request, response, bytes);
 	}

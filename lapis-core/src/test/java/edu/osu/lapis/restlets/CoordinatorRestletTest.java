@@ -7,7 +7,7 @@ import edu.osu.lapis.network.NetworkChangeCallback;
 import edu.osu.lapis.network.NetworkChangeHandler;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
-import edu.osu.lapis.util.LapisRestletUtils;
+import edu.osu.lapis.util.ClientUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -106,7 +106,7 @@ public class CoordinatorRestletTest {
 		CoordinatorRestlet coordinatorRestlet = new CoordinatorRestlet(this.lapisSerialization, lapisNetwork,
 				this.responseMediaType, new NetworkChangeHandler(MoreExecutors.sameThreadExecutor()));
 		coordinatorRestlet.getCoordinatorRestletWithFilters().handle(request, response);
-		byte[] responseData = LapisRestletUtils.getMessageEntityAsBytes(response);
+		byte[] responseData = ClientUtils.getMessageEntityAsBytes(response);
 		List<LapisNode> nodes = lapisSerialization.deserializeNetworkData(responseData);
 		Assert.assertEquals(nodesAdded + 1/*local node*/, nodes.size());
 		boolean oneNodeEqualsLastArbitraryNode = false;

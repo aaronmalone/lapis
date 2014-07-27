@@ -2,8 +2,8 @@ package edu.osu.lapis;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.Callables;
-import edu.osu.lapis.comm.client.HeartbeatClient;
-import edu.osu.lapis.comm.client.LapisDataClient;
+import edu.osu.lapis.services.HeartbeatClient;
+import edu.osu.lapis.services.LapisDataClient;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableMetaData;
@@ -31,7 +31,7 @@ public class LapisCore {
 
 	private final LocalDataTable localDataTable;
 	private final LapisDataClient lapisDataClient;
-	private final LapisConfiguration lapisConfiguration;
+	private final LapisConfigurer lapisConfigurer;
 	private final NetworkChangeHandler networkChangeHandler;
 	private final HeartbeatClient heartbeatClient;
 	private final LapisNetwork lapisNetwork;
@@ -45,15 +45,15 @@ public class LapisCore {
 	 */
 	public LapisCore(Properties properties) {
 		this.name = properties.getProperty(NAME);
-		this.lapisConfiguration = new LapisConfiguration(properties);
-		localDataTable = lapisConfiguration.getLocalDataTable();
-		lapisDataClient = lapisConfiguration.getLapisDataClient();
-		this.lapisNetwork = lapisConfiguration.getLapisNetwork();
-		networkChangeHandler = lapisConfiguration.getNetworkChangeHandler();
-		heartbeatClient = lapisConfiguration.getHeartbeatClient();
-		RestletServer restletServer = lapisConfiguration.getRestletServer();
-		restletServer.initialize();
-		lapisConfiguration.attemptToJoinNetwork();
+		this.lapisConfigurer = new LapisConfigurer(properties);
+		localDataTable = lapisConfigurer.getLocalDataTable();
+		lapisDataClient = lapisConfigurer.getLapisDataClient();
+		this.lapisNetwork = lapisConfigurer.getLapisNetwork();
+		networkChangeHandler = lapisConfigurer.getNetworkChangeHandler();
+		heartbeatClient = lapisConfigurer.getHeartbeatClient();
+		RestletServer restletServer = lapisConfigurer.getRestletServer();
+		restletServer.startServer();
+		lapisConfigurer.attemptToJoinNetwork();
 	}
 
 	/**
@@ -229,9 +229,9 @@ public class LapisCore {
 	 * Shut down this LAPIS node.
 	 */
 	public synchronized void shutdown() {
-		RestletServer restletServer = this.lapisConfiguration.getRestletServer();
+		RestletServer restletServer = this.lapisConfigurer.getRestletServer();
 		if (!shutdown) {
-			System.err.println("Shutting down servers for node '" + name + "'.");
+			System.out.println("Shutting down servers for node '" + name + "'.");
 			restletServer.stopServer();
 			shutdown = true;
 		} else {
@@ -240,9 +240,7 @@ public class LapisCore {
 	}
 
 	/**
-	 * Get the name of this LAPIS node
-	 *
-	 * @return the name of this LAPIS node
+	 * Get the name of this LAPIS node.
 	 */
 	public String getName() {
 		return name;

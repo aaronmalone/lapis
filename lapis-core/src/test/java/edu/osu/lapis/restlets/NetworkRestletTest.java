@@ -3,7 +3,7 @@ package edu.osu.lapis.restlets;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
-import edu.osu.lapis.util.LapisRestletUtils;
+import edu.osu.lapis.util.ClientUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +36,7 @@ public class NetworkRestletTest {
 		Request request = new Request(Method.GET, "resourceUri");
 		Response response = handleRequestAndReturnResponse(request);
 		Assert.assertTrue(response.getStatus().isSuccess());
-		byte[] bytes = LapisRestletUtils.getMessageEntityAsBytes(response);
+		byte[] bytes = ClientUtils.getMessageEntityAsBytes(response);
 		LapisNode retrievedNode = lapisSerialization.deserializeLapisNode(bytes);
 		Assert.assertEquals(this.localNode, retrievedNode);
 	}

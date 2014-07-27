@@ -1,19 +1,17 @@
 package edu.osu.lapis;
 
-import edu.osu.lapis.comm.client.ApacheHttpClientImpl;
-import edu.osu.lapis.comm.client.Client;
-import edu.osu.lapis.comm.client.HeartbeatClient;
-import edu.osu.lapis.comm.client.LapisDataClient;
-import edu.osu.lapis.comm.serial.DataClientCommunicationImpl;
-import edu.osu.lapis.data.GlobalDataTable;
+import edu.osu.lapis.client.ApacheHttpClientImpl;
+import edu.osu.lapis.client.Client;
+import edu.osu.lapis.services.HeartbeatClient;
+import edu.osu.lapis.services.LapisDataClient;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.network.*;
 import edu.osu.lapis.restlets.*;
 import edu.osu.lapis.restlets.filters.CoordinatorNetworkApiFilter;
 import edu.osu.lapis.serialization.JsonSerialization;
 import edu.osu.lapis.serialization.LapisSerialization;
-import edu.osu.lapis.transmission.LapisDataTransmission;
-import edu.osu.lapis.transmission.LapisNetworkTransmission;
+import edu.osu.lapis.services.LapisDataClientHelper;
+import edu.osu.lapis.services.LapisNetworkClient;
 import edu.osu.lapis.util.Attributes;
 import edu.osu.lapis.util.Sleep;
 import org.apache.commons.lang3.Validate;
@@ -29,7 +27,7 @@ import java.util.concurrent.Executors;
 
 import static edu.osu.lapis.Constants.Properties.*;
 
-public class LapisConfiguration {
+public class LapisConfigurer {
 
 	static {
 		//set this system property so we can route Restlet logging through slf4j
@@ -48,18 +46,17 @@ public class LapisConfiguration {
 	private final HeartbeatClient heartbeatClient;
 	private final Client client;
 	private final LapisNetwork lapisNetwork;
-	private final LapisNetworkTransmission lapisNetworkTransmission;
+	private final LapisNetworkClient lapisNetworkClient;
 
-	public LapisConfiguration(Properties properties) {
+	public LapisConfigurer(Properties properties) {
 		this.properties = properties;
 		this.lapisSerialization = getLapisSerializationInternal();
 		this.client = new ApacheHttpClientImpl(new PoolingHttpClientConnectionManager());
 		this.serializationMediaType = MediaType.APPLICATION_JSON;
 		this.isCoordinator = isCoordinator();
-		this.lapisNetworkTransmission = getLapisNetworkTransmissionInternal();
+		this.lapisNetworkClient = getLapisNetworkTransmissionInternal();
 		this.lapisNetwork = getLapisNetworkInternal();
-		//TODO FIGURE OUT WHETHER TO INJECT DATA TABLE;
-		this.lapisDataClient = new LapisDataClient(new GlobalDataTable(), getDataClientCommunicationImplInternal());
+		this.lapisDataClient = new LapisDataClient(getLapisDataTransmission());
 		this.localDataTable = new LocalDataTable();
 		this.networkChangeHandler = new NetworkChangeHandler(Executors.newSingleThreadExecutor());
 		this.restletServer = getRestletServerInternal();
@@ -76,24 +73,19 @@ public class LapisConfiguration {
 		return Boolean.parseBoolean(this.properties.getProperty(IS_COORDINATOR));
 	}
 
-	private LapisNetworkTransmission getLapisNetworkTransmissionInternal() {
-		return new LapisNetworkTransmission(this.client, this.lapisSerialization, getCoordinatorUrl());
+	private LapisNetworkClient getLapisNetworkTransmissionInternal() {
+		return new LapisNetworkClient(this.client, this.lapisSerialization, getCoordinatorUrl());
 	}
 
 	private LapisNetwork getLapisNetworkInternal() {
 		if (isCoordinator()) {
 			return new CoordinatorLapisNetwork(getLocalNode());
 		} else {
-			LapisNetworkTransmission lapisNetworkTransmission
-					= new LapisNetworkTransmission(this.client, this.lapisSerialization, getCoordinatorUrl());
-			return new NonCoordinatorLapisNetwork(lapisNetworkTransmission, 5000 /*TODO MAKE CONFIGURABLE*/,
+			LapisNetworkClient lapisNetworkClient
+					= new LapisNetworkClient(this.client, this.lapisSerialization, getCoordinatorUrl());
+			return new NonCoordinatorLapisNetwork(lapisNetworkClient, 5000 /*TODO MAKE CONFIGURABLE*/,
 					getLocalNode());
 		}
-	}
-
-	private DataClientCommunicationImpl getDataClientCommunicationImplInternal() {
-		LapisDataTransmission lapisDataTransmission = new LapisDataTransmission(this.lapisNetwork, this.client);
-		return new DataClientCommunicationImpl(this.lapisSerialization, lapisDataTransmission);
 	}
 
 	private LapisNode getLocalNode() {
@@ -106,6 +98,10 @@ public class LapisConfiguration {
 		String address = this.properties.getProperty(LOCAL_NODE_ADDRESS);
 		Validate.notEmpty(address, "Local node address must not be empty.");
 		return getWithHttp(address);
+	}
+
+	public LapisDataClientHelper getLapisDataTransmission() {
+		return new LapisDataClientHelper(this.lapisSerialization, this.lapisNetwork, this.client);
 	}
 
 	private String getCoordinatorUrl() {
@@ -123,8 +119,7 @@ public class LapisConfiguration {
 	}
 
 	private RestletServer getRestletServerInternal() {
-		RestletServer restletServer = new RestletServer();
-		restletServer.setPort(getPort());
+		RestletServer restletServer = new RestletServer(getPort());
 
 		Restlet networkRestlet = getNetworkRestlet();
 		restletServer.attachRestlet("/network/{" + Attributes.MODEL_NAME_ATTRIBUTE + '}', networkRestlet);
@@ -235,7 +230,7 @@ public class LapisConfiguration {
 			byte[] nodeData = lapisSerialization.serialize(localNode);
 			while (System.currentTimeMillis() < startTimeMillis + 60000) {
 				try {
-					this.lapisNetworkTransmission.addNodeToNetwork(nodeName, nodeData);
+					this.lapisNetworkClient.addNodeToNetwork(nodeName, nodeData);
 					break;
 				} catch (Exception e) {
 					if (System.currentTimeMillis() > startTimeMillis + 60000) {

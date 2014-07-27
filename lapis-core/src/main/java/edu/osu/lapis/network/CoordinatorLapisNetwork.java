@@ -24,11 +24,6 @@ public class CoordinatorLapisNetwork implements LapisNetwork {
 	}
 
 	@Override
-	public LapisNode getCoordinator() {
-		return this.thisNode;
-	}
-
-	@Override
 	public LapisNode getLocalNode() {
 		return this.thisNode;
 	}

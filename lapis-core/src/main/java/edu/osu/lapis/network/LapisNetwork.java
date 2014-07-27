@@ -10,7 +10,5 @@ public interface LapisNetwork {
 
 	public void removeNode(String nodeName);
 
-	public LapisNode getCoordinator();
-
 	public LapisNode getLocalNode();
 }

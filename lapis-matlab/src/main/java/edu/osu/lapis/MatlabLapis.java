@@ -1,19 +1,17 @@
 package edu.osu.lapis;
 
+import com.google.common.collect.Maps;
+import edu.osu.lapis.data.LapisVariable;
+import edu.osu.lapis.data.Settable;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+
 import java.lang.reflect.Array;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-
-import com.google.common.collect.Maps;
-
-import edu.osu.lapis.data.LapisVariable;
-import edu.osu.lapis.data.Settable;
 
 import static edu.osu.lapis.Constants.Properties.*;
 

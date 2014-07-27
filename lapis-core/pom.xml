@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>edu.osu.lapis</groupId>
 		<artifactId>lapis-parent</artifactId>
-		<version>0.6</version>
+		<version>0.7</version>
 	</parent>
 	
 	<artifactId>lapis-core</artifactId>
