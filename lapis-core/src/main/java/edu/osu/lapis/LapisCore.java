@@ -2,8 +2,6 @@ package edu.osu.lapis;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.Callables;
-import edu.osu.lapis.services.HeartbeatClient;
-import edu.osu.lapis.services.LapisDataClient;
 import edu.osu.lapis.data.LapisVariable;
 import edu.osu.lapis.data.LocalDataTable;
 import edu.osu.lapis.data.VariableMetaData;
@@ -11,6 +9,8 @@ import edu.osu.lapis.network.LapisNetwork;
 import edu.osu.lapis.network.NetworkChangeCallback;
 import edu.osu.lapis.network.NetworkChangeHandler;
 import edu.osu.lapis.restlets.RestletServer;
+import edu.osu.lapis.services.HeartbeatClient;
+import edu.osu.lapis.services.LapisDataClient;
 import edu.osu.lapis.util.Sleep;
 
 import java.util.List;

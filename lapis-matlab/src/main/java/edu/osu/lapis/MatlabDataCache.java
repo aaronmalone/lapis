@@ -1,8 +1,8 @@
 package edu.osu.lapis;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Verify;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.Validate;
 
 import java.util.Collections;
 import java.util.Map;
@@ -22,7 +22,7 @@ public class MatlabDataCache {
 	
 	public Object getCachedValue(String name) {
 		Object value = dataCache.get(name) ;
-		Verify.verifyNotNull(value, "Cache does not contain any values with the key '%s'.", name);
+		Validate.notNull(value, "Cache does not contain any values with the key '%s'.", name);
 		return value;
 	}
 }

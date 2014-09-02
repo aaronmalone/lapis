@@ -1,7 +1,6 @@
 package edu.osu.lapis.services;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Verify;
 import edu.osu.lapis.client.Client;
 import edu.osu.lapis.client.ClientMethod;
 import edu.osu.lapis.data.VariableFullName;
@@ -11,6 +10,7 @@ import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.serialization.SerializationObject;
 import edu.osu.lapis.util.ClientUtils;
+import org.apache.commons.lang3.Validate;
 
 import java.util.List;
 
@@ -81,7 +81,7 @@ public class LapisDataClientHelper {
 	private LapisNode getValidLapisNodeInVarName(VariableFullName varName) {
 		String modelName = varName.getModelName();
 		LapisNode lapisNode = lapisNetwork.getNode(modelName);
-		Verify.verifyNotNull(lapisNode, "Node %s is not on the network!", modelName);
+		Validate.notNull(lapisNode, "Node %s is not on the network!", modelName);
 		return lapisNode;
 	}
 }

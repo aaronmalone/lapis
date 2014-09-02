@@ -1,12 +1,12 @@
 package edu.osu.lapis.restlets;
 
-import com.google.common.base.Verify;
 import edu.osu.lapis.Logger;
 import edu.osu.lapis.network.LapisNode;
 import edu.osu.lapis.restlets.filters.LapisNodeExtractor;
 import edu.osu.lapis.restlets.filters.ModelNameAttrValidator;
 import edu.osu.lapis.serialization.LapisSerialization;
 import edu.osu.lapis.util.Attributes;
+import org.apache.commons.lang3.Validate;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -73,7 +73,7 @@ public class NetworkRestlet extends LapisRestletBase {
 		String modelName = Attributes.getModelName(request);
 		if (modelName == null) {
 			logger.info("Received request for this node's information.");
-			Verify.verifyNotNull(localNode);
+			Validate.notNull(localNode);
 			byte[] serialized = lapisSerialization.serialize(localNode);
 			response.setEntity(new ByteArrayRepresentation(serialized, responseMediaType));
 		} else {

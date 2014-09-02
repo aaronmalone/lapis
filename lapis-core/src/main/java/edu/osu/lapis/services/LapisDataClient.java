@@ -1,35 +1,34 @@
 package edu.osu.lapis.services;
 
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import edu.osu.lapis.util.NullForMissingCache;
 import edu.osu.lapis.data.VariableFullName;
 import edu.osu.lapis.data.VariableMetaData;
 import edu.osu.lapis.exception.LapisClientException;
+import edu.osu.lapis.exception.LapisClientExceptionWithStatusCode;
+import edu.osu.lapis.util.LapisCache;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 public class LapisDataClient {
 
 	private final LapisDataClientHelper lapisDataClientHelper;
-	private final LoadingCache<VariableFullName, VariableMetaData> metaDataCache;
+	private final LapisCache<VariableFullName, VariableMetaData> metaDataCache;
 
 	public LapisDataClient(final LapisDataClientHelper lapisDataClientHelper) {
 		this.lapisDataClientHelper = lapisDataClientHelper;
-		LoadingCache<VariableFullName, VariableMetaData> loadingCache = CacheBuilder
-				.newBuilder()
-				.expireAfterWrite(1, TimeUnit.MINUTES)
-				.build(new CacheLoader<VariableFullName, VariableMetaData>() {
-					@Override
-					public VariableMetaData load(VariableFullName meta) throws Exception {
-						return lapisDataClientHelper.getVariableMetaData(meta);
+		this.metaDataCache = new LapisCache<VariableFullName, VariableMetaData>(10000 /*TODO MAKE CONFIGURABLE */) {
+			@Override
+			protected VariableMetaData load(VariableFullName key) {
+				try {
+					return lapisDataClientHelper.getVariableMetaData(key);
+				} catch (LapisClientExceptionWithStatusCode e) {
+					if (e.getStatusCode() == 404) {
+						return null;
+					} else {
+						throw e;
 					}
-				});
-		this.metaDataCache = new NullForMissingCache<VariableFullName, VariableMetaData>(loadingCache);
+				}
+			}
+		};
 	}
 
 	/**
@@ -42,15 +41,10 @@ public class LapisDataClient {
 	public <T> T getRemoteVariableValue(String fullName, Class<T> cls) {
 		VariableFullName variableFullName = new VariableFullName(fullName);
 		return lapisDataClientHelper.getVariableValue(variableFullName, cls);
-
 	}
 
 	public VariableMetaData getRemoteVariableMetaData(String fullName) {
-		try {
-			return this.metaDataCache.get(new VariableFullName(fullName));
-		} catch (ExecutionException e) {
-			throw Throwables.propagate(e);
-		}
+		return this.metaDataCache.get(new VariableFullName(fullName));
 	}
 
 	public List<VariableMetaData> getVariableMetaDataForNode(String nodeName) {
